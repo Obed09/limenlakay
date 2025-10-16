@@ -34,7 +34,7 @@ export function ContactSection() {
     try {
       // Here you would integrate with Supabase to save the inquiry
       console.log('Form submission:', formData);
-      setSubmitMessage('Thank you for your inquiry! We\'ll get back to you within 24 hours.');
+      setSubmitMessage('Thank you for your inquiry! We&apos;ll get back to you within 24 hours.');
       setFormData({
         name: '',
         email: '',
