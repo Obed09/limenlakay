@@ -66,3 +66,37 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Custom styles for Limen Lakay candle business */
+@layer components {
+  .candle-glow {
+    box-shadow: 0 0 20px rgba(251, 191, 36, 0.3);
+  }
+  
+  .warm-gradient {
+    background: linear-gradient(135deg, #fef3c7 0%, #f59e0b 100%);
+  }
+  
+  .text-warm {
+    color: #92400e;
+  }
+  
+  .bg-warm {
+    background-color: #fef3c7;
+  }
+}
+
+/* Smooth scrolling for anchor links */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom animations */
+@keyframes candle-flicker {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+}
+
+.candle-flicker {
+  animation: candle-flicker 2s ease-in-out infinite;
+}

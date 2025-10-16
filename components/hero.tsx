@@ -1,44 +1,35 @@
-import { NextLogo } from "./next-logo";
-import { SupabaseLogo } from "./supabase-logo";
+import Link from "next/link";
 
 export function Hero() {
   return (
-    <div className="flex flex-col gap-16 items-center">
-      <div className="flex gap-8 justify-center items-center">
-        <a
-          href="https://supabase.com/?utm_source=create-next-app&utm_medium=template&utm_term=nextjs"
-          target="_blank"
-          rel="noreferrer"
-        >
-          <SupabaseLogo />
-        </a>
-        <span className="border-l rotate-45 h-6" />
-        <a href="https://nextjs.org/" target="_blank" rel="noreferrer">
-          <NextLogo />
-        </a>
+    <div className="flex flex-col gap-16 items-center text-center">
+      <div className="flex flex-col gap-8 items-center max-w-4xl">
+        <h1 className="text-5xl lg:text-6xl font-bold !leading-tight text-gray-900 dark:text-gray-100">
+          Limen Lakay
+        </h1>
+        <p className="text-2xl lg:text-3xl text-gray-600 dark:text-gray-300 font-light">
+          Handcrafted Candles in Unique Vessels
+        </p>
+        <p className="text-lg lg:text-xl !leading-relaxed mx-auto max-w-2xl text-gray-700 dark:text-gray-400">
+          Each candle is lovingly crafted by hand, featuring natural wax blends in beautiful concrete vessels 
+          and artisanal materials. Bring warmth and character to your space with our unique creations.
+        </p>
+        <div className="flex flex-col sm:flex-row gap-4 mt-8">
+          <Link 
+            href="#products" 
+            className="bg-amber-600 hover:bg-amber-700 text-white px-8 py-3 rounded-lg text-lg font-medium transition-colors"
+          >
+            Shop Candles
+          </Link>
+          <Link 
+            href="#about" 
+            className="border-2 border-amber-600 text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/20 px-8 py-3 rounded-lg text-lg font-medium transition-colors"
+          >
+            Our Story
+          </Link>
+        </div>
       </div>
-      <h1 className="sr-only">Supabase and Next.js Starter Template</h1>
-      <p className="text-3xl lg:text-4xl !leading-tight mx-auto max-w-xl text-center">
-        The fastest way to build apps with{" "}
-        <a
-          href="https://supabase.com/?utm_source=create-next-app&utm_medium=template&utm_term=nextjs"
-          target="_blank"
-          className="font-bold hover:underline"
-          rel="noreferrer"
-        >
-          Supabase
-        </a>{" "}
-        and{" "}
-        <a
-          href="https://nextjs.org/"
-          target="_blank"
-          className="font-bold hover:underline"
-          rel="noreferrer"
-        >
-          Next.js
-        </a>
-      </p>
-      <div className="w-full p-[1px] bg-gradient-to-r from-transparent via-foreground/10 to-transparent my-8" />
+      <div className="w-full p-[1px] bg-gradient-to-r from-transparent via-amber-200/50 to-transparent my-8" />
     </div>
   );
 }
