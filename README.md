@@ -2,6 +2,8 @@
 
 A beautiful, modern landing page for Limen Lakay, a handmade candle business featuring unique concrete vessels and artisanal materials.
 
+🕯️ **Live Site**: https://limenlakay-f4y6.vercel.app
+
 ## ✨ Features
 
 - **Beautiful Hero Section** - Compelling introduction to the Limen Lakay brand
