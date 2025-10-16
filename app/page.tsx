@@ -3,6 +3,7 @@ import { ProductShowcase } from "@/components/product-showcase";
 import { AboutSection } from "@/components/about-section";
 import { ContactSection } from "@/components/contact-section";
 import { ThemeSwitcher } from "@/components/theme-switcher";
+import { FloatingChatButton } from "@/components/floating-chat-button";
 import Link from "next/link";
 
 export default function Home() {
@@ -80,6 +81,9 @@ export default function Home() {
           </div>
         </div>
       </footer>
+
+      {/* Floating Chat Widget */}
+      <FloatingChatButton />
     </main>
   );
 }
