@@ -8,7 +8,7 @@ export function AboutSection() {
               The Art of Limen Lakay
             </h2>
             <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
-              &quot;Limen Lakay&quot; means &quot;light of the home&quot; in Haitian Creole, and that&apos;s exactly what we create - 
+              Limen Lakay means light of the home in Haitian Creole, and that is exactly what we create - 
               candles that bring warmth, comfort, and beauty to your living space.
             </p>
             <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
