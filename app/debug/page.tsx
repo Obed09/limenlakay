@@ -8,6 +8,7 @@ export default function DebugPage() {
   const [vesselData, setVesselData] = useState<any>(null);
   const [imageData, setImageData] = useState<any>(null);
   const [storageInfo, setStorageInfo] = useState<any>(null);
+  const [allKeys, setAllKeys] = useState<string[]>([]);
 
   useEffect(() => {
     // Check localStorage data
@@ -17,6 +18,14 @@ export default function DebugPage() {
       
       setVesselData(vessels ? JSON.parse(vessels) : null);
       setImageData(images ? JSON.parse(images) : null);
+      
+      // Get all localStorage keys
+      const keys: string[] = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key) keys.push(key);
+      }
+      setAllKeys(keys);
       
       // Calculate storage usage
       let totalSize = 0;
@@ -73,7 +82,7 @@ export default function DebugPage() {
         html2canvas: { scale: 2 },
         jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
       };
-      // @ts-ignore
+      // @ts-expect-error - html2pdf is loaded dynamically
       html2pdf().set(opt).from(testDiv).save().then(() => {
         document.body.removeChild(testDiv);
         console.log('PDF generated successfully');
@@ -129,6 +138,7 @@ export default function DebugPage() {
                   <h3 className="font-semibold mb-2">Vessel ID: {key}</h3>
                   <div className="flex items-start gap-4">
                     <div className="w-32 h-32 border border-gray-300 rounded flex-shrink-0">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img 
                         src={value as string} 
                         alt={`Vessel ${key}`}
@@ -156,16 +166,16 @@ export default function DebugPage() {
         <Card className="p-6">
           <h2 className="text-xl font-bold mb-4">All LocalStorage Keys</h2>
           <div className="space-y-1">
-            {Array.from({ length: localStorage.length }, (_, i) => localStorage.key(i))
-              .filter(Boolean)
-              .map(key => (
-                <div key={key} className="flex justify-between items-center p-2 bg-gray-100 rounded">
-                  <span>{key}</span>
-                  <span className="text-sm text-gray-600">
-                    {Math.round(localStorage.getItem(key!)!.length / 1024)}KB
-                  </span>
-                </div>
-              ))}
+            {allKeys.map(key => (
+              <div key={key} className="flex justify-between items-center p-2 bg-gray-100 rounded">
+                <span>{key}</span>
+                <span className="text-sm text-gray-600">
+                  {typeof window !== 'undefined' && localStorage.getItem(key) 
+                    ? Math.round(localStorage.getItem(key)!.length / 1024)
+                    : 0}KB
+                </span>
+              </div>
+            ))}
           </div>
         </Card>
       </div>
