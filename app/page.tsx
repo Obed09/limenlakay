@@ -19,8 +19,8 @@ export default function Home() {
               <Image 
                 src="/images/limen-lakay-logo.png" 
                 alt="Limen Lakay Logo" 
-                width={40} 
-                height={40}
+                width={50} 
+                height={50}
                 className="object-contain"
               />
               <span className="text-2xl font-bold text-amber-600 dark:text-amber-400">Limen Lakay</span>
@@ -75,8 +75,8 @@ export default function Home() {
                 <Image 
                   src="/images/limen-lakay-logo.png" 
                   alt="Limen Lakay Logo" 
-                  width={50} 
-                  height={50}
+                  width={60} 
+                  height={60}
                   className="object-contain"
                 />
                 <h3 className="text-xl font-bold text-amber-600 dark:text-amber-400">Limen Lakay</h3>
