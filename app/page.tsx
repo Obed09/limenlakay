@@ -6,6 +6,7 @@ import { ContactSection } from "@/components/contact-section";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { FloatingChatButton } from "@/components/floating-chat-button";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function Home() {
   return (
@@ -14,8 +15,15 @@ export default function Home() {
       <nav className="w-full flex justify-center border-b border-b-foreground/10 h-16 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md sticky top-0 z-50">
         <div className="w-full max-w-6xl flex justify-between items-center p-3 px-5 text-sm">
           <div className="flex gap-5 items-center font-semibold">
-            <Link href={"/"} className="text-2xl font-bold text-amber-600 dark:text-amber-400">
-              Limen Lakay
+            <Link href={"/"} className="flex items-center gap-2">
+              <Image 
+                src="/images/limen-lakay-logo.png" 
+                alt="Limen Lakay Logo" 
+                width={40} 
+                height={40}
+                className="object-contain"
+              />
+              <span className="text-2xl font-bold text-amber-600 dark:text-amber-400">Limen Lakay</span>
             </Link>
           </div>
           <div className="flex items-center gap-6">
@@ -63,7 +71,16 @@ export default function Home() {
         <div className="max-w-6xl mx-auto px-5">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div>
-              <h3 className="text-xl font-bold text-amber-600 dark:text-amber-400 mb-4">Limen Lakay</h3>
+              <div className="flex items-center gap-2 mb-4">
+                <Image 
+                  src="/images/limen-lakay-logo.png" 
+                  alt="Limen Lakay Logo" 
+                  width={50} 
+                  height={50}
+                  className="object-contain"
+                />
+                <h3 className="text-xl font-bold text-amber-600 dark:text-amber-400">Limen Lakay</h3>
+              </div>
               <p className="text-gray-600 dark:text-gray-400">
                 Handcrafted candles that bring light and warmth to your home.
               </p>

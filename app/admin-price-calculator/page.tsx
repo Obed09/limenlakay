@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -109,13 +110,22 @@ export default function PriceCalculator() {
     <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-orange-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 py-8">
       <div className="max-w-7xl mx-auto px-4">
         <div className="mb-6 flex items-center justify-between">
-          <div>
-            <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-              🕯️ Limen Lakay Candle Price Calculator
-            </h1>
-            <p className="text-gray-600 dark:text-gray-400">
-              Admin Tool - Calculate costs, pricing, and profit margins
-            </p>
+          <div className="flex items-center gap-3">
+            <Image 
+              src="/images/limen-lakay-logo.png" 
+              alt="Limen Lakay Logo" 
+              width={60} 
+              height={60}
+              className="object-contain"
+            />
+            <div>
+              <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+                Limen Lakay Candle Price Calculator
+              </h1>
+              <p className="text-gray-600 dark:text-gray-400">
+                Admin Tool - Calculate costs, pricing, and profit margins
+              </p>
+            </div>
           </div>
           <Link 
             href="/"
