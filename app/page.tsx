@@ -1,5 +1,6 @@
 import { Hero } from "@/components/hero";
 import { ProductShowcase } from "@/components/product-showcase";
+import ProductCatalog from "@/components/product-catalog";
 import { AboutSection } from "@/components/about-section";
 import { ContactSection } from "@/components/contact-section";
 import { ThemeSwitcher } from "@/components/theme-switcher";
@@ -21,11 +22,17 @@ export default function Home() {
             <Link href="#products" className="hover:text-amber-600 dark:hover:text-amber-400 transition-colors">
               Products
             </Link>
+            <Link href="#catalog" className="hover:text-amber-600 dark:hover:text-amber-400 transition-colors">
+              Catalog
+            </Link>
             <Link href="#about" className="hover:text-amber-600 dark:hover:text-amber-400 transition-colors">
               About
             </Link>
             <Link href="#contact" className="hover:text-amber-600 dark:hover:text-amber-400 transition-colors">
               Contact
+            </Link>
+            <Link href="/bulk-order" className="bg-amber-600 text-white px-3 py-1.5 rounded-md hover:bg-amber-700 transition-colors font-medium">
+              Bulk Orders
             </Link>
             <ThemeSwitcher />
           </div>
@@ -39,6 +46,14 @@ export default function Home() {
         </div>
         
         <ProductShowcase />
+        
+        {/* Full Product Catalog */}
+        <section id="catalog" className="w-full bg-gray-50 dark:bg-gray-900 py-20">
+          <div className="max-w-7xl mx-auto px-5">
+            <ProductCatalog />
+          </div>
+        </section>
+        
         <AboutSection />
         <ContactSection />
       </div>
@@ -64,6 +79,15 @@ export default function Home() {
                 </Link>
                 <Link href="#contact" className="block text-gray-600 dark:text-gray-400 hover:text-amber-600 dark:hover:text-amber-400">
                   Custom Orders
+                </Link>
+                <Link href="/bulk-order" className="block text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300 font-medium">
+                  Bulk Order Form
+                </Link>
+                <Link href="/privacy-policy" className="block text-gray-600 dark:text-gray-400 hover:text-amber-600 dark:hover:text-amber-400">
+                  Privacy Policy
+                </Link>
+                <Link href="/terms" className="block text-gray-600 dark:text-gray-400 hover:text-amber-600 dark:hover:text-amber-400">
+                  Terms & Conditions
                 </Link>
               </div>
             </div>

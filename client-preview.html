@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Limen Lakay - Bulk Order Client Questionnaire</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .logo-circle { 
+            background: linear-gradient(135deg, #F5F5DC 0%, #FFFACD 100%);
+            border: 4px solid #DAA520;
+        }
+        .no-print { display: block; }
+        @media print {
+            .no-print { display: none !important; }
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-[#f9f5f0] py-8">
+    <!-- Container -->
+    <div class="max-w-4xl mx-auto bg-white p-8 rounded-xl shadow-lg">
+        
+        <!-- Logo and Header -->
+        <div class="text-center mb-8">
+            <div class="flex justify-center mb-4">
+                <div class="w-28 h-28 rounded-full flex items-center justify-center logo-circle shadow-xl relative">
+                    <svg class="w-full h-full absolute inset-0" viewBox="0 0 100 100">
+                        <path id="top-arc" d="M 15 50 A 35 35 0 0 1 85 50" fill="none" />
+                        <text class="fill-[#DAA520] text-[8px] font-bold tracking-wider">
+                            <textPath href="#top-arc" startOffset="50%" text-anchor="middle">LIMEN LAKAY</textPath>
+                        </text>
+                        <path id="bottom-arc" d="M 85 50 A 35 35 0 0 1 15 50" fill="none" />
+                        <text class="fill-[#DAA520] text-[8px] font-bold tracking-wider">
+                            <textPath href="#bottom-arc" startOffset="50%" text-anchor="middle">CANDLES</textPath>
+                        </text>
+                    </svg>
+                    <div class="text-[#DAA520] text-3xl font-bold font-serif italic z-10">LL</div>
+                </div>
+            </div>
+            <h1 class="text-4xl font-bold text-[#5D4037] font-serif mb-2">
+                📋 BULK ORDER CLIENT QUESTIONNAIRE
+            </h1>
+            <h2 class="text-xl text-[#8D6E63] mb-2">
+                Limen Lakay LLC - Custom Order Information
+            </h2>
+            <hr class="border-2 border-[#8B6F47] my-6">
+        </div>
+
+        <!-- Basic Information -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+            <div>
+                <label class="block text-sm font-medium mb-2">Date:</label>
+                <input type="date" class="w-full p-3 border-2 border-gray-300 rounded-lg">
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-2">Client Name:</label>
+                <input type="text" class="w-full p-3 border-2 border-gray-300 rounded-lg" placeholder="Enter your full name">
+            </div>
+        </div>
+
+        <div class="mb-8">
+            <label class="block text-sm font-medium mb-2">Business/Organization Name (if applicable):</label>
+            <input type="text" class="w-full p-3 border-2 border-gray-300 rounded-lg" placeholder="Enter business name">
+        </div>
+
+        <!-- Preview Note -->
+        <div class="bg-blue-50 border-l-4 border-blue-400 p-6 mb-8 no-print">
+            <h3 class="text-lg font-semibold text-blue-800 mb-2">📋 Client Preview Instructions:</h3>
+            <ul class="text-blue-700 space-y-2">
+                <li>• <strong>Review this questionnaire design</strong> - Check layout, colors, and branding</li>
+                <li>• <strong>Test the form functionality</strong> - Try filling out fields</li>
+                <li>• <strong>Check vessel options below</strong> - Ensure container styles look professional</li>
+                <li>• <strong>Provide feedback</strong> - Share your thoughts via email or phone</li>
+            </ul>
+            <div class="mt-4 flex space-x-4">
+                <button onclick="downloadPDF()" class="bg-[#8B6F47] text-white px-6 py-2 rounded-lg hover:bg-[#6D4C41] transition-colors">
+                    📄 Download as PDF
+                </button>
+                <button onclick="window.print()" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                    🖨️ Print Form
+                </button>
+            </div>
+        </div>
+
+        <!-- Section 3: Vessel/Container Selection -->
+        <div class="mb-8">
+            <h3 class="text-2xl font-bold text-[#5D4037] mb-6 pb-2 border-b-2 border-[#8B6F47]">
+                SECTION 3: VESSEL/CONTAINER SELECTION
+            </h3>
+            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+                <p class="text-gray-700">
+                    <strong>Instructions:</strong> Click or drag & drop images of vessel styles you like. 
+                    Check the box and enter quantity for each style you want to order.
+                </p>
+            </div>
+            
+            <!-- Vessel Styles Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Style 1 -->
+                <div class="border-2 border-gray-300 rounded-lg p-4">
+                    <div class="flex items-center mb-3">
+                        <input type="checkbox" class="mr-2 scale-125">
+                        <h4 class="font-semibold text-lg">Style #1</h4>
+                    </div>
+                    <div class="w-full h-48 border-2 border-dashed border-gray-400 rounded-lg bg-gray-50 flex items-center justify-center mb-4">
+                        <div class="text-center">
+                            <div class="text-gray-400 text-4xl mb-2">📷</div>
+                            <p class="text-sm text-gray-600">Click or Drag Image Here</p>
+                            <p class="text-xs text-gray-400">PNG, JPG, GIF up to 10MB</p>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-3">
+                        Decorative empty candle vessel with lid, crafted from light-colored concrete material. 
+                        Features subtle purple marbling or swirling patterns.
+                    </p>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Quantity:</label>
+                        <input type="number" min="0" class="w-full p-2 border border-gray-300 rounded">
+                    </div>
+                </div>
+
+                <!-- Style 2 -->
+                <div class="border-2 border-gray-300 rounded-lg p-4">
+                    <div class="flex items-center mb-3">
+                        <input type="checkbox" class="mr-2 scale-125">
+                        <h4 class="font-semibold text-lg">Style #2</h4>
+                    </div>
+                    <div class="w-full h-48 border-2 border-dashed border-gray-400 rounded-lg bg-gray-50 flex items-center justify-center mb-4">
+                        <div class="text-center">
+                            <div class="text-gray-400 text-4xl mb-2">📷</div>
+                            <p class="text-sm text-gray-600">Click or Drag Image Here</p>
+                            <p class="text-xs text-gray-400">PNG, JPG, GIF up to 10MB</p>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-3">
+                        Empty candle vessel with textured, fluted exterior and golden rim. Light blue/teal color 
+                        with splashes of gold, suggesting a marbling or distressed effect.
+                    </p>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Quantity:</label>
+                        <input type="number" min="0" class="w-full p-2 border border-gray-300 rounded">
+                    </div>
+                </div>
+
+                <!-- Style 3 -->
+                <div class="border-2 border-gray-300 rounded-lg p-4">
+                    <div class="flex items-center mb-3">
+                        <input type="checkbox" class="mr-2 scale-125">
+                        <h4 class="font-semibold text-lg">Style #3</h4>
+                    </div>
+                    <div class="w-full h-48 border-2 border-dashed border-gray-400 rounded-lg bg-gray-50 flex items-center justify-center mb-4">
+                        <div class="text-center">
+                            <div class="text-gray-400 text-4xl mb-2">📷</div>
+                            <p class="text-sm text-gray-600">Click or Drag Image Here</p>
+                            <p class="text-xs text-gray-400">PNG, JPG, GIF up to 10MB</p>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-3">
+                        Oval marbled blue/white/gold vessel with elegant curved profile and sophisticated color blending.
+                    </p>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Quantity:</label>
+                        <input type="number" min="0" class="w-full p-2 border border-gray-300 rounded">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="bg-[#8B6F47] text-white p-8 rounded-lg mt-12">
+            <div class="text-center">
+                <h3 class="text-2xl font-bold mb-4">Thank You for Your Interest!</h3>
+                <p class="mb-6">We're excited about the possibility of working together to create beautiful, eco-friendly candles for your project.</p>
+                
+                <h4 class="text-lg font-semibold mb-4">Next Steps:</h4>
+                <ul class="text-left max-w-md mx-auto mb-6 space-y-2">
+                    <li>• Download this completed PDF</li>
+                    <li>• Email it to: info@limenlakay.com</li>
+                    <li>• We'll respond within 24-48 hours with a custom quote and timeline</li>
+                </ul>
+
+                <div class="border-t border-[#DAA520] pt-4">
+                    <p class="font-medium">Limen Lakay LLC • Handmade Eco-Friendly Candles</p>
+                    <p class="text-sm">📧 info@limenlakay.com • 🌐 www.limenlakay.com</p>
+                    <p class="text-sm italic mt-2">"Illuminating spaces, naturally."</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Feedback Section for Preview -->
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mt-8 no-print">
+            <h3 class="text-lg font-semibold text-blue-800 mb-4">📝 Client Feedback (Preview Only)</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <input type="text" placeholder="Your Name" class="p-3 border border-blue-300 rounded-lg">
+                <input type="email" placeholder="Your Email" class="p-3 border border-blue-300 rounded-lg">
+            </div>
+            <div class="mb-4">
+                <p class="mb-2 font-medium">Rate this questionnaire design:</p>
+                <div class="flex space-x-2">
+                    <span class="text-2xl cursor-pointer hover:text-yellow-400">⭐</span>
+                    <span class="text-2xl cursor-pointer hover:text-yellow-400">⭐</span>
+                    <span class="text-2xl cursor-pointer hover:text-yellow-400">⭐</span>
+                    <span class="text-2xl cursor-pointer hover:text-yellow-400">⭐</span>
+                    <span class="text-2xl cursor-pointer hover:text-yellow-400">⭐</span>
+                </div>
+            </div>
+            <textarea placeholder="Please share your feedback on the design, usability, and any suggestions..." 
+                     class="w-full p-3 border border-blue-300 rounded-lg h-24 resize-none"></textarea>
+            <button class="mt-4 bg-[#8B6F47] text-white px-6 py-3 rounded-lg hover:bg-[#6D4C41] transition-colors">
+                Submit Feedback
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // PDF Generation Function
+        function downloadPDF() {
+            const element = document.querySelector('body');
+            const opt = {
+                margin: 0.5,
+                filename: 'Limen_Lakay_Bulk_Order_Questionnaire.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true },
+                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+            
+            // Show loading message
+            const button = event.target;
+            const originalText = button.innerHTML;
+            button.innerHTML = '⏳ Generating PDF...';
+            button.disabled = true;
+            
+            html2pdf().set(opt).from(element).save().then(() => {
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }).catch((error) => {
+                console.error('PDF generation failed:', error);
+                button.innerHTML = '❌ PDF Failed - Try Print Instead';
+                button.disabled = false;
+                setTimeout(() => {
+                    button.innerHTML = originalText;
+                }, 3000);
+            });
+        }
+
+        // Star Rating Functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const stars = document.querySelectorAll('.cursor-pointer');
+            let rating = 0;
+            
+            stars.forEach((star, index) => {
+                star.addEventListener('click', function() {
+                    rating = index + 1;
+                    updateStars(rating);
+                });
+                
+                star.addEventListener('mouseover', function() {
+                    updateStars(index + 1);
+                });
+            });
+            
+            function updateStars(newRating) {
+                stars.forEach((star, index) => {
+                    if (index < newRating) {
+                        star.style.color = '#fbbf24';
+                    } else {
+                        star.style.color = '#d1d5db';
+                    }
+                });
+            }
+        });
+
+        // Auto-fill current date
+        document.addEventListener('DOMContentLoaded', function() {
+            const dateInput = document.querySelector('input[type="date"]');
+            if (dateInput) {
+                const today = new Date().toISOString().split('T')[0];
+                dateInput.value = today;
+            }
+        });
+    </script>
+</body>
+</html>

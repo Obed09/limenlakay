@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { submitFeedback, trackOrder, getOrderStatusHistory } from "@/lib/chat-widget-utils";
+import { notifyNewFeedback, notifyNewChatMessage } from "@/lib/email-notifications";
 
 interface ChatWidgetProps {
   isOpen: boolean;
@@ -41,7 +42,7 @@ export function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
   // Generate a session ID for this chat
   const [sessionId] = useState(() => `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`);
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (message.trim()) {
       const newMessage = {
         id: messages.length + 1,
@@ -50,6 +51,14 @@ export function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
         time: new Date().toLocaleTimeString()
       };
       setMessages([...messages, newMessage]);
+      
+      // Send email notification to business
+      await notifyNewChatMessage({
+        session_id: sessionId,
+        sender_name: 'Customer',
+        message_text: message,
+      });
+      
       setMessage('');
       
       // Auto-reply after 2 seconds
@@ -111,6 +120,14 @@ export function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
         });
 
         if (result.success) {
+          // Send email notification
+          await notifyNewFeedback({
+            customer_name: feedback.name,
+            customer_email: feedback.email,
+            rating: feedback.rating,
+            comment: feedback.comment
+          });
+
           setFeedbackMessage('Thank you for your feedback! We truly appreciate your input and will use it to improve our candles and service.');
           setFeedback({
             rating: 0,

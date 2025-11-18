@@ -5,6 +5,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { notifyNewInquiry } from "@/lib/email-notifications";
+import { BulkOrderModal } from "@/components/bulk-order-modal";
 
 export function ContactSection() {
   const [formData, setFormData] = useState({
@@ -19,11 +21,14 @@ export function ContactSection() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState('');
+  const [showBulkModal, setShowBulkModal] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    
     setFormData(prev => ({
       ...prev,
-      [e.target.name]: e.target.value
+      [name]: value
     }));
   };
 
@@ -34,6 +39,10 @@ export function ContactSection() {
     try {
       // Here you would integrate with Supabase to save the inquiry
       console.log('Form submission:', formData);
+      
+      // Send email notification to business
+      await notifyNewInquiry(formData);
+      
       setSubmitMessage('Thank you for your inquiry! We will get back to you within 24 hours.');
       setFormData({
         name: '',
@@ -60,11 +69,11 @@ export function ContactSection() {
             Get In Touch
           </h2>
           <p className="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-            Ready to bring the warmth of handmade candles to your space? Let's create something beautiful together.
+            Ready to bring the warmth of handmade candles to your space? Let&apos;s create something beautiful together.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Contact Info */}
           <div className="space-y-6">
             <Card>
@@ -128,13 +137,72 @@ export function ContactSection() {
             </Card>
           </div>
 
-          {/* Contact Form */}
+          {/* Bulk Order Questionnaire - Prominent CTA */}
+          <div className="lg:col-span-1">
+            <Card className="h-full border-4 border-amber-500 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 hover:shadow-2xl transition-all duration-300 hover:scale-105">
+              <CardHeader className="text-center pb-4">
+                <div className="mx-auto mb-4 w-20 h-20 bg-amber-600 rounded-full flex items-center justify-center">
+                  <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                </div>
+                <CardTitle className="text-xl font-bold text-amber-900 dark:text-amber-100 px-2">
+                  📋 Bulk Order<br />Questionnaire
+                </CardTitle>
+                <CardDescription className="text-sm text-amber-800 dark:text-amber-200 mt-2 px-3">
+                  For wholesale, corporate, or large quantity orders
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="text-center space-y-4 px-4">
+                <div className="space-y-3 text-left bg-white/60 dark:bg-gray-900/40 p-4 rounded-lg">
+                  <p className="text-sm font-semibold text-amber-900 dark:text-amber-100 flex items-center gap-2">
+                    <span className="text-lg">✓</span> 50+ candles
+                  </p>
+                  <p className="text-sm font-semibold text-amber-900 dark:text-amber-100 flex items-center gap-2">
+                    <span className="text-lg">✓</span> Custom branding
+                  </p>
+                  <p className="text-sm font-semibold text-amber-900 dark:text-amber-100 flex items-center gap-2">
+                    <span className="text-lg">✓</span> Private labeling
+                  </p>
+                  <p className="text-sm font-semibold text-amber-900 dark:text-amber-100 flex items-center gap-2">
+                    <span className="text-lg">✓</span> Wholesale pricing
+                  </p>
+                  <p className="text-sm font-semibold text-amber-900 dark:text-amber-100 flex items-center gap-2">
+                    <span className="text-lg">✓</span> Special packaging
+                  </p>
+                </div>
+
+                <div className="bg-amber-100 dark:bg-amber-900/30 p-3 rounded-lg text-center">
+                  <p className="text-xs text-amber-800 dark:text-amber-200">
+                    <strong>Response Time:</strong> 24-48 hours
+                  </p>
+                  <p className="text-xs text-amber-800 dark:text-amber-200">
+                    <strong>Lead Time:</strong> 2 months standard
+                  </p>
+                </div>
+
+                <Button
+                  onClick={() => setShowBulkModal(true)}
+                  className="w-full bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white py-4 text-base font-bold shadow-lg hover:shadow-xl transition-all duration-300"
+                  size="lg"
+                >
+                  Bulk Order Questionnaire
+                </Button>
+
+                <p className="text-xs text-gray-600 dark:text-gray-400 italic px-2">
+                  Complete our detailed questionnaire to receive a custom quote
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Contact Form - Now takes 2 columns */}
           <div className="lg:col-span-2">
             <Card>
               <CardHeader>
                 <CardTitle className="text-2xl">Custom Order Inquiry</CardTitle>
                 <CardDescription>
-                  Tell us about your vision and we'll help bring it to life
+                  Tell us about your vision and we&apos;ll help bring it to life
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -271,6 +339,14 @@ export function ContactSection() {
             </Card>
           </div>
         </div>
+
+        {/* Bulk Order Modal */}
+        <BulkOrderModal
+          isOpen={showBulkModal}
+          onClose={() => setShowBulkModal(false)}
+          clientName={formData.name}
+          clientEmail={formData.email}
+        />
       </div>
     </section>
   );
