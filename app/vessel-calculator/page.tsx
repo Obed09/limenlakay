@@ -316,30 +316,31 @@ export default function VesselCalculator() {
             </div>
 
             {/* Scent Names Input */}
-            {scentCount > 0 && (
-              <div className="mb-6">
-                <Label className="text-pink-900 dark:text-pink-100 font-semibold text-base mb-3 block">
-                  🌸 Scent Names
-                </Label>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {Array.from({ length: scentCount }).map((_, index) => (
-                    <div key={index} className="relative">
-                      <Label htmlFor={`scent-${index}`} className="text-sm text-gray-700 dark:text-gray-300">
-                        Scent #{index + 1}
-                      </Label>
-                      <Input
-                        id={`scent-${index}`}
-                        type="text"
-                        value={scentNames[index] || ''}
-                        onChange={(e) => handleScentNameChange(index, e.target.value)}
-                        placeholder={`e.g., Vanilla, Lavender...`}
-                        className="mt-1"
-                      />
-                    </div>
-                  ))}
-                </div>
+            <div className="mb-6 bg-purple-50 dark:bg-purple-900/20 p-5 rounded-lg border-2 border-purple-300 dark:border-purple-700">
+              <Label className="text-purple-900 dark:text-purple-100 font-bold text-lg mb-4 flex items-center gap-2">
+                🌸 Scent Names & Details
+                <span className="text-sm font-normal text-purple-700 dark:text-purple-300">
+                  (Specify each scent in your blend)
+                </span>
+              </Label>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {Array.from({ length: scentCount }).map((_, index) => (
+                  <div key={index} className="bg-white dark:bg-gray-800 p-3 rounded-lg border border-purple-200 dark:border-purple-800">
+                    <Label htmlFor={`scent-${index}`} className="text-sm font-semibold text-purple-700 dark:text-purple-300 mb-2 block">
+                      Scent #{index + 1}
+                    </Label>
+                    <Input
+                      id={`scent-${index}`}
+                      type="text"
+                      value={scentNames[index] || ''}
+                      onChange={(e) => handleScentNameChange(index, e.target.value)}
+                      placeholder={index === 0 ? 'e.g., Vanilla' : index === 1 ? 'e.g., Lavender' : 'e.g., Rose'}
+                      className="mt-1"
+                    />
+                  </div>
+                ))}
               </div>
-            )}
+            </div>
 
             <div className="bg-gradient-to-r from-pink-50 to-rose-50 dark:from-pink-900/20 dark:to-rose-900/20 p-6 rounded-xl border-2 border-pink-300 dark:border-pink-700 mb-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
