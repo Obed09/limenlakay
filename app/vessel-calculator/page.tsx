@@ -460,13 +460,28 @@ export default function VesselCalculator() {
               <div className="h-1.5 bg-gradient-to-r from-amber-500 to-yellow-600 rounded-t-lg" />
               
               <CardHeader className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900">
-                <div className="flex justify-between items-center">
+                <div className="flex justify-between items-center mb-4">
                   <div className="bg-amber-600 text-white px-4 py-2 rounded-full font-bold text-lg">
                     Vessel #{vessel.id}
                   </div>
                   <div className="bg-green-500 text-white px-3 py-1.5 rounded-full text-sm font-bold">
                     ~{vessel.volume} cu in
                   </div>
+                </div>
+                
+                {/* Vessel Image */}
+                <div className="bg-white dark:bg-gray-700 p-4 rounded-lg flex items-center justify-center">
+                  <Image
+                    src={`/images/vessel-${vessel.id}.png`}
+                    alt={`Vessel ${vessel.id}`}
+                    width={200}
+                    height={200}
+                    className="object-contain"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                    }}
+                  />
                 </div>
               </CardHeader>
 
