@@ -14,6 +14,14 @@ interface Vessel {
   volume: number
 }
 
+interface CustomCandle {
+  id: number
+  name: string
+  scentCount: number
+  cost: number
+  dateCreated: string
+}
+
 export default function VesselCalculator() {
   // Material prices (editable)
   const [materialPrices, setMaterialPrices] = useState({
@@ -30,6 +38,11 @@ export default function VesselCalculator() {
     { id: 102, width: 2.7, height: 1.4, volume: 8 },
     { id: 103, width: 3.7, height: 3.14, volume: 34 },
   ]
+
+  // Custom candle calculator
+  const [candleName, setCandleName] = useState('')
+  const [scentCount, setScentCount] = useState(1)
+  const [savedCandles, setSavedCandles] = useState<CustomCandle[]>([])
 
   // Profit calculator
   const [profitCalc, setProfitCalc] = useState({
@@ -54,8 +67,36 @@ export default function VesselCalculator() {
   // Calculate scent cost per vessel
   const scentCostPerVessel = (materialPrices.scentBottlePrice * materialPrices.scentPercentage) / 100
 
-  // Total cost per vessel
+  // Total cost per vessel (standard 1 scent)
   const totalCostPerVessel = materialPrices.cement + materialPrices.paint + scentCostPerVessel
+
+  // Custom candle cost calculation
+  const customCandleCost = materialPrices.cement + materialPrices.paint + (scentCostPerVessel * scentCount)
+
+  // Save custom candle
+  const saveCustomCandle = () => {
+    if (!candleName.trim()) {
+      alert('Please enter a candle name')
+      return
+    }
+    
+    const newCandle: CustomCandle = {
+      id: Date.now(),
+      name: candleName.trim(),
+      scentCount: scentCount,
+      cost: customCandleCost,
+      dateCreated: new Date().toLocaleDateString()
+    }
+    
+    setSavedCandles(prev => [newCandle, ...prev])
+    setCandleName('')
+    setScentCount(1)
+  }
+
+  // Delete saved candle
+  const deleteCandle = (id: number) => {
+    setSavedCandles(prev => prev.filter(candle => candle.id !== id))
+  }
 
   // Profit calculations
   const profitPerUnit = profitCalc.sellingPrice - totalCostPerVessel
@@ -193,6 +234,128 @@ export default function VesselCalculator() {
                 totaling <strong>${totalCostPerVessel.toFixed(2)}</strong> per vessel regardless of size.
               </p>
             </div>
+          </CardContent>
+        </Card>
+
+        {/* Custom Candle Calculator */}
+        <Card className="mb-6 border-4 border-pink-300 dark:border-pink-700">
+          <CardHeader className="bg-gradient-to-r from-pink-50 to-rose-100 dark:from-pink-950 dark:to-rose-900">
+            <CardTitle className="text-2xl text-pink-900 dark:text-pink-100">
+              🕯️ Custom Candle Cost Calculator
+            </CardTitle>
+            <p className="text-pink-700 dark:text-pink-300 mt-2 text-sm">
+              Calculate costs for candles with multiple scents
+            </p>
+          </CardHeader>
+          <CardContent className="pt-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+              <div className="md:col-span-2">
+                <Label htmlFor="candleName" className="text-pink-900 dark:text-pink-100 font-semibold text-base">
+                  Candle Name
+                </Label>
+                <Input
+                  id="candleName"
+                  type="text"
+                  value={candleName}
+                  onChange={(e) => setCandleName(e.target.value)}
+                  placeholder="e.g., Tropical Paradise, Ocean Breeze..."
+                  className="mt-2 text-lg"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="scentCount" className="text-pink-900 dark:text-pink-100 font-semibold text-base">
+                  Number of Scents
+                </Label>
+                <Input
+                  id="scentCount"
+                  type="number"
+                  min="1"
+                  max="10"
+                  value={scentCount}
+                  onChange={(e) => setScentCount(parseInt(e.target.value) || 1)}
+                  className="mt-2 text-lg font-bold"
+                />
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-r from-pink-50 to-rose-50 dark:from-pink-900/20 dark:to-rose-900/20 p-6 rounded-xl border-2 border-pink-300 dark:border-pink-700 mb-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-700 dark:text-gray-300">🏗️ Cement:</span>
+                    <span className="font-bold text-gray-900 dark:text-gray-100">${materialPrices.cement.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-700 dark:text-gray-300">🎨 Paint:</span>
+                    <span className="font-bold text-gray-900 dark:text-gray-100">${materialPrices.paint.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-700 dark:text-gray-300">🌸 Scent (${scentCostPerVessel.toFixed(2)} × {scentCount}):</span>
+                    <span className="font-bold text-gray-900 dark:text-gray-100">${(scentCostPerVessel * scentCount).toFixed(2)}</span>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-center">
+                  <div className="text-center bg-white dark:bg-gray-800 p-6 rounded-lg border-2 border-pink-400 dark:border-pink-600 w-full">
+                    <div className="text-sm text-pink-700 dark:text-pink-300 font-semibold mb-2">
+                      TOTAL COST
+                    </div>
+                    <div className="text-4xl font-bold text-pink-600 dark:text-pink-400">
+                      ${customCandleCost.toFixed(2)}
+                    </div>
+                    <div className="text-xs text-gray-600 dark:text-gray-400 mt-2">
+                      {scentCount} scent{scentCount > 1 ? 's' : ''} blend
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <button
+                onClick={saveCustomCandle}
+                className="w-full bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-700 hover:to-rose-700 text-white font-bold py-3 px-6 rounded-lg transition-all transform hover:scale-105 shadow-lg"
+              >
+                💾 Save This Candle Recipe
+              </button>
+            </div>
+
+            {/* Saved Candles List */}
+            {savedCandles.length > 0 && (
+              <div className="mt-6">
+                <h3 className="text-lg font-bold text-pink-900 dark:text-pink-100 mb-4">
+                  📋 Saved Candle Recipes ({savedCandles.length})
+                </h3>
+                <div className="space-y-3">
+                  {savedCandles.map((candle) => (
+                    <div
+                      key={candle.id}
+                      className="bg-white dark:bg-gray-800 p-4 rounded-lg border-2 border-pink-200 dark:border-pink-800 flex items-center justify-between hover:border-pink-400 dark:hover:border-pink-600 transition-colors"
+                    >
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3">
+                          <h4 className="font-bold text-lg text-gray-900 dark:text-gray-100">
+                            {candle.name}
+                          </h4>
+                          <span className="bg-pink-100 dark:bg-pink-900 text-pink-800 dark:text-pink-200 px-3 py-1 rounded-full text-sm font-semibold">
+                            {candle.scentCount} scent{candle.scentCount > 1 ? 's' : ''}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-4 mt-2 text-sm text-gray-600 dark:text-gray-400">
+                          <span>💰 Cost: <strong className="text-pink-600 dark:text-pink-400">${candle.cost.toFixed(2)}</strong></span>
+                          <span>📅 Created: {candle.dateCreated}</span>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => deleteCandle(candle.id)}
+                        className="ml-4 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors font-semibold"
+                      >
+                        🗑️ Delete
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
 
