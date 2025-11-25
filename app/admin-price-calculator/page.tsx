@@ -109,7 +109,7 @@ export default function PriceCalculator() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-orange-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 py-8">
       <div className="max-w-7xl mx-auto px-4">
-        <div className="mb-6 flex items-center justify-between">
+        <div className="mb-6 flex items-center justify-between flex-wrap gap-4">
           <div className="flex items-center gap-3">
             <Image 
               src="/images/limen-lakay-logo.png" 
@@ -127,12 +127,20 @@ export default function PriceCalculator() {
               </p>
             </div>
           </div>
-          <Link 
-            href="/"
-            className="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors"
-          >
-            ← Back to Home
-          </Link>
+          <div className="flex gap-3">
+            <Link 
+              href="/vessel-calculator"
+              className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+            >
+              🏺 Vessel Calculator
+            </Link>
+            <Link 
+              href="/"
+              className="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors"
+            >
+              ← Home
+            </Link>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
