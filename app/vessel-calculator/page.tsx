@@ -18,6 +18,7 @@ interface CustomCandle {
   id: number
   name: string
   scentCount: number
+  scentNames: string[]
   cost: number
   dateCreated: string
 }
@@ -42,6 +43,7 @@ export default function VesselCalculator() {
   // Custom candle calculator
   const [candleName, setCandleName] = useState('')
   const [scentCount, setScentCount] = useState(1)
+  const [scentNames, setScentNames] = useState<string[]>([''])
   const [savedCandles, setSavedCandles] = useState<CustomCandle[]>([])
 
   // Profit calculator
@@ -73,6 +75,29 @@ export default function VesselCalculator() {
   // Custom candle cost calculation
   const customCandleCost = materialPrices.cement + materialPrices.paint + (scentCostPerVessel * scentCount)
 
+  // Handle scent count change
+  const handleScentCountChange = (count: number) => {
+    const validCount = Math.max(1, count)
+    setScentCount(validCount)
+    // Adjust scent names array to match count
+    setScentNames(prev => {
+      const newNames = [...prev]
+      while (newNames.length < validCount) {
+        newNames.push('')
+      }
+      return newNames.slice(0, validCount)
+    })
+  }
+
+  // Handle individual scent name change
+  const handleScentNameChange = (index: number, value: string) => {
+    setScentNames(prev => {
+      const newNames = [...prev]
+      newNames[index] = value
+      return newNames
+    })
+  }
+
   // Save custom candle
   const saveCustomCandle = () => {
     if (!candleName.trim()) {
@@ -84,6 +109,7 @@ export default function VesselCalculator() {
       id: Date.now(),
       name: candleName.trim(),
       scentCount: scentCount,
+      scentNames: scentNames.filter(s => s.trim() !== ''),
       cost: customCandleCost,
       dateCreated: new Date().toLocaleDateString()
     }
@@ -91,11 +117,21 @@ export default function VesselCalculator() {
     setSavedCandles(prev => [newCandle, ...prev])
     setCandleName('')
     setScentCount(1)
+    setScentNames([''])
   }
 
   // Delete saved candle
   const deleteCandle = (id: number) => {
     setSavedCandles(prev => prev.filter(candle => candle.id !== id))
+  }
+
+  // Load candle template
+  const loadCandleTemplate = (candle: CustomCandle) => {
+    setCandleName(candle.name)
+    setScentCount(candle.scentCount)
+    setScentNames([...candle.scentNames])
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   // Profit calculations
@@ -273,11 +309,37 @@ export default function VesselCalculator() {
                   min="1"
                   max="10"
                   value={scentCount}
-                  onChange={(e) => setScentCount(parseInt(e.target.value) || 1)}
+                  onChange={(e) => handleScentCountChange(parseInt(e.target.value) || 1)}
                   className="mt-2 text-lg font-bold"
                 />
               </div>
             </div>
+
+            {/* Scent Names Input */}
+            {scentCount > 0 && (
+              <div className="mb-6">
+                <Label className="text-pink-900 dark:text-pink-100 font-semibold text-base mb-3 block">
+                  🌸 Scent Names
+                </Label>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {Array.from({ length: scentCount }).map((_, index) => (
+                    <div key={index} className="relative">
+                      <Label htmlFor={`scent-${index}`} className="text-sm text-gray-700 dark:text-gray-300">
+                        Scent #{index + 1}
+                      </Label>
+                      <Input
+                        id={`scent-${index}`}
+                        type="text"
+                        value={scentNames[index] || ''}
+                        onChange={(e) => handleScentNameChange(index, e.target.value)}
+                        placeholder={`e.g., Vanilla, Lavender...`}
+                        className="mt-1"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <div className="bg-gradient-to-r from-pink-50 to-rose-50 dark:from-pink-900/20 dark:to-rose-900/20 p-6 rounded-xl border-2 border-pink-300 dark:border-pink-700 mb-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -329,28 +391,56 @@ export default function VesselCalculator() {
                   {savedCandles.map((candle) => (
                     <div
                       key={candle.id}
-                      className="bg-white dark:bg-gray-800 p-4 rounded-lg border-2 border-pink-200 dark:border-pink-800 flex items-center justify-between hover:border-pink-400 dark:hover:border-pink-600 transition-colors"
+                      className="bg-white dark:bg-gray-800 p-5 rounded-lg border-2 border-pink-200 dark:border-pink-800 hover:border-pink-400 dark:hover:border-pink-600 transition-colors"
                     >
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3">
-                          <h4 className="font-bold text-lg text-gray-900 dark:text-gray-100">
-                            {candle.name}
-                          </h4>
-                          <span className="bg-pink-100 dark:bg-pink-900 text-pink-800 dark:text-pink-200 px-3 py-1 rounded-full text-sm font-semibold">
-                            {candle.scentCount} scent{candle.scentCount > 1 ? 's' : ''}
-                          </span>
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2">
+                            <h4 className="font-bold text-xl text-gray-900 dark:text-gray-100">
+                              {candle.name}
+                            </h4>
+                            <span className="bg-pink-100 dark:bg-pink-900 text-pink-800 dark:text-pink-200 px-3 py-1 rounded-full text-sm font-semibold">
+                              {candle.scentCount} scent{candle.scentCount > 1 ? 's' : ''}
+                            </span>
+                          </div>
+                          
+                          {/* Scent Names Display */}
+                          {candle.scentNames && candle.scentNames.length > 0 && (
+                            <div className="mb-3 flex flex-wrap gap-2">
+                              {candle.scentNames.map((scentName, idx) => (
+                                <span
+                                  key={idx}
+                                  className="bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 px-3 py-1 rounded-full text-xs font-medium border border-purple-300 dark:border-purple-700"
+                                >
+                                  🌸 {scentName}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                          
+                          <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
+                            <span>💰 Cost: <strong className="text-pink-600 dark:text-pink-400 text-base">${candle.cost.toFixed(2)}</strong></span>
+                            <span>📅 {candle.dateCreated}</span>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-4 mt-2 text-sm text-gray-600 dark:text-gray-400">
-                          <span>💰 Cost: <strong className="text-pink-600 dark:text-pink-400">${candle.cost.toFixed(2)}</strong></span>
-                          <span>📅 Created: {candle.dateCreated}</span>
+                        
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => loadCandleTemplate(candle)}
+                            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors font-semibold whitespace-nowrap"
+                            title="Load this recipe as a template"
+                          >
+                            📝 Load
+                          </button>
+                          <button
+                            onClick={() => deleteCandle(candle.id)}
+                            className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors font-semibold"
+                            title="Delete this recipe"
+                          >
+                            🗑️
+                          </button>
                         </div>
                       </div>
-                      <button
-                        onClick={() => deleteCandle(candle.id)}
-                        className="ml-4 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors font-semibold"
-                      >
-                        🗑️ Delete
-                      </button>
                     </div>
                   ))}
                 </div>
