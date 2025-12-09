@@ -59,22 +59,6 @@ export default function VesselCalculator() {
   const vessels: Vessel[] = [
     {
       id: 100,
-      name: "Ribbed Cylinder",
-      diameter: 9.5, // cm
-      height: 8, // cm (estimated from 3.7in)
-      unit: "cm",
-      imageName: "vessel-103.png" // The ribbed jar mold
-    },
-    {
-      id: 101,
-      name: "Bowl Vessel",
-      diameter: 3.25, // inches (average)
-      height: 2.13, // inches
-      unit: "in",
-      imageName: "vessel-103.png"
-    },
-    {
-      id: 102,
       name: "Large Shallow",
       diameter: 8.2, // inches
       height: 2.36, // inches
@@ -82,7 +66,7 @@ export default function VesselCalculator() {
       imageName: "vessel-100.png" // The large round vessel
     },
     {
-      id: 103,
+      id: 101,
       name: "Medium Cylinder",
       diameter: 5.43, // inches
       height: 2.16, // inches
@@ -91,12 +75,36 @@ export default function VesselCalculator() {
       imageName: "vessel-101.png" // Medium size with lid
     },
     {
-      id: 104,
+      id: 102,
       name: "Small Ribbed",
       diameter: 2.7, // inches (inner)
       height: 1.4, // inches
       unit: "in",
       imageName: "vessel-102.png" // Small ribbed vessel
+    },
+    {
+      id: 103,
+      name: "Ribbed Jar Mold",
+      diameter: 9.5, // cm
+      height: 8, // cm (estimated from 3.7in)
+      unit: "cm",
+      imageName: "vessel-103.png" // The ribbed jar mold
+    },
+    {
+      id: 104,
+      name: "Flower Shell",
+      diameter: 3.5, // cm (from image 15.3cm/0.01in shown, using inner)
+      height: 4.8, // cm (1.88in)
+      unit: "cm",
+      imageName: "vessel-104.png" // Flower/shell shaped vessel
+    },
+    {
+      id: 105,
+      name: "Bowl Vessel",
+      diameter: 3.25, // inches 
+      height: 2.125, // inches (2 1/8 from diagram)
+      unit: "in",
+      imageName: "vessel-105.png" // Bowl shaped vessel
     }
   ]
 
