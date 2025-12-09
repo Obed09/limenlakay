@@ -100,6 +100,9 @@ export default function Home() {
                 <Link href="/bulk-order" className="block text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300 font-medium">
                   Bulk Order Form
                 </Link>
+                <Link href="/payment" className="block text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 font-medium">
+                  💳 Payment Methods
+                </Link>
                 <Link href="/privacy-policy" className="block text-gray-600 dark:text-gray-400 hover:text-amber-600 dark:hover:text-amber-400">
                   Privacy Policy
                 </Link>
