@@ -9,9 +9,12 @@ import { Label } from '@/components/ui/label'
 
 interface Vessel {
   id: number
-  width: number
+  name: string
+  diameter: number
   height: number
-  volume: number
+  unit: string
+  imageName?: string
+  actualCapacity?: number
 }
 
 interface CustomCandle {
@@ -23,21 +26,78 @@ interface CustomCandle {
   dateCreated: string
 }
 
+interface VesselCalculation {
+  fullVolume: number
+  waxVolume: number
+  volumeOz: number
+  waxWeight: number
+  fragranceWeight: number
+  cementWeight: number
+  wicksNeeded: number
+  waxCost: number
+  fragranceCost: number
+  cementCost: number
+  wickCost: number
+  paintCost: number
+  totalCost: number
+}
+
 export default function VesselCalculator() {
   // Material prices (editable)
   const [materialPrices, setMaterialPrices] = useState({
-    cement: 0.12,
-    paint: 0.75,
-    scentBottlePrice: 40.00,
-    scentPercentage: 10,
+    waxType: 'soy' as 'soy' | 'coconut',
+    waxPricePerLb: 8.50,
+    fragrancePricePerLb: 40.00,
+    cementPricePerLb: 0.50,
+    wickPrice: 0.25,
+    paintPrice: 0.75,
+    fillPercent: 80,
+    fragranceLoad: 10,
   })
 
-  // Vessels data
+  // Vessels data based on the HTML and images
   const vessels: Vessel[] = [
-    { id: 100, width: 8.2, height: 2.6, volume: 138 },
-    { id: 101, width: 5.43, height: 2.13, volume: 49 },
-    { id: 102, width: 2.7, height: 1.4, volume: 8 },
-    { id: 103, width: 3.7, height: 3.14, volume: 34 },
+    {
+      id: 100,
+      name: "Ribbed Cylinder",
+      diameter: 9.5, // cm
+      height: 8, // cm (estimated from 3.7in)
+      unit: "cm",
+      imageName: "vessel-103.png" // The ribbed jar mold
+    },
+    {
+      id: 101,
+      name: "Bowl Vessel",
+      diameter: 3.25, // inches (average)
+      height: 2.13, // inches
+      unit: "in",
+      imageName: "vessel-103.png"
+    },
+    {
+      id: 102,
+      name: "Large Shallow",
+      diameter: 8.2, // inches
+      height: 2.36, // inches
+      unit: "in",
+      imageName: "vessel-100.png" // The large round vessel
+    },
+    {
+      id: 103,
+      name: "Medium Cylinder",
+      diameter: 5.43, // inches
+      height: 2.16, // inches
+      unit: "in",
+      actualCapacity: 10.1, // oz stated
+      imageName: "vessel-101.png" // Medium size with lid
+    },
+    {
+      id: 104,
+      name: "Small Ribbed",
+      diameter: 2.7, // inches (inner)
+      height: 1.4, // inches
+      unit: "in",
+      imageName: "vessel-102.png" // Small ribbed vessel
+    }
   ]
 
   // Custom candle calculator
@@ -48,36 +108,109 @@ export default function VesselCalculator() {
 
   // Profit calculator
   const [profitCalc, setProfitCalc] = useState({
+    selectedVesselIndex: 0,
     sellingPrice: 25.00,
     quantity: 100,
   })
 
-  const handleMaterialChange = (field: string, value: string) => {
-    setMaterialPrices(prev => ({
-      ...prev,
-      [field]: parseFloat(value) || 0
-    }))
+  const handleMaterialChange = (field: string, value: string | number) => {
+    if (field === 'waxType') {
+      setMaterialPrices(prev => ({
+        ...prev,
+        waxType: value as 'soy' | 'coconut'
+      }))
+    } else {
+      setMaterialPrices(prev => ({
+        ...prev,
+        [field]: typeof value === 'string' ? parseFloat(value) || 0 : value
+      }))
+    }
   }
 
   const handleProfitChange = (field: string, value: string) => {
     setProfitCalc(prev => ({
       ...prev,
-      [field]: parseFloat(value) || 0
+      [field]: field === 'selectedVesselIndex' ? parseInt(value) : parseFloat(value) || 0
     }))
   }
 
-  // Calculate scent cost per vessel
-  const scentCostPerVessel = (materialPrices.scentBottlePrice * materialPrices.scentPercentage) / 100
+  // Calculate volume using cylindrical formula
+  const calculateVolume = (diameter: number, height: number, unit: string): number => {
+    // Convert to cm if needed
+    const d = unit === 'in' ? diameter * 2.54 : diameter
+    const h = unit === 'in' ? height * 2.54 : height
+    
+    // Volume = π × r² × h
+    const radius = d / 2
+    const volumeCm3 = Math.PI * radius * radius * h
+    
+    return volumeCm3
+  }
 
-  // Total cost per vessel (standard 1 scent)
-  const totalCostPerVessel = materialPrices.cement + materialPrices.paint + scentCostPerVessel
+  // Calculate materials for a vessel
+  const calculateMaterials = (vessel: Vessel): VesselCalculation => {
+    const fillPercent = materialPrices.fillPercent / 100
+    const fragranceLoad = materialPrices.fragranceLoad / 100
+    
+    // Wax density
+    const waxDensity = materialPrices.waxType === 'soy' ? 0.9 : 0.92 // g/cm³
+    const cementDensity = 2.4 // g/cm³
+    
+    // Calculate full volume
+    const fullVolume = calculateVolume(vessel.diameter, vessel.height, vessel.unit)
+    
+    // Wax volume (with fill percentage)
+    const waxVolume = fullVolume * fillPercent
+    
+    // Weights in grams
+    const waxWeight = waxVolume * waxDensity
+    const fragranceWeight = waxWeight * fragranceLoad
+    const cementWeight = fullVolume * cementDensity
+    
+    // Convert grams to cost (453.6g = 1 lb)
+    const waxCost = (waxWeight / 453.6) * materialPrices.waxPricePerLb
+    const fragranceCost = (fragranceWeight / 453.6) * materialPrices.fragrancePricePerLb
+    const cementCost = (cementWeight / 453.6) * materialPrices.cementPricePerLb
+    
+    // Wick calculation based on diameter
+    const diameterInInches = vessel.unit === 'cm' ? vessel.diameter / 2.54 : vessel.diameter
+    const wicksNeeded = diameterInInches > 4 ? 2 : 1
+    const wickCost = wicksNeeded * materialPrices.wickPrice
+    
+    const totalCost = waxCost + fragranceCost + cementCost + wickCost + materialPrices.paintPrice
+    
+    // Convert volume to oz for display
+    const volumeOz = waxVolume / 29.5735
+    
+    return {
+      fullVolume,
+      waxVolume,
+      volumeOz,
+      waxWeight,
+      fragranceWeight,
+      cementWeight,
+      wicksNeeded,
+      waxCost,
+      fragranceCost,
+      cementCost,
+      wickCost,
+      paintCost: materialPrices.paintPrice,
+      totalCost
+    }
+  }
 
-  // Custom candle cost calculation
-  const customCandleCost = materialPrices.cement + materialPrices.paint + (scentCostPerVessel * scentCount)
+  // Calculate all vessels
+  const vesselCalculations = vessels.map(vessel => ({
+    vessel,
+    calc: calculateMaterials(vessel)
+  }))
+
+  // Get average cost for custom candle (using first vessel as reference)
+  const referenceCost = vesselCalculations[0]?.calc.totalCost || 0
 
   // Handle scent count change
   const handleScentCountChange = (count: number) => {
-    const validCount = Math.max(1, count)
+    const validCount = Math.max(1, Math.min(10, count))
     setScentCount(validCount)
     // Adjust scent names array to match count
     setScentNames(prev => {
@@ -110,7 +243,7 @@ export default function VesselCalculator() {
       name: candleName.trim(),
       scentCount: scentCount,
       scentNames: scentNames.filter(s => s.trim() !== ''),
-      cost: customCandleCost,
+      cost: referenceCost,
       dateCreated: new Date().toLocaleDateString()
     }
     
@@ -134,12 +267,13 @@ export default function VesselCalculator() {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
-  // Profit calculations
-  const profitPerUnit = profitCalc.sellingPrice - totalCostPerVessel
-  const profitMargin = totalCostPerVessel > 0 ? ((profitPerUnit / totalCostPerVessel) * 100) : 0
+  // Profit calculations based on selected vessel
+  const selectedVesselCalc = vesselCalculations[profitCalc.selectedVesselIndex]?.calc || vesselCalculations[0].calc
+  const profitPerUnit = profitCalc.sellingPrice - selectedVesselCalc.totalCost
+  const profitMargin = selectedVesselCalc.totalCost > 0 ? ((profitPerUnit / selectedVesselCalc.totalCost) * 100) : 0
   const totalProfit = profitPerUnit * profitCalc.quantity
   const totalRevenue = profitCalc.sellingPrice * profitCalc.quantity
-  const totalCost = totalCostPerVessel * profitCalc.quantity
+  const totalCost = selectedVesselCalc.totalCost * profitCalc.quantity
 
   // Profit color coding
   const getProfitColor = (profit: number) => {
@@ -148,9 +282,13 @@ export default function VesselCalculator() {
     return 'text-green-600'
   }
 
-  // Get largest and smallest vessels
-  const largestVessel = vessels.reduce((max, v) => v.volume > max.volume ? v : max, vessels[0])
-  const smallestVessel = vessels.reduce((min, v) => v.volume < min.volume ? v : min, vessels[0])
+  // Get largest and smallest vessels by volume
+  const largestVessel = vesselCalculations.reduce((max, vc) => 
+    vc.calc.fullVolume > max.calc.fullVolume ? vc : max, vesselCalculations[0]
+  )
+  const smallestVessel = vesselCalculations.reduce((min, vc) => 
+    vc.calc.fullVolume < min.calc.fullVolume ? vc : min, vesselCalculations[0]
+  )
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-indigo-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 py-8">
@@ -194,391 +332,372 @@ export default function VesselCalculator() {
         <Card className="mb-6 border-4 border-blue-200 dark:border-blue-800">
           <CardHeader className="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900">
             <CardTitle className="text-2xl text-blue-900 dark:text-blue-100">
-              📦 Material Prices (Per Vessel)
+              ⚙️ Material Prices & Settings (Editable)
             </CardTitle>
+            <p className="text-blue-700 dark:text-blue-300 mt-2 text-sm">
+              Update prices anytime - all calculations update automatically!
+            </p>
           </CardHeader>
           <CardContent className="pt-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border-2 border-blue-300 dark:border-blue-700">
-                <Label htmlFor="cement" className="text-blue-900 dark:text-blue-100 font-semibold">
-                  Cement ($)
+                <Label htmlFor="waxType" className="text-blue-900 dark:text-blue-100 font-semibold block mb-2">
+                  Wax Type
                 </Label>
-                <Input
-                  id="cement"
-                  type="number"
-                  step="0.01"
-                  value={materialPrices.cement}
-                  onChange={(e) => handleMaterialChange('cement', e.target.value)}
-                  className="mt-2 text-lg font-bold"
-                />
+                <select
+                  id="waxType"
+                  value={materialPrices.waxType}
+                  onChange={(e) => handleMaterialChange('waxType', e.target.value)}
+                  className="w-full px-3 py-2 border-2 border-blue-200 dark:border-blue-700 rounded-md text-sm font-bold bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                >
+                  <option value="soy">Soy Wax 454 (0.9 g/cm³)</option>
+                  <option value="coconut">Coconut Apricot (0.92 g/cm³)</option>
+                </select>
               </div>
 
               <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border-2 border-blue-300 dark:border-blue-700">
-                <Label htmlFor="paint" className="text-blue-900 dark:text-blue-100 font-semibold">
-                  Paint ($)
+                <Label htmlFor="waxPrice" className="text-blue-900 dark:text-blue-100 font-semibold">
+                  Wax Price per Pound
                 </Label>
                 <Input
-                  id="paint"
+                  id="waxPrice"
                   type="number"
                   step="0.01"
-                  value={materialPrices.paint}
-                  onChange={(e) => handleMaterialChange('paint', e.target.value)}
-                  className="mt-2 text-lg font-bold"
-                />
-              </div>
-
-              <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border-2 border-blue-300 dark:border-blue-700">
-                <Label htmlFor="scentBottle" className="text-blue-900 dark:text-blue-100 font-semibold">
-                  Scent Bottle (16 Fl Oz) ($)
-                </Label>
-                <Input
-                  id="scentBottle"
-                  type="number"
-                  step="0.01"
-                  value={materialPrices.scentBottlePrice}
-                  onChange={(e) => handleMaterialChange('scentBottlePrice', e.target.value)}
+                  value={materialPrices.waxPricePerLb}
+                  onChange={(e) => handleMaterialChange('waxPricePerLb', e.target.value)}
                   className="mt-2 text-lg font-bold"
                 />
                 <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-                  {materialPrices.scentPercentage}% per vessel = ${scentCostPerVessel.toFixed(2)}
+                  $ per lb (453.6g)
                 </p>
               </div>
 
               <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border-2 border-blue-300 dark:border-blue-700">
-                <Label htmlFor="scentPercent" className="text-blue-900 dark:text-blue-100 font-semibold">
-                  Scent % per Vessel
+                <Label htmlFor="fragrancePrice" className="text-blue-900 dark:text-blue-100 font-semibold">
+                  Fragrance Price per 16oz
                 </Label>
                 <Input
-                  id="scentPercent"
+                  id="fragrancePrice"
                   type="number"
-                  step="1"
-                  value={materialPrices.scentPercentage}
-                  onChange={(e) => handleMaterialChange('scentPercentage', e.target.value)}
+                  step="0.01"
+                  value={materialPrices.fragrancePricePerLb}
+                  onChange={(e) => handleMaterialChange('fragrancePricePerLb', e.target.value)}
                   className="mt-2 text-lg font-bold"
                 />
                 <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-                  = {((16 * materialPrices.scentPercentage) / 100).toFixed(1)} Fl Oz
+                  $ per bottle (453.6g)
                 </p>
               </div>
-            </div>
 
-            <div className="mt-4 p-4 bg-amber-100 dark:bg-amber-900/30 rounded-lg border-2 border-amber-400 dark:border-amber-600">
-              <p className="text-sm text-gray-700 dark:text-gray-300">
-                <strong className="text-amber-900 dark:text-amber-100">📊 Calculation Method:</strong><br />
-                Each vessel uses fixed amounts of cement (${materialPrices.cement}) and paint (${materialPrices.paint}), 
-                plus {materialPrices.scentPercentage}% of a 16 Fl Oz scent bottle (${scentCostPerVessel.toFixed(2)}), 
-                totaling <strong>${totalCostPerVessel.toFixed(2)}</strong> per vessel regardless of size.
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Custom Candle Calculator */}
-        <Card className="mb-6 border-4 border-pink-300 dark:border-pink-700">
-          <CardHeader className="bg-gradient-to-r from-pink-50 to-rose-100 dark:from-pink-950 dark:to-rose-900">
-            <CardTitle className="text-2xl text-pink-900 dark:text-pink-100">
-              🕯️ Custom Candle Cost Calculator
-            </CardTitle>
-            <p className="text-pink-700 dark:text-pink-300 mt-2 text-sm">
-              Calculate costs for candles with multiple scents
-            </p>
-          </CardHeader>
-          <CardContent className="pt-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-              <div className="md:col-span-2">
-                <Label htmlFor="candleName" className="text-pink-900 dark:text-pink-100 font-semibold text-base">
-                  Candle Name
+              <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border-2 border-blue-300 dark:border-blue-700">
+                <Label htmlFor="cementPrice" className="text-blue-900 dark:text-blue-100 font-semibold">
+                  Cement Price per Pound
                 </Label>
                 <Input
-                  id="candleName"
-                  type="text"
-                  value={candleName}
-                  onChange={(e) => setCandleName(e.target.value)}
-                  placeholder="e.g., Tropical Paradise, Ocean Breeze..."
-                  className="mt-2 text-lg"
+                  id="cementPrice"
+                  type="number"
+                  step="0.01"
+                  value={materialPrices.cementPricePerLb}
+                  onChange={(e) => handleMaterialChange('cementPricePerLb', e.target.value)}
+                  className="mt-2 text-lg font-bold"
                 />
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                  $ per lb (453.6g)
+                </p>
               </div>
 
-              <div>
-                <Label htmlFor="scentCount" className="text-pink-900 dark:text-pink-100 font-semibold text-base">
-                  Number of Scents
+              <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border-2 border-blue-300 dark:border-blue-700">
+                <Label htmlFor="wickPrice" className="text-blue-900 dark:text-blue-100 font-semibold">
+                  Wick Price Each
                 </Label>
                 <Input
-                  id="scentCount"
+                  id="wickPrice"
+                  type="number"
+                  step="0.01"
+                  value={materialPrices.wickPrice}
+                  onChange={(e) => handleMaterialChange('wickPrice', e.target.value)}
+                  className="mt-2 text-lg font-bold"
+                />
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                  $ per wick
+                </p>
+              </div>
+
+              <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border-2 border-blue-300 dark:border-blue-700">
+                <Label htmlFor="paintPrice" className="text-blue-900 dark:text-blue-100 font-semibold">
+                  Paint/Dye per Vessel
+                </Label>
+                <Input
+                  id="paintPrice"
+                  type="number"
+                  step="0.01"
+                  value={materialPrices.paintPrice}
+                  onChange={(e) => handleMaterialChange('paintPrice', e.target.value)}
+                  className="mt-2 text-lg font-bold"
+                />
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                  $ per vessel
+                </p>
+              </div>
+
+              <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border-2 border-blue-300 dark:border-blue-700">
+                <Label htmlFor="fillPercent" className="text-blue-900 dark:text-blue-100 font-semibold">
+                  Fill Percentage
+                </Label>
+                <Input
+                  id="fillPercent"
                   type="number"
                   min="1"
-                  max="10"
-                  value={scentCount}
-                  onChange={(e) => handleScentCountChange(parseInt(e.target.value) || 1)}
+                  max="100"
+                  value={materialPrices.fillPercent}
+                  onChange={(e) => handleMaterialChange('fillPercent', e.target.value)}
                   className="mt-2 text-lg font-bold"
                 />
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                  % of vessel volume
+                </p>
+              </div>
+
+              <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border-2 border-blue-300 dark:border-blue-700">
+                <Label htmlFor="fragranceLoad" className="text-blue-900 dark:text-blue-100 font-semibold">
+                  Fragrance Load
+                </Label>
+                <Input
+                  id="fragranceLoad"
+                  type="number"
+                  min="1"
+                  max="15"
+                  value={materialPrices.fragranceLoad}
+                  onChange={(e) => handleMaterialChange('fragranceLoad', e.target.value)}
+                  className="mt-2 text-lg font-bold"
+                />
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                  % of wax weight
+                </p>
               </div>
             </div>
 
-            {/* Scent Names Input */}
-            <div className="mb-6 bg-purple-50 dark:bg-purple-900/20 p-5 rounded-lg border-2 border-purple-300 dark:border-purple-700">
-              <Label className="text-purple-900 dark:text-purple-100 font-bold text-lg mb-4 flex items-center gap-2">
-                🌸 Scent Names & Details
-                <span className="text-sm font-normal text-purple-700 dark:text-purple-300">
-                  (Specify each scent in your blend)
-                </span>
-              </Label>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {Array.from({ length: scentCount }).map((_, index) => (
-                  <div key={index} className="bg-white dark:bg-gray-800 p-3 rounded-lg border border-purple-200 dark:border-purple-800">
-                    <Label htmlFor={`scent-${index}`} className="text-sm font-semibold text-purple-700 dark:text-purple-300 mb-2 block">
-                      Scent #{index + 1}
-                    </Label>
-                    <Input
-                      id={`scent-${index}`}
-                      type="text"
-                      value={scentNames[index] || ''}
-                      onChange={(e) => handleScentNameChange(index, e.target.value)}
-                      placeholder={index === 0 ? 'e.g., Vanilla' : index === 1 ? 'e.g., Lavender' : 'e.g., Rose'}
-                      className="mt-1"
-                    />
-                  </div>
-                ))}
+            <div className="mt-6 bg-gradient-to-r from-yellow-50 to-amber-50 dark:from-yellow-900/20 dark:to-amber-900/20 p-5 rounded-lg border-2 border-yellow-400 dark:border-yellow-600">
+              <h3 className="text-yellow-900 dark:text-yellow-100 font-bold text-lg mb-3">
+                📐 Calculation Formulas Used
+              </h3>
+              <div className="text-sm text-gray-700 dark:text-gray-300 space-y-1">
+                <p><strong className="text-yellow-800 dark:text-yellow-200">Volume:</strong> π × r² × h × (fill % / 100)</p>
+                <p><strong className="text-yellow-800 dark:text-yellow-200">Wax Weight:</strong> Volume (cm³) × Wax Density (g/cm³)</p>
+                <p><strong className="text-yellow-800 dark:text-yellow-200">Fragrance Weight:</strong> Wax Weight × (Fragrance Load % / 100)</p>
+                <p><strong className="text-yellow-800 dark:text-yellow-200">Cement Weight:</strong> Full Vessel Volume × 2.4 g/cm³</p>
+                <p><strong className="text-yellow-800 dark:text-yellow-200">Costs:</strong> (Material Weight / 453.6g) × Price per Pound</p>
               </div>
             </div>
-
-            <div className="bg-gradient-to-r from-pink-50 to-rose-50 dark:from-pink-900/20 dark:to-rose-900/20 p-6 rounded-xl border-2 border-pink-300 dark:border-pink-700 mb-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-700 dark:text-gray-300">🏗️ Cement:</span>
-                    <span className="font-bold text-gray-900 dark:text-gray-100">${materialPrices.cement.toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-700 dark:text-gray-300">🎨 Paint:</span>
-                    <span className="font-bold text-gray-900 dark:text-gray-100">${materialPrices.paint.toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-700 dark:text-gray-300">🌸 Scent (${scentCostPerVessel.toFixed(2)} × {scentCount}):</span>
-                    <span className="font-bold text-gray-900 dark:text-gray-100">${(scentCostPerVessel * scentCount).toFixed(2)}</span>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-center">
-                  <div className="text-center bg-white dark:bg-gray-800 p-6 rounded-lg border-2 border-pink-400 dark:border-pink-600 w-full">
-                    <div className="text-sm text-pink-700 dark:text-pink-300 font-semibold mb-2">
-                      TOTAL COST
-                    </div>
-                    <div className="text-4xl font-bold text-pink-600 dark:text-pink-400">
-                      ${customCandleCost.toFixed(2)}
-                    </div>
-                    <div className="text-xs text-gray-600 dark:text-gray-400 mt-2">
-                      {scentCount} scent{scentCount > 1 ? 's' : ''} blend
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <button
-                onClick={saveCustomCandle}
-                className="w-full bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-700 hover:to-rose-700 text-white font-bold py-3 px-6 rounded-lg transition-all transform hover:scale-105 shadow-lg"
-              >
-                💾 Save This Candle Recipe
-              </button>
-            </div>
-
-            {/* Saved Candles List */}
-            {savedCandles.length > 0 && (
-              <div className="mt-6">
-                <h3 className="text-lg font-bold text-pink-900 dark:text-pink-100 mb-4">
-                  📋 Saved Candle Recipes ({savedCandles.length})
-                </h3>
-                <div className="space-y-3">
-                  {savedCandles.map((candle) => (
-                    <div
-                      key={candle.id}
-                      className="bg-white dark:bg-gray-800 p-5 rounded-lg border-2 border-pink-200 dark:border-pink-800 hover:border-pink-400 dark:hover:border-pink-600 transition-colors"
-                    >
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-2">
-                            <h4 className="font-bold text-xl text-gray-900 dark:text-gray-100">
-                              {candle.name}
-                            </h4>
-                            <span className="bg-pink-100 dark:bg-pink-900 text-pink-800 dark:text-pink-200 px-3 py-1 rounded-full text-sm font-semibold">
-                              {candle.scentCount} scent{candle.scentCount > 1 ? 's' : ''}
-                            </span>
-                          </div>
-                          
-                          {/* Scent Names Display */}
-                          {candle.scentNames && candle.scentNames.length > 0 && (
-                            <div className="mb-3 flex flex-wrap gap-2">
-                              {candle.scentNames.map((scentName, idx) => (
-                                <span
-                                  key={idx}
-                                  className="bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 px-3 py-1 rounded-full text-xs font-medium border border-purple-300 dark:border-purple-700"
-                                >
-                                  🌸 {scentName}
-                                </span>
-                              ))}
-                            </div>
-                          )}
-                          
-                          <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
-                            <span>💰 Cost: <strong className="text-pink-600 dark:text-pink-400 text-base">${candle.cost.toFixed(2)}</strong></span>
-                            <span>📅 {candle.dateCreated}</span>
-                          </div>
-                        </div>
-                        
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => loadCandleTemplate(candle)}
-                            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors font-semibold whitespace-nowrap"
-                            title="Load this recipe as a template"
-                          >
-                            📝 Load
-                          </button>
-                          <button
-                            onClick={() => deleteCandle(candle.id)}
-                            className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors font-semibold"
-                            title="Delete this recipe"
-                          >
-                            🗑️
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
           </CardContent>
         </Card>
 
         {/* Vessels Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {vessels.map((vessel) => (
-            <Card 
-              key={vessel.id}
-              className="border-3 border-gray-200 dark:border-gray-700 hover:border-amber-500 dark:hover:border-amber-500 transition-all hover:shadow-xl hover:-translate-y-1"
-            >
-              <div className="h-1.5 bg-gradient-to-r from-amber-500 to-yellow-600 rounded-t-lg" />
-              
-              <CardHeader className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900">
-                <div className="flex justify-between items-center mb-4">
-                  <div className="bg-amber-600 text-white px-4 py-2 rounded-full font-bold text-lg">
-                    Vessel #{vessel.id}
-                  </div>
-                  <div className="bg-green-500 text-white px-3 py-1.5 rounded-full text-sm font-bold">
-                    ~{vessel.volume} cu in
-                  </div>
-                </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 mb-8">
+          {vesselCalculations.map(({ vessel, calc }) => {
+            const diameterDisplay = vessel.unit === 'cm' ? `${vessel.diameter}cm` : `${vessel.diameter}"`
+            const heightDisplay = vessel.unit === 'cm' ? `${vessel.height}cm` : `${vessel.height}"`
+            
+            return (
+              <Card 
+                key={vessel.id}
+                className="border-3 border-gray-200 dark:border-gray-700 hover:border-amber-500 dark:hover:border-amber-500 transition-all hover:shadow-xl hover:-translate-y-1"
+              >
+                <div className="h-1.5 bg-gradient-to-r from-amber-500 to-yellow-600 rounded-t-lg" />
                 
-                {/* Vessel Image */}
-                <div className="bg-white dark:bg-gray-700 p-4 rounded-lg flex items-center justify-center">
-                  <Image
-                    src={`/images/vessel-${vessel.id}.png`}
-                    alt={`Vessel ${vessel.id}`}
-                    width={200}
-                    height={200}
-                    className="object-contain"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.style.display = 'none';
-                    }}
-                  />
-                </div>
-              </CardHeader>
-
-              <CardContent className="pt-6">
-                {/* Dimensions */}
-                <div className="bg-white dark:bg-gray-800 p-4 rounded-lg mb-4 border-2 border-gray-200 dark:border-gray-700">
-                  <h4 className="text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wider mb-3">
-                    Dimensions
-                  </h4>
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span className="font-semibold text-gray-700 dark:text-gray-300">Width:</span>
-                      <span className="font-bold text-gray-900 dark:text-gray-100">{vessel.width} inches</span>
+                <CardHeader className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900">
+                  <div className="flex justify-between items-center mb-3">
+                    <div className="bg-amber-600 text-white px-3 py-1.5 rounded-full font-bold text-sm">
+                      {vessel.name}
                     </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="font-semibold text-gray-700 dark:text-gray-300">Height:</span>
-                      <span className="font-bold text-gray-900 dark:text-gray-100">{vessel.height} inches</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="font-semibold text-gray-700 dark:text-gray-300">Volume:</span>
-                      <span className="font-bold text-gray-900 dark:text-gray-100">{vessel.volume} cu in</span>
+                    <div className="bg-green-500 text-white px-2.5 py-1 rounded-full text-xs font-bold">
+                      {calc.volumeOz.toFixed(1)} oz
                     </div>
                   </div>
-                </div>
+                  
+                  {/* Vessel Image */}
+                  {vessel.imageName && (
+                    <div className="bg-white dark:bg-gray-700 p-3 rounded-lg flex items-center justify-center mb-3 min-h-[180px]">
+                      <Image
+                        src={`/images/${vessel.imageName}`}
+                        alt={vessel.name}
+                        width={160}
+                        height={160}
+                        className="object-contain"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = 'none';
+                        }}
+                      />
+                    </div>
+                  )}
+                </CardHeader>
 
-                {/* Cost Breakdown */}
-                <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border-2 border-gray-200 dark:border-gray-700">
-                  <h4 className="text-xs font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider mb-3">
-                    Cost Breakdown
-                  </h4>
-                  <div className="space-y-2">
-                    <div className="flex justify-between items-center pb-2 border-b border-dashed border-gray-300 dark:border-gray-600">
-                      <span className="text-sm text-gray-600 dark:text-gray-400">
-                        🏗️ Cement
-                      </span>
-                      <span className="font-bold text-gray-900 dark:text-gray-100">
-                        ${materialPrices.cement.toFixed(2)}
-                      </span>
+                <CardContent className="pt-4">
+                  {/* Dimensions */}
+                  <div className="bg-white dark:bg-gray-800 p-3 rounded-lg mb-3 border-2 border-gray-200 dark:border-gray-700">
+                    <h4 className="text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wider mb-2">
+                      📏 Dimensions
+                    </h4>
+                    <div className="space-y-1.5">
+                      <div className="flex justify-between text-xs">
+                        <span className="text-gray-600 dark:text-gray-400">Diameter:</span>
+                        <span className="font-bold text-gray-900 dark:text-gray-100">{diameterDisplay}</span>
+                      </div>
+                      <div className="flex justify-between text-xs">
+                        <span className="text-gray-600 dark:text-gray-400">Height:</span>
+                        <span className="font-bold text-gray-900 dark:text-gray-100">{heightDisplay}</span>
+                      </div>
+                      <div className="flex justify-between text-xs">
+                        <span className="text-gray-600 dark:text-gray-400">Volume:</span>
+                        <span className="font-bold text-gray-900 dark:text-gray-100">{calc.fullVolume.toFixed(0)} cm³</span>
+                      </div>
                     </div>
-                    <div className="flex justify-between items-center pb-2 border-b border-dashed border-gray-300 dark:border-gray-600">
-                      <span className="text-sm text-gray-600 dark:text-gray-400">
-                        🎨 Paint
-                      </span>
-                      <span className="font-bold text-gray-900 dark:text-gray-100">
-                        ${materialPrices.paint.toFixed(2)}
-                      </span>
+                  </div>
+
+                  {/* Materials Required */}
+                  <div className="bg-green-50 dark:bg-green-900/20 p-3 rounded-lg mb-3 border-2 border-green-300 dark:border-green-700">
+                    <h4 className="text-xs font-bold text-green-800 dark:text-green-300 uppercase tracking-wider mb-2">
+                      ⚖️ Materials (Grams)
+                    </h4>
+                    <div className="space-y-1.5">
+                      <div className="flex justify-between items-center text-xs bg-white dark:bg-gray-800 p-1.5 rounded">
+                        <span className="text-gray-600 dark:text-gray-400">🕯️ Wax</span>
+                        <span className="font-bold text-green-700 dark:text-green-400">{calc.waxWeight.toFixed(1)}g</span>
+                      </div>
+                      <div className="flex justify-between items-center text-xs bg-white dark:bg-gray-800 p-1.5 rounded">
+                        <span className="text-gray-600 dark:text-gray-400">🌸 Fragrance</span>
+                        <span className="font-bold text-green-700 dark:text-green-400">{calc.fragranceWeight.toFixed(1)}g</span>
+                      </div>
+                      <div className="flex justify-between items-center text-xs bg-white dark:bg-gray-800 p-1.5 rounded">
+                        <span className="text-gray-600 dark:text-gray-400">🏗️ Cement</span>
+                        <span className="font-bold text-green-700 dark:text-green-400">{calc.cementWeight.toFixed(0)}g</span>
+                      </div>
+                      <div className="flex justify-between items-center text-xs bg-white dark:bg-gray-800 p-1.5 rounded">
+                        <span className="text-gray-600 dark:text-gray-400">🧵 Wicks</span>
+                        <span className="font-bold text-green-700 dark:text-green-400">{calc.wicksNeeded}</span>
+                      </div>
                     </div>
+                  </div>
+
+                  {/* Cost Breakdown */}
+                  <div className="bg-white dark:bg-gray-800 p-3 rounded-lg mb-3 border-2 border-gray-200 dark:border-gray-700">
+                    <h4 className="text-xs font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider mb-2">
+                      💵 Cost Breakdown
+                    </h4>
+                    <div className="space-y-1.5">
+                      <div className="flex justify-between text-xs pb-1 border-b border-dashed border-gray-300 dark:border-gray-600">
+                        <span className="text-gray-600 dark:text-gray-400">Wax</span>
+                        <span className="font-bold text-gray-900 dark:text-gray-100">${calc.waxCost.toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between text-xs pb-1 border-b border-dashed border-gray-300 dark:border-gray-600">
+                        <span className="text-gray-600 dark:text-gray-400">Fragrance</span>
+                        <span className="font-bold text-gray-900 dark:text-gray-100">${calc.fragranceCost.toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between text-xs pb-1 border-b border-dashed border-gray-300 dark:border-gray-600">
+                        <span className="text-gray-600 dark:text-gray-400">Cement</span>
+                        <span className="font-bold text-gray-900 dark:text-gray-100">${calc.cementCost.toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between text-xs pb-1 border-b border-dashed border-gray-300 dark:border-gray-600">
+                        <span className="text-gray-600 dark:text-gray-400">Wicks</span>
+                        <span className="font-bold text-gray-900 dark:text-gray-100">${calc.wickCost.toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between text-xs">
+                        <span className="text-gray-600 dark:text-gray-400">Paint/Dye</span>
+                        <span className="font-bold text-gray-900 dark:text-gray-100">${calc.paintCost.toFixed(2)}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Total Cost */}
+                  <div className="bg-gradient-to-r from-amber-600 to-yellow-600 text-white p-3 rounded-lg shadow-lg">
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600 dark:text-gray-400">
-                        🌸 Scent ({materialPrices.scentPercentage}%)
-                      </span>
-                      <span className="font-bold text-gray-900 dark:text-gray-100">
-                        ${scentCostPerVessel.toFixed(2)}
-                      </span>
+                      <span className="font-bold text-sm">TOTAL COST</span>
+                      <span className="font-bold text-xl">${calc.totalCost.toFixed(2)}</span>
                     </div>
                   </div>
-                </div>
-
-                {/* Total Cost */}
-                <div className="mt-4 bg-gradient-to-r from-amber-600 to-yellow-600 text-white p-4 rounded-lg shadow-lg">
-                  <div className="flex justify-between items-center">
-                    <span className="font-bold text-lg">TOTAL COST</span>
-                    <span className="font-bold text-2xl">${totalCostPerVessel.toFixed(2)}</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                </CardContent>
+              </Card>
+            )
+          })}
         </div>
 
         {/* Summary Section */}
         <Card className="mb-8 border-4 border-amber-300 dark:border-amber-700">
           <CardHeader className="bg-gradient-to-r from-amber-50 to-orange-100 dark:from-amber-950 dark:to-orange-900">
             <CardTitle className="text-2xl text-center text-amber-900 dark:text-amber-100">
-              📈 Cost Summary
+              📊 Comparison Summary
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-6">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse min-w-[800px]">
+                <thead>
+                  <tr className="bg-amber-700 text-white">
+                    <th className="p-3 text-left font-bold text-sm">Vessel</th>
+                    <th className="p-3 text-left font-bold text-sm">Dimensions</th>
+                    <th className="p-3 text-left font-bold text-sm">Wax (g)</th>
+                    <th className="p-3 text-left font-bold text-sm">Fragrance (g)</th>
+                    <th className="p-3 text-left font-bold text-sm">Cement (g)</th>
+                    <th className="p-3 text-left font-bold text-sm">Total Cost</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {vesselCalculations.map(({ vessel, calc }) => {
+                    const diameterDisplay = vessel.unit === 'cm' ? `${vessel.diameter}cm` : `${vessel.diameter}"`
+                    const heightDisplay = vessel.unit === 'cm' ? `${vessel.height}cm` : `${vessel.height}"`
+                    
+                    return (
+                      <tr 
+                        key={vessel.id}
+                        className="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800"
+                      >
+                        <td className="p-3">
+                          <strong className="text-gray-900 dark:text-gray-100">{vessel.name}</strong>
+                        </td>
+                        <td className="p-3 text-gray-700 dark:text-gray-300 text-sm">
+                          {diameterDisplay} × {heightDisplay}
+                        </td>
+                        <td className="p-3 text-gray-700 dark:text-gray-300 text-sm">
+                          {calc.waxWeight.toFixed(1)}g
+                        </td>
+                        <td className="p-3 text-gray-700 dark:text-gray-300 text-sm">
+                          {calc.fragranceWeight.toFixed(1)}g
+                        </td>
+                        <td className="p-3 text-gray-700 dark:text-gray-300 text-sm">
+                          {calc.cementWeight.toFixed(0)}g
+                        </td>
+                        <td className="p-3">
+                          <strong className="text-amber-600 dark:text-amber-400 text-base">
+                            ${calc.totalCost.toFixed(2)}
+                          </strong>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-6">
               <div className="bg-white dark:bg-gray-800 p-6 rounded-xl text-center shadow-md">
                 <div className="text-sm text-gray-600 dark:text-gray-400 uppercase tracking-wide mb-2">
-                  All Vessels
+                  Vessels
                 </div>
                 <div className="text-3xl font-bold text-amber-600 dark:text-amber-400">
-                  ${totalCostPerVessel.toFixed(2)}
+                  {vessels.length}
                 </div>
                 <div className="text-xs text-gray-500 dark:text-gray-500 mt-1">
-                  per unit cost
+                  total options
                 </div>
               </div>
 
               <div className="bg-white dark:bg-gray-800 p-6 rounded-xl text-center shadow-md">
                 <div className="text-sm text-gray-600 dark:text-gray-400 uppercase tracking-wide mb-2">
-                  Largest ({largestVessel.id})
+                  Largest ({largestVessel.vessel.name})
                 </div>
                 <div className="text-3xl font-bold text-amber-600 dark:text-amber-400">
-                  {largestVessel.volume} in³
+                  {largestVessel.calc.volumeOz.toFixed(1)} oz
                 </div>
                 <div className="text-xs text-gray-500 dark:text-gray-500 mt-1">
                   volume
@@ -587,10 +706,10 @@ export default function VesselCalculator() {
 
               <div className="bg-white dark:bg-gray-800 p-6 rounded-xl text-center shadow-md">
                 <div className="text-sm text-gray-600 dark:text-gray-400 uppercase tracking-wide mb-2">
-                  Smallest ({smallestVessel.id})
+                  Smallest ({smallestVessel.vessel.name})
                 </div>
                 <div className="text-3xl font-bold text-amber-600 dark:text-amber-400">
-                  {smallestVessel.volume} in³
+                  {smallestVessel.calc.volumeOz.toFixed(1)} oz
                 </div>
                 <div className="text-xs text-gray-500 dark:text-gray-500 mt-1">
                   volume
@@ -599,13 +718,13 @@ export default function VesselCalculator() {
 
               <div className="bg-white dark:bg-gray-800 p-6 rounded-xl text-center shadow-md">
                 <div className="text-sm text-gray-600 dark:text-gray-400 uppercase tracking-wide mb-2">
-                  Scent Cost
+                  Avg Cost
                 </div>
                 <div className="text-3xl font-bold text-amber-600 dark:text-amber-400">
-                  {totalCostPerVessel > 0 ? ((scentCostPerVessel / totalCostPerVessel) * 100).toFixed(0) : 0}%
+                  ${(vesselCalculations.reduce((sum, vc) => sum + vc.calc.totalCost, 0) / vesselCalculations.length).toFixed(2)}
                 </div>
                 <div className="text-xs text-gray-500 dark:text-gray-500 mt-1">
-                  of total cost
+                  per vessel
                 </div>
               </div>
             </div>
@@ -616,7 +735,7 @@ export default function VesselCalculator() {
         <Card className="border-4 border-green-300 dark:border-green-700">
           <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-100 dark:from-green-950 dark:to-emerald-900">
             <CardTitle className="text-2xl text-center text-green-900 dark:text-green-100">
-              💵 Profit Margin Calculator
+              💰 Profit Calculator
             </CardTitle>
             <p className="text-center text-green-700 dark:text-green-300 mt-2">
               Calculate your profit based on selling price
@@ -625,16 +744,24 @@ export default function VesselCalculator() {
           <CardContent className="pt-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
               <div className="bg-white dark:bg-gray-800 p-5 rounded-lg border-2 border-green-200 dark:border-green-800">
-                <Label htmlFor="costPrice" className="text-green-900 dark:text-green-100 font-bold">
-                  Cost Per Vessel
+                <Label htmlFor="profitVessel" className="text-green-900 dark:text-green-100 font-bold mb-2 block">
+                  Select Vessel
                 </Label>
-                <Input
-                  id="costPrice"
-                  type="number"
-                  value={totalCostPerVessel.toFixed(2)}
-                  readOnly
-                  className="mt-2 text-lg font-bold bg-gray-100 dark:bg-gray-700"
-                />
+                <select
+                  id="profitVessel"
+                  value={profitCalc.selectedVesselIndex}
+                  onChange={(e) => handleProfitChange('selectedVesselIndex', e.target.value)}
+                  className="w-full px-3 py-2 border-2 border-green-200 dark:border-green-700 rounded-md text-sm font-bold bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                >
+                  {vesselCalculations.map(({ vessel }, index) => (
+                    <option key={vessel.id} value={index}>
+                      {vessel.name}
+                    </option>
+                  ))}
+                </select>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">
+                  Cost: ${selectedVesselCalc.totalCost.toFixed(2)}
+                </p>
               </div>
 
               <div className="bg-white dark:bg-gray-800 p-5 rounded-lg border-2 border-green-200 dark:border-green-800">
@@ -667,46 +794,83 @@ export default function VesselCalculator() {
             </div>
 
             <div className="bg-white dark:bg-gray-800 p-8 rounded-xl border-2 border-green-200 dark:border-green-800">
-              <div className="text-center mb-6">
-                <div className="text-green-700 dark:text-green-300 font-bold text-lg mb-3">
-                  PROFIT PER VESSEL
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+                <div className="text-center bg-green-50 dark:bg-green-900/20 p-5 rounded-lg">
+                  <div className="text-xs text-green-700 dark:text-green-300 font-bold uppercase mb-2">
+                    Cost Per Unit
+                  </div>
+                  <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+                    ${selectedVesselCalc.totalCost.toFixed(2)}
+                  </div>
                 </div>
-                <div className={`text-5xl font-bold mb-2 ${getProfitColor(profitPerUnit)}`}>
-                  ${profitPerUnit.toFixed(2)}
+
+                <div className="text-center bg-green-50 dark:bg-green-900/20 p-5 rounded-lg">
+                  <div className="text-xs text-green-700 dark:text-green-300 font-bold uppercase mb-2">
+                    Profit Per Unit
+                  </div>
+                  <div className={`text-3xl font-bold ${getProfitColor(profitPerUnit)}`}>
+                    ${profitPerUnit.toFixed(2)}
+                  </div>
+                  <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                    {profitMargin.toFixed(0)}% margin
+                  </div>
                 </div>
-                <div className="text-2xl text-green-600 dark:text-green-400 font-semibold">
-                  Margin: {profitMargin.toFixed(0)}%
+
+                <div className="text-center bg-green-50 dark:bg-green-900/20 p-5 rounded-lg">
+                  <div className="text-xs text-green-700 dark:text-green-300 font-bold uppercase mb-2">
+                    Total Profit
+                  </div>
+                  <div className="text-3xl font-bold text-green-600 dark:text-green-400">
+                    ${totalProfit.toFixed(2)}
+                  </div>
+                  <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                    {profitCalc.quantity} units
+                  </div>
+                </div>
+
+                <div className="text-center bg-green-50 dark:bg-green-900/20 p-5 rounded-lg">
+                  <div className="text-xs text-green-700 dark:text-green-300 font-bold uppercase mb-2">
+                    Total Revenue
+                  </div>
+                  <div className="text-3xl font-bold text-green-600 dark:text-green-400">
+                    ${totalRevenue.toFixed(2)}
+                  </div>
                 </div>
               </div>
 
-              <div className="border-t-2 border-dashed border-green-300 dark:border-green-700 pt-6 mt-6">
-                <div className="text-center mb-4">
-                  <div className="text-green-700 dark:text-green-300 font-bold text-lg mb-3">
-                    TOTAL PROFIT FOR {profitCalc.quantity} VESSELS
-                  </div>
-                  <div className="text-4xl font-bold text-green-600 dark:text-green-400 mb-4">
-                    ${totalProfit.toFixed(2)}
-                  </div>
-                </div>
-                <div className="text-center text-sm text-gray-600 dark:text-gray-400">
-                  Total Revenue: <span className="font-bold text-gray-900 dark:text-gray-100">${totalRevenue.toFixed(2)}</span> | 
-                  Total Cost: <span className="font-bold text-gray-900 dark:text-gray-100">${totalCost.toFixed(2)}</span>
-                </div>
+              <div className="text-center text-sm text-gray-600 dark:text-gray-400 pt-4 border-t-2 border-dashed border-green-300 dark:border-green-700">
+                Total Cost for {profitCalc.quantity} units: <span className="font-bold text-gray-900 dark:text-gray-100">${totalCost.toFixed(2)}</span>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Pricing Recommendations */}
-        <div className="mt-8 bg-gradient-to-r from-yellow-50 to-amber-50 dark:from-yellow-900/20 dark:to-amber-900/20 border-l-4 border-yellow-500 p-6 rounded-lg">
-          <div className="font-bold text-yellow-900 dark:text-yellow-100 text-lg mb-3">
-            💡 Pricing Recommendations:
+        {/* Pricing Recommendations and Important Notes */}
+        <div className="mt-8 space-y-6">
+          <div className="bg-gradient-to-r from-yellow-50 to-amber-50 dark:from-yellow-900/20 dark:to-amber-900/20 border-l-4 border-yellow-500 p-6 rounded-lg">
+            <div className="font-bold text-yellow-900 dark:text-yellow-100 text-lg mb-3">
+              💡 Pricing Recommendations:
+            </div>
+            <div className="space-y-2 text-gray-700 dark:text-gray-300 text-sm">
+              <p>• <strong>Wholesale (Bulk Orders):</strong> Consider ${(selectedVesselCalc.totalCost * 2.5).toFixed(2)}-${(selectedVesselCalc.totalCost * 3.7).toFixed(2)} per vessel (2.5x-3.7x markup)</p>
+              <p>• <strong>Retail (Individual):</strong> Consider ${(selectedVesselCalc.totalCost * 5).toFixed(2)}-${(selectedVesselCalc.totalCost * 7).toFixed(2)} per vessel (5x-7x markup)</p>
+              <p>• <strong>Premium/Custom:</strong> Consider ${(selectedVesselCalc.totalCost * 8).toFixed(2)}-${(selectedVesselCalc.totalCost * 12).toFixed(2)} per vessel (8x-12x markup)</p>
+              <p className="text-sm italic">• <strong>Don&apos;t forget:</strong> Add labor costs, overhead, packaging, and marketing to your pricing!</p>
+            </div>
           </div>
-          <div className="space-y-2 text-gray-700 dark:text-gray-300">
-            <p>• <strong>Wholesale (Bulk Orders):</strong> Consider ${(totalCostPerVessel * 2.5).toFixed(2)}-${(totalCostPerVessel * 3.7).toFixed(2)} per vessel (2.5x-3.7x markup)</p>
-            <p>• <strong>Retail (Individual):</strong> Consider ${(totalCostPerVessel * 5).toFixed(2)}-${(totalCostPerVessel * 7).toFixed(2)} per vessel (5x-7x markup)</p>
-            <p>• <strong>Premium/Custom:</strong> Consider ${(totalCostPerVessel * 8).toFixed(2)}-${(totalCostPerVessel * 12).toFixed(2)} per vessel (8x-12x markup)</p>
-            <p className="text-sm italic">• <strong>Don&apos;t forget:</strong> Add labor costs, overhead, packaging, and marketing to your pricing!</p>
+
+          <div className="bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500 p-6 rounded-lg">
+            <div className="font-bold text-blue-900 dark:text-blue-100 text-lg mb-3">
+              📝 Important Notes:
+            </div>
+            <div className="space-y-2 text-gray-700 dark:text-gray-300 text-sm">
+              <p>• All calculations use actual cylindrical volume formulas (π × r² × h)</p>
+              <p>• Wax amounts include {materialPrices.fillPercent}% fill to prevent overflow</p>
+              <p>• Fragrance is calculated at {materialPrices.fragranceLoad}% of wax weight</p>
+              <p>• Cement weight is for the vessel mold itself</p>
+              <p>• Material densities: Soy (0.9 g/cm³), Coconut Apricot (0.92 g/cm³), Cement (2.4 g/cm³)</p>
+              <p>• Update prices above anytime they change - all calculations update automatically!</p>
+            </div>
           </div>
         </div>
       </div>
