@@ -314,10 +314,10 @@ export default function VesselCalculator() {
             />
             <div>
               <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-                Vessel Cost Calculator
+                🏺 Vessel Cost Calculator
               </h1>
               <p className="text-gray-600 dark:text-gray-400">
-                Calculate production costs for {vessels.length} vessel styles
+                Calculate production costs for {vessels.length} vessel styles • Updated v2.0
               </p>
             </div>
           </div>
