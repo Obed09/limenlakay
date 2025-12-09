@@ -1,7 +1,7 @@
 'use client'
-// Material & Cost Calculator - 6 Vessels
+// Material & Cost Calculator - 6 Vessels - BUILD: 2025-12-09-20:45
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -298,6 +298,13 @@ export default function VesselCalculator() {
   const smallestVessel = vesselCalculations.reduce((min, vc) => 
     vc.calc.fullVolume < min.calc.fullVolume ? vc : min, vesselCalculations[0]
   )
+
+  // Force console log to verify version
+  useEffect(() => {
+    console.log('🚀 VESSEL CALCULATOR LOADED - BUILD: 2025-12-09-20:45')
+    console.log('📊 Total Vessels:', vessels.length)
+    console.log('🏺 Vessels:', vessels.map(v => v.name))
+  }, [])
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 py-8">
