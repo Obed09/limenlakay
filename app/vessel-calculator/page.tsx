@@ -317,7 +317,7 @@ export default function VesselCalculator() {
                 Vessel Cost Calculator
               </h1>
               <p className="text-gray-600 dark:text-gray-400">
-                Calculate production costs for each vessel style
+                Calculate production costs for {vessels.length} vessel styles
               </p>
             </div>
           </div>
@@ -502,7 +502,7 @@ export default function VesselCalculator() {
         </Card>
 
         {/* Vessels Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-6 gap-6 mb-8">
           {vesselCalculations.map(({ vessel, calc }) => {
             const diameterDisplay = vessel.unit === 'cm' ? `${vessel.diameter}cm` : `${vessel.diameter}"`
             const heightDisplay = vessel.unit === 'cm' ? `${vessel.height}cm` : `${vessel.height}"`
