@@ -1,0 +1,3 @@
+Force deployment update - December 9, 2025
+All 6 vessels should now be visible
+This file forces Vercel to recognize changes
