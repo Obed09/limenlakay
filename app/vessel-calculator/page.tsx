@@ -300,8 +300,13 @@ export default function VesselCalculator() {
   )
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-indigo-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 py-8">
       <div className="max-w-7xl mx-auto px-4">
+        {/* UPDATED VERSION - 6 VESSELS */}
+        <div className="mb-4 p-4 bg-green-100 border-2 border-green-500 rounded-lg text-center">
+          <p className="text-green-900 font-bold text-xl">✅ NEW VERSION LOADED - 6 VESSELS ACTIVE - {new Date().toLocaleString()}</p>
+        </div>
+        
         {/* Header */}
         <div className="mb-6 flex items-center justify-between flex-wrap gap-4">
           <div className="flex items-center gap-3">
