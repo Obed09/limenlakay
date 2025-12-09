@@ -513,6 +513,183 @@ export default function VesselCalculator() {
           </CardContent>
         </Card>
 
+        {/* Custom Candle Cost Calculator */}
+        <Card className="mb-6 border-4 border-pink-300 dark:border-pink-700">
+          <CardHeader className="bg-gradient-to-r from-pink-50 to-rose-100 dark:from-pink-950 dark:to-rose-900">
+            <CardTitle className="text-2xl text-pink-900 dark:text-pink-100">
+              🕯️ Custom Candle Cost Calculator
+            </CardTitle>
+            <p className="text-pink-700 dark:text-pink-300 mt-2 text-sm">
+              Calculate costs for candles with multiple scents
+            </p>
+          </CardHeader>
+          <CardContent className="pt-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+              <div className="md:col-span-2">
+                <Label htmlFor="candleName" className="text-pink-900 dark:text-pink-100 font-semibold text-base">
+                  Candle Name
+                </Label>
+                <Input
+                  id="candleName"
+                  type="text"
+                  value={candleName}
+                  onChange={(e) => setCandleName(e.target.value)}
+                  placeholder="e.g., Tropical Paradise, Ocean Breeze..."
+                  className="mt-2 text-lg"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="scentCount" className="text-pink-900 dark:text-pink-100 font-semibold text-base">
+                  Number of Scents
+                </Label>
+                <Input
+                  id="scentCount"
+                  type="number"
+                  min="1"
+                  max="10"
+                  value={scentCount}
+                  onChange={(e) => handleScentCountChange(parseInt(e.target.value) || 1)}
+                  className="mt-2 text-lg font-bold"
+                />
+              </div>
+            </div>
+
+            {/* Scent Names Input */}
+            <div className="mb-6 bg-purple-50 dark:bg-purple-900/20 p-5 rounded-lg border-2 border-purple-300 dark:border-purple-700">
+              <Label className="text-purple-900 dark:text-purple-100 font-bold text-lg mb-4 flex items-center gap-2">
+                🌸 Scent Names & Details
+                <span className="text-sm font-normal text-purple-700 dark:text-purple-300">
+                  (Specify each scent in your blend)
+                </span>
+              </Label>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {Array.from({ length: scentCount }).map((_, index) => (
+                  <div key={index} className="bg-white dark:bg-gray-800 p-3 rounded-lg border border-purple-200 dark:border-purple-800">
+                    <Label htmlFor={`scent-${index}`} className="text-sm font-semibold text-purple-700 dark:text-purple-300 mb-2 block">
+                      Scent #{index + 1}
+                    </Label>
+                    <Input
+                      id={`scent-${index}`}
+                      type="text"
+                      value={scentNames[index] || ''}
+                      onChange={(e) => handleScentNameChange(index, e.target.value)}
+                      placeholder={index === 0 ? 'e.g., Vanilla' : index === 1 ? 'e.g., Lavender' : 'e.g., Rose'}
+                      className="mt-1"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-r from-pink-50 to-rose-50 dark:from-pink-900/20 dark:to-rose-900/20 p-6 rounded-xl border-2 border-pink-300 dark:border-pink-700 mb-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-700 dark:text-gray-300">🏗️ Cement:</span>
+                    <span className="font-bold text-gray-900 dark:text-gray-100">${materialPrices.cementPricePerLb.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-700 dark:text-gray-300">🎨 Paint:</span>
+                    <span className="font-bold text-gray-900 dark:text-gray-100">${materialPrices.paintPrice.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-700 dark:text-gray-300">🌸 Scent (${(materialPrices.fragrancePricePerLb * 0.1).toFixed(2)} × {scentCount}):</span>
+                    <span className="font-bold text-gray-900 dark:text-gray-100">${((materialPrices.fragrancePricePerLb * 0.1) * scentCount).toFixed(2)}</span>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-center">
+                  <div className="text-center bg-white dark:bg-gray-800 p-6 rounded-lg border-2 border-pink-400 dark:border-pink-600 w-full">
+                    <div className="text-sm text-pink-700 dark:text-pink-300 font-semibold mb-2">
+                      TOTAL COST
+                    </div>
+                    <div className="text-4xl font-bold text-pink-600 dark:text-pink-400">
+                      ${(materialPrices.cementPricePerLb + materialPrices.paintPrice + (materialPrices.fragrancePricePerLb * 0.1 * scentCount)).toFixed(2)}
+                    </div>
+                    <div className="text-xs text-gray-600 dark:text-gray-400 mt-2">
+                      {scentCount} scent{scentCount > 1 ? 's' : ''} blend
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <button
+                onClick={saveCustomCandle}
+                className="w-full bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-700 hover:to-rose-700 text-white font-bold py-3 px-6 rounded-lg transition-all transform hover:scale-105 shadow-lg"
+              >
+                💾 Save This Candle Recipe
+              </button>
+            </div>
+
+            {/* Saved Candles List */}
+            {savedCandles.length > 0 && (
+              <div className="mt-6">
+                <h3 className="text-lg font-bold text-pink-900 dark:text-pink-100 mb-4">
+                  📋 Saved Candle Recipes ({savedCandles.length})
+                </h3>
+                <div className="space-y-3">
+                  {savedCandles.map((candle) => (
+                    <div
+                      key={candle.id}
+                      className="bg-white dark:bg-gray-800 p-5 rounded-lg border-2 border-pink-200 dark:border-pink-800 hover:border-pink-400 dark:hover:border-pink-600 transition-colors"
+                    >
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2">
+                            <h4 className="font-bold text-xl text-gray-900 dark:text-gray-100">
+                              {candle.name}
+                            </h4>
+                            <span className="bg-pink-100 dark:bg-pink-900 text-pink-800 dark:text-pink-200 px-3 py-1 rounded-full text-sm font-semibold">
+                              {candle.scentCount} scent{candle.scentCount > 1 ? 's' : ''}
+                            </span>
+                          </div>
+                          
+                          {/* Scent Names Display */}
+                          {candle.scentNames && candle.scentNames.length > 0 && (
+                            <div className="mb-3 flex flex-wrap gap-2">
+                              {candle.scentNames.map((scentName, idx) => (
+                                <span
+                                  key={idx}
+                                  className="bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 px-3 py-1 rounded-full text-xs font-medium border border-purple-300 dark:border-purple-700"
+                                >
+                                  🌸 {scentName}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                          
+                          <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
+                            <span>💰 Cost: <strong className="text-pink-600 dark:text-pink-400 text-base">${candle.cost.toFixed(2)}</strong></span>
+                            <span>📅 {candle.dateCreated}</span>
+                          </div>
+                        </div>
+                        
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => loadCandleTemplate(candle)}
+                            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors font-semibold whitespace-nowrap"
+                            title="Load this recipe as a template"
+                          >
+                            📝 Load
+                          </button>
+                          <button
+                            onClick={() => deleteCandle(candle.id)}
+                            className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors font-semibold"
+                            title="Delete this recipe"
+                          >
+                            🗑️
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
         {/* Vessels Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-6 gap-6 mb-8">
           {vesselCalculations.map(({ vessel, calc }) => {
