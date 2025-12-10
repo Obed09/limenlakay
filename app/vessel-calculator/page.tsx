@@ -25,6 +25,9 @@ interface CustomCandle {
   scentNames: string[]
   cost: number
   dateCreated: string
+  rating?: number  // 1-5 stars
+  notes?: string   // Recipe observations and notes
+  tags?: string[]  // Category tags (season, mood, etc.)
 }
 
 interface VesselCalculation {
@@ -113,6 +116,9 @@ export default function VesselCalculator() {
   const [candleName, setCandleName] = useState('')
   const [scentCount, setScentCount] = useState(1)
   const [scentNames, setScentNames] = useState<string[]>([''])
+  const [candleRating, setCandleRating] = useState(0)
+  const [candleNotes, setCandleNotes] = useState('')
+  const [candleTags, setCandleTags] = useState<string[]>([])
   const [savedCandles, setSavedCandles] = useState<CustomCandle[]>([])
 
   // Profit calculator
@@ -253,13 +259,19 @@ export default function VesselCalculator() {
       scentCount: scentCount,
       scentNames: scentNames.filter(s => s.trim() !== ''),
       cost: referenceCost,
-      dateCreated: new Date().toLocaleDateString()
+      dateCreated: new Date().toLocaleDateString(),
+      rating: candleRating > 0 ? candleRating : undefined,
+      notes: candleNotes.trim() || undefined,
+      tags: candleTags.length > 0 ? candleTags : undefined
     }
     
     setSavedCandles(prev => [newCandle, ...prev])
     setCandleName('')
     setScentCount(1)
     setScentNames([''])
+    setCandleRating(0)
+    setCandleNotes('')
+    setCandleTags([])
   }
 
   // Delete saved candle
@@ -272,9 +284,27 @@ export default function VesselCalculator() {
     setCandleName(candle.name)
     setScentCount(candle.scentCount)
     setScentNames([...candle.scentNames])
+    setCandleRating(candle.rating || 0)
+    setCandleNotes(candle.notes || '')
+    setCandleTags(candle.tags || [])
     // Scroll to top
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
+
+  // Tag management
+  const toggleTag = (tag: string) => {
+    setCandleTags(prev => 
+      prev.includes(tag) 
+        ? prev.filter(t => t !== tag)
+        : [...prev, tag]
+    )
+  }
+
+  const predefinedTags = [
+    '🌸 Spring', '☀️ Summer', '🍂 Fall', '❄️ Winter',
+    '😌 Relaxing', '⚡ Energizing', '💝 Romantic', '🎄 Holiday',
+    '🌿 Fresh', '🍰 Sweet', '🌊 Ocean', '🌲 Woodsy'
+  ]
 
   // Profit calculations based on selected vessel
   const selectedVesselCalc = vesselCalculations[profitCalc.selectedVesselIndex]?.calc || vesselCalculations[0].calc
@@ -582,6 +612,81 @@ export default function VesselCalculator() {
               </div>
             </div>
 
+            {/* Rating System */}
+            <div className="mb-6 bg-amber-50 dark:bg-amber-900/20 p-5 rounded-lg border-2 border-amber-300 dark:border-amber-700">
+              <Label className="text-amber-900 dark:text-amber-100 font-bold text-lg mb-4 flex items-center gap-2">
+                ⭐ Recipe Rating
+                <span className="text-sm font-normal text-amber-700 dark:text-amber-300">
+                  (Rate the overall quality)
+                </span>
+              </Label>
+              <div className="flex gap-3 items-center">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button
+                    key={star}
+                    type="button"
+                    onClick={() => setCandleRating(candleRating === star ? 0 : star)}
+                    className={`text-4xl transition-all transform hover:scale-110 ${
+                      star <= candleRating 
+                        ? 'text-yellow-500 drop-shadow-lg' 
+                        : 'text-gray-300 dark:text-gray-600 hover:text-yellow-400'
+                    }`}
+                  >
+                    ★
+                  </button>
+                ))}
+                {candleRating > 0 && (
+                  <span className="ml-3 text-lg font-semibold text-amber-700 dark:text-amber-300">
+                    {candleRating} / 5 stars
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* Notes Section */}
+            <div className="mb-6 bg-blue-50 dark:bg-blue-900/20 p-5 rounded-lg border-2 border-blue-300 dark:border-blue-700">
+              <Label htmlFor="candleNotes" className="text-blue-900 dark:text-blue-100 font-bold text-lg mb-4 flex items-center gap-2">
+                📝 Recipe Notes
+                <span className="text-sm font-normal text-blue-700 dark:text-blue-300">
+                  (Performance, scent throw, burn time, improvements)
+                </span>
+              </Label>
+              <textarea
+                id="candleNotes"
+                value={candleNotes}
+                onChange={(e) => setCandleNotes(e.target.value)}
+                placeholder="e.g., Strong cold throw, burns evenly for 6 hours, could use less fragrance oil next time..."
+                className="w-full min-h-[100px] p-3 rounded-lg border-2 border-blue-200 dark:border-blue-800 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
+                rows={4}
+              />
+            </div>
+
+            {/* Tags Section */}
+            <div className="mb-6 bg-teal-50 dark:bg-teal-900/20 p-5 rounded-lg border-2 border-teal-300 dark:border-teal-700">
+              <Label className="text-teal-900 dark:text-teal-100 font-bold text-lg mb-4 flex items-center gap-2">
+                🏷️ Category Tags
+                <span className="text-sm font-normal text-teal-700 dark:text-teal-300">
+                  (Select all that apply)
+                </span>
+              </Label>
+              <div className="flex flex-wrap gap-2">
+                {predefinedTags.map((tag) => (
+                  <button
+                    key={tag}
+                    type="button"
+                    onClick={() => toggleTag(tag)}
+                    className={`px-4 py-2 rounded-full text-sm font-semibold transition-all transform hover:scale-105 ${
+                      candleTags.includes(tag)
+                        ? 'bg-teal-600 text-white shadow-lg'
+                        : 'bg-white dark:bg-gray-800 text-teal-700 dark:text-teal-300 border-2 border-teal-300 dark:border-teal-700 hover:border-teal-500'
+                    }`}
+                  >
+                    {tag}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <div className="bg-gradient-to-r from-pink-50 to-rose-50 dark:from-pink-900/20 dark:to-rose-900/20 p-6 rounded-xl border-2 border-pink-300 dark:border-pink-700 mb-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div className="space-y-2">
@@ -643,6 +748,17 @@ export default function VesselCalculator() {
                             <span className="bg-pink-100 dark:bg-pink-900 text-pink-800 dark:text-pink-200 px-3 py-1 rounded-full text-sm font-semibold">
                               {candle.scentCount} scent{candle.scentCount > 1 ? 's' : ''}
                             </span>
+                            {/* Rating Display */}
+                            {candle.rating && candle.rating > 0 && (
+                              <div className="flex items-center gap-1">
+                                {Array.from({ length: candle.rating }).map((_, i) => (
+                                  <span key={i} className="text-yellow-500 text-lg">★</span>
+                                ))}
+                                <span className="text-gray-500 dark:text-gray-400 text-sm ml-1">
+                                  ({candle.rating}/5)
+                                </span>
+                              </div>
+                            )}
                           </div>
                           
                           {/* Scent Names Display */}
@@ -656,6 +772,32 @@ export default function VesselCalculator() {
                                   🌸 {scentName}
                                 </span>
                               ))}
+                            </div>
+                          )}
+
+                          {/* Tags Display */}
+                          {candle.tags && candle.tags.length > 0 && (
+                            <div className="mb-3 flex flex-wrap gap-2">
+                              {candle.tags.map((tag, idx) => (
+                                <span
+                                  key={idx}
+                                  className="bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300 px-3 py-1 rounded-full text-xs font-semibold border border-teal-300 dark:border-teal-700"
+                                >
+                                  {tag}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+
+                          {/* Notes Display */}
+                          {candle.notes && (
+                            <div className="mb-3 bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-200 dark:border-blue-700">
+                              <div className="text-xs font-semibold text-blue-700 dark:text-blue-300 mb-1">
+                                📝 Notes:
+                              </div>
+                              <div className="text-sm text-gray-700 dark:text-gray-300">
+                                {candle.notes}
+                              </div>
                             </div>
                           )}
                           
