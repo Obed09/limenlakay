@@ -120,6 +120,7 @@ export default function VesselCalculator() {
   const [candleNotes, setCandleNotes] = useState('')
   const [candleTags, setCandleTags] = useState<string[]>([])
   const [savedCandles, setSavedCandles] = useState<CustomCandle[]>([])
+  const [expandedCategories, setExpandedCategories] = useState<string[]>(['season', 'scent-profile'])
 
   // Profit calculator
   const [profitCalc, setProfitCalc] = useState({
@@ -300,10 +301,97 @@ export default function VesselCalculator() {
     )
   }
 
-  const predefinedTags = [
-    '🌸 Spring', '☀️ Summer', '🍂 Fall', '❄️ Winter',
-    '😌 Relaxing', '⚡ Energizing', '💝 Romantic', '🎄 Holiday',
-    '🌿 Fresh', '🍰 Sweet', '🌊 Ocean', '🌲 Woodsy'
+  const toggleCategory = (categoryId: string) => {
+    setExpandedCategories(prev =>
+      prev.includes(categoryId)
+        ? prev.filter(id => id !== categoryId)
+        : [...prev, categoryId]
+    )
+  }
+
+  const tagCategories = [
+    {
+      id: 'season',
+      name: 'Season',
+      emoji: '📅',
+      tags: ['🌸 Spring', '☀️ Summer', '🍂 Fall', '❄️ Winter']
+    },
+    {
+      id: 'scent-profile',
+      name: 'Scent Profile',
+      emoji: '🌺',
+      tags: [
+        '🌺 Floral', '🍊 Citrus', '🍓 Fruity', '🧁 Gourmand',
+        '🌿 Herbal', '🌶️ Spicy', '🧼 Clean/Spa', '🌍 Earthy',
+        '🌲 Woodsy', '🌊 Ocean'
+      ]
+    },
+    {
+      id: 'purpose-mood',
+      name: 'Purpose/Mood',
+      emoji: '😌',
+      tags: [
+        '😴 Sleep/Calming', '🧘 Meditation', '💪 Focus', '☀️ Uplifting',
+        '🛁 Self-Care', '😌 Relaxing', '⚡ Energizing', '💝 Romantic'
+      ]
+    },
+    {
+      id: 'occasions',
+      name: 'Occasions/Events',
+      emoji: '🎉',
+      tags: [
+        '💍 Wedding', '🎂 Birthday', '💝 Anniversary', 
+        '👶 Baby Shower', '🏠 Housewarming', '🎄 Holiday'
+      ]
+    },
+    {
+      id: 'target-audience',
+      name: 'Target Audience',
+      emoji: '👥',
+      tags: ['👔 Men\'s', '👗 Women\'s', '⚖️ Unisex', '🐕 Pet-Friendly']
+    },
+    {
+      id: 'scent-strength',
+      name: 'Scent Strength',
+      emoji: '💨',
+      tags: ['💪 Strong', '⚖️ Medium', '🕊️ Light/Subtle']
+    },
+    {
+      id: 'business-status',
+      name: 'Business Status',
+      emoji: '⭐',
+      tags: [
+        '⭐ Bestseller', '✨ New', '🔥 Limited Edition',
+        '👑 Signature', '🧪 Testing'
+      ]
+    },
+    {
+      id: 'price-tier',
+      name: 'Price Tier',
+      emoji: '💰',
+      tags: ['💵 Budget', '💎 Premium', '👑 Luxury']
+    },
+    {
+      id: 'room-environment',
+      name: 'Room/Environment',
+      emoji: '🏠',
+      tags: [
+        '🛏️ Bedroom', '🛁 Bathroom', '🍳 Kitchen',
+        '🛋️ Living Room', '💼 Office'
+      ]
+    },
+    {
+      id: 'time-of-day',
+      name: 'Time of Day',
+      emoji: '🕐',
+      tags: ['🌅 Morning', '🌞 Afternoon', '🌙 Evening']
+    },
+    {
+      id: 'color-aesthetic',
+      name: 'Color/Aesthetic',
+      emoji: '🎨',
+      tags: ['🎨 Colorful', '⚪ Neutral', '⚫ Dark/Moody', '🌈 Pastel']
+    }
   ]
 
   // Profit calculations based on selected vessel
@@ -669,21 +757,82 @@ export default function VesselCalculator() {
                   (Select all that apply)
                 </span>
               </Label>
-              <div className="flex flex-wrap gap-2">
-                {predefinedTags.map((tag) => (
-                  <button
-                    key={tag}
-                    type="button"
-                    onClick={() => toggleTag(tag)}
-                    className={`px-4 py-2 rounded-full text-sm font-semibold transition-all transform hover:scale-105 ${
-                      candleTags.includes(tag)
-                        ? 'bg-teal-600 text-white shadow-lg'
-                        : 'bg-white dark:bg-gray-800 text-teal-700 dark:text-teal-300 border-2 border-teal-300 dark:border-teal-700 hover:border-teal-500'
-                    }`}
-                  >
-                    {tag}
-                  </button>
-                ))}
+              
+              {/* Selected Tags Summary */}
+              {candleTags.length > 0 && (
+                <div className="mb-4 p-3 bg-white dark:bg-gray-800 rounded-lg border-2 border-teal-400 dark:border-teal-600">
+                  <div className="text-xs font-semibold text-teal-700 dark:text-teal-300 mb-2">
+                    Selected ({candleTags.length}):
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {candleTags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="bg-teal-600 text-white px-3 py-1 rounded-full text-xs font-semibold"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Tag Categories Accordion */}
+              <div className="space-y-2">
+                {tagCategories.map((category) => {
+                  const isExpanded = expandedCategories.includes(category.id)
+                  const selectedInCategory = candleTags.filter(tag => 
+                    category.tags.includes(tag)
+                  ).length
+
+                  return (
+                    <div key={category.id} className="bg-white dark:bg-gray-800 rounded-lg border-2 border-teal-200 dark:border-teal-800 overflow-hidden">
+                      {/* Category Header */}
+                      <button
+                        type="button"
+                        onClick={() => toggleCategory(category.id)}
+                        className="w-full flex items-center justify-between p-3 hover:bg-teal-100 dark:hover:bg-teal-900/30 transition-colors"
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="text-xl">{category.emoji}</span>
+                          <span className="font-semibold text-teal-900 dark:text-teal-100">
+                            {category.name}
+                          </span>
+                          {selectedInCategory > 0 && (
+                            <span className="bg-teal-600 text-white px-2 py-0.5 rounded-full text-xs font-bold">
+                              {selectedInCategory}
+                            </span>
+                          )}
+                        </div>
+                        <span className={`text-teal-600 dark:text-teal-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`}>
+                          ▼
+                        </span>
+                      </button>
+
+                      {/* Category Tags */}
+                      {isExpanded && (
+                        <div className="p-3 pt-0 border-t border-teal-200 dark:border-teal-800">
+                          <div className="flex flex-wrap gap-2 pt-3">
+                            {category.tags.map((tag) => (
+                              <button
+                                key={tag}
+                                type="button"
+                                onClick={() => toggleTag(tag)}
+                                className={`px-3 py-1.5 rounded-full text-sm font-semibold transition-all transform hover:scale-105 ${
+                                  candleTags.includes(tag)
+                                    ? 'bg-teal-600 text-white shadow-lg'
+                                    : 'bg-gray-100 dark:bg-gray-700 text-teal-700 dark:text-teal-300 border border-teal-300 dark:border-teal-700 hover:border-teal-500'
+                                }`}
+                              >
+                                {tag}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )
+                })}
               </div>
             </div>
 
