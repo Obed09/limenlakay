@@ -146,6 +146,12 @@ export default function VesselCalculator() {
   const [editingRecipe, setEditingRecipe] = useState<Recipe | null>(null)
   const [showNewRecipeModal, setShowNewRecipeModal] = useState(false)
 
+  // Batch Production
+  const [showBatchModal, setShowBatchModal] = useState(false)
+  const [batchRecipe, setBatchRecipe] = useState<Recipe | null>(null)
+  const [batchQuantity, setBatchQuantity] = useState(100)
+  const [batchVesselIndex, setBatchVesselIndex] = useState(0)
+
   // Profit calculator
   const [profitCalc, setProfitCalc] = useState({
     selectedVesselIndex: 0,
@@ -692,6 +698,51 @@ export default function VesselCalculator() {
       setSelectedRecipe(null)
     }
   }
+
+  // Open batch production planner
+  const openBatchPlanner = (recipe: Recipe) => {
+    setBatchRecipe(recipe)
+    setBatchQuantity(100)
+    setShowBatchModal(true)
+  }
+
+  // Calculate batch materials
+  const calculateBatchMaterials = () => {
+    if (!batchRecipe) return null
+
+    const vesselCalc = vesselCalculations[batchVesselIndex]
+    if (!vesselCalc) return null
+
+    const singleUnitCost = vesselCalc.calc.totalCost
+    const batchCost = singleUnitCost * batchQuantity
+
+    // Calculate material totals in grams
+    const waxGrams = vesselCalc.calc.waxWeight * batchQuantity
+    const fragranceGrams = vesselCalc.calc.fragranceWeight * batchQuantity
+    const cementGrams = vesselCalc.calc.cementWeight * batchQuantity
+    const wicksNeeded = vesselCalc.calc.wicksNeeded * batchQuantity
+
+    // Convert to pounds (453.6g = 1lb)
+    const waxLbs = waxGrams / 453.6
+    const fragranceLbs = fragranceGrams / 453.6
+    const cementLbs = cementGrams / 453.6
+
+    return {
+      singleUnitCost,
+      batchCost,
+      waxGrams,
+      fragranceGrams,
+      cementGrams,
+      waxLbs,
+      fragranceLbs,
+      cementLbs,
+      wicksNeeded,
+      vessel: vesselCalc.vessel,
+      volumeOz: vesselCalc.calc.volumeOz
+    }
+  }
+
+  const batchMaterials = calculateBatchMaterials()
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 py-8">
@@ -1440,6 +1491,15 @@ export default function VesselCalculator() {
                       >
                         📝 Load
                       </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          openBatchPlanner(recipe)
+                        }}
+                        className="flex-1 bg-orange-600 hover:bg-orange-700 text-white py-2 rounded-lg font-semibold text-sm transition-all"
+                      >
+                        📦 Batch
+                      </button>
                     </div>
                   </div>
                 ))}
@@ -1798,6 +1858,211 @@ export default function VesselCalculator() {
                         className="flex-1 bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl font-bold transition-all"
                       >
                         💾 Save Recipe
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Batch Production Modal */}
+            {showBatchModal && batchRecipe && batchMaterials && (
+              <div
+                className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4"
+                onClick={() => setShowBatchModal(false)}
+              >
+                <div
+                  className="bg-white dark:bg-gray-800 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {/* Modal Header */}
+                  <div className="bg-gradient-to-r from-orange-600 to-amber-600 text-white p-6 rounded-t-2xl relative">
+                    <h2 className="text-3xl font-bold mb-2">📦 Batch Production Planner</h2>
+                    <p className="text-white/90">{batchRecipe.name}</p>
+                    <button
+                      onClick={() => setShowBatchModal(false)}
+                      className="absolute top-4 right-4 bg-white text-orange-600 w-10 h-10 rounded-full font-bold text-xl hover:bg-gray-100 transition-all"
+                    >
+                      ×
+                    </button>
+                  </div>
+
+                  {/* Modal Body */}
+                  <div className="p-6">
+                    {/* Batch Configuration */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                      <div>
+                        <Label className="text-gray-900 dark:text-gray-100 font-semibold mb-2 block text-lg">
+                          Batch Quantity
+                        </Label>
+                        <Input
+                          type="number"
+                          value={batchQuantity}
+                          onChange={(e) => setBatchQuantity(parseInt(e.target.value) || 1)}
+                          min="1"
+                          className="text-2xl font-bold"
+                        />
+                      </div>
+
+                      <div>
+                        <Label className="text-gray-900 dark:text-gray-100 font-semibold mb-2 block text-lg">
+                          Vessel Type
+                        </Label>
+                        <select
+                          value={batchVesselIndex}
+                          onChange={(e) => setBatchVesselIndex(parseInt(e.target.value))}
+                          className="w-full p-3 border-2 border-orange-200 dark:border-orange-800 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 text-lg font-semibold"
+                        >
+                          {vessels.map((vessel, idx) => (
+                            <option key={vessel.id} value={idx}>
+                              {vessel.name} ({vesselCalculations[idx].calc.volumeOz.toFixed(1)} oz)
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+
+                    {/* Cost Summary */}
+                    <div className="bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20 p-6 rounded-xl border-2 border-orange-300 dark:border-orange-700 mb-6">
+                      <h3 className="text-xl font-bold text-orange-900 dark:text-orange-100 mb-4">💰 Cost Summary</h3>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
+                          <div className="text-sm text-gray-600 dark:text-gray-400">Single Unit</div>
+                          <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">
+                            ${batchMaterials.singleUnitCost.toFixed(2)}
+                          </div>
+                        </div>
+                        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
+                          <div className="text-sm text-gray-600 dark:text-gray-400">Batch Total</div>
+                          <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">
+                            ${batchMaterials.batchCost.toFixed(2)}
+                          </div>
+                        </div>
+                        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
+                          <div className="text-sm text-gray-600 dark:text-gray-400">Units</div>
+                          <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">
+                            {batchQuantity}
+                          </div>
+                        </div>
+                        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
+                          <div className="text-sm text-gray-600 dark:text-gray-400">Volume Each</div>
+                          <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">
+                            {batchMaterials.volumeOz.toFixed(1)} oz
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Shopping List */}
+                    <div className="bg-white dark:bg-gray-800 border-2 border-orange-200 dark:border-orange-800 rounded-xl p-6 mb-6">
+                      <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">🛒 Shopping List</h3>
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                          <div>
+                            <span className="font-semibold text-gray-900 dark:text-gray-100">🕯️ {materialPrices.waxType === 'soy' ? 'Soy' : 'Coconut'} Wax</span>
+                            <div className="text-sm text-gray-600 dark:text-gray-400">
+                              {batchMaterials.waxGrams.toFixed(0)}g ({batchMaterials.waxLbs.toFixed(2)} lbs)
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <div className="font-bold text-orange-600 dark:text-orange-400">
+                              ${(batchMaterials.waxLbs * materialPrices.waxPricePerLb).toFixed(2)}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                          <div>
+                            <span className="font-semibold text-gray-900 dark:text-gray-100">🌸 Fragrance Oil</span>
+                            <div className="text-sm text-gray-600 dark:text-gray-400">
+                              {batchMaterials.fragranceGrams.toFixed(0)}g ({batchMaterials.fragranceLbs.toFixed(2)} lbs)
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <div className="font-bold text-orange-600 dark:text-orange-400">
+                              ${(batchMaterials.fragranceLbs * materialPrices.fragrancePricePerLb).toFixed(2)}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                          <div>
+                            <span className="font-semibold text-gray-900 dark:text-gray-100">🏗️ Cement/Container Material</span>
+                            <div className="text-sm text-gray-600 dark:text-gray-400">
+                              {batchMaterials.cementGrams.toFixed(0)}g ({batchMaterials.cementLbs.toFixed(2)} lbs)
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <div className="font-bold text-orange-600 dark:text-orange-400">
+                              ${(batchMaterials.cementLbs * materialPrices.cementPricePerLb).toFixed(2)}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                          <div>
+                            <span className="font-semibold text-gray-900 dark:text-gray-100">🧵 Wicks</span>
+                            <div className="text-sm text-gray-600 dark:text-gray-400">
+                              {batchMaterials.wicksNeeded} wicks needed
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <div className="font-bold text-orange-600 dark:text-orange-400">
+                              ${(batchMaterials.wicksNeeded * materialPrices.wickPrice).toFixed(2)}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                          <div>
+                            <span className="font-semibold text-gray-900 dark:text-gray-100">🎨 Paint/Finishing</span>
+                            <div className="text-sm text-gray-600 dark:text-gray-400">
+                              {batchQuantity} units
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <div className="font-bold text-orange-600 dark:text-orange-400">
+                              ${(batchQuantity * materialPrices.paintPrice).toFixed(2)}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Recipe Ingredients */}
+                    <div className="bg-purple-50 dark:bg-purple-900/20 border-2 border-purple-300 dark:border-purple-700 rounded-xl p-6 mb-6">
+                      <h3 className="text-xl font-bold text-purple-900 dark:text-purple-100 mb-4">🌸 Scent Blend</h3>
+                      <div className="grid grid-cols-2 gap-3">
+                        {Object.entries(batchRecipe.ingredients).map(([ingredient, percent]) => (
+                          <div key={ingredient} className="bg-white dark:bg-gray-800 p-3 rounded-lg">
+                            <div className="font-semibold text-gray-900 dark:text-gray-100">{ingredient}</div>
+                            <div className="text-lg text-purple-600 dark:text-purple-400 font-bold">{percent}%</div>
+                            <div className="text-sm text-gray-600 dark:text-gray-400">
+                              {((batchMaterials.fragranceGrams * percent) / 100).toFixed(1)}g
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex gap-3">
+                      <button
+                        onClick={() => {
+                          const text = `BATCH PRODUCTION - ${batchRecipe.name}\n\nQuantity: ${batchQuantity} units\nVessel: ${batchMaterials.vessel.name}\n\nSHOPPING LIST:\n🕯️ Wax: ${batchMaterials.waxLbs.toFixed(2)} lbs ($${(batchMaterials.waxLbs * materialPrices.waxPricePerLb).toFixed(2)})\n🌸 Fragrance: ${batchMaterials.fragranceLbs.toFixed(2)} lbs ($${(batchMaterials.fragranceLbs * materialPrices.fragrancePricePerLb).toFixed(2)})\n🏗️ Cement: ${batchMaterials.cementLbs.toFixed(2)} lbs ($${(batchMaterials.cementLbs * materialPrices.cementPricePerLb).toFixed(2)})\n🧵 Wicks: ${batchMaterials.wicksNeeded} ($${(batchMaterials.wicksNeeded * materialPrices.wickPrice).toFixed(2)})\n🎨 Paint: $${(batchQuantity * materialPrices.paintPrice).toFixed(2)}\n\nTOTAL COST: $${batchMaterials.batchCost.toFixed(2)}\nCost per unit: $${batchMaterials.singleUnitCost.toFixed(2)}`
+                          navigator.clipboard.writeText(text)
+                        }}
+                        className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-xl font-bold transition-all text-lg"
+                      >
+                        📋 Copy Shopping List
+                      </button>
+                      <button
+                        onClick={() => {
+                          window.print()
+                        }}
+                        className="flex-1 bg-green-600 hover:bg-green-700 text-white py-4 rounded-xl font-bold transition-all text-lg"
+                      >
+                        🖨️ Print
                       </button>
                     </div>
                   </div>
