@@ -1222,6 +1222,7 @@ export default function VesselCalculator() {
                     className="bg-white dark:bg-gray-800 border-3 border-indigo-200 dark:border-indigo-800 rounded-xl p-5 hover:border-indigo-500 dark:hover:border-indigo-500 hover:shadow-xl transition-all cursor-pointer relative overflow-hidden"
                     onClick={() => {
                       setSelectedRecipe(recipe)
+                      setEditingRecipe({ ...recipe })
                       setShowRecipeModal(true)
                     }}
                   >
@@ -1302,10 +1303,13 @@ export default function VesselCalculator() {
             )}
 
             {/* Recipe Modal */}
-            {showRecipeModal && selectedRecipe && (
+            {showRecipeModal && selectedRecipe && editingRecipe && (
               <div
                 className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4"
-                onClick={() => setShowRecipeModal(false)}
+                onClick={() => {
+                  setShowRecipeModal(false)
+                  setEditingRecipe(null)
+                }}
               >
                 <div
                   className="bg-white dark:bg-gray-800 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
@@ -1313,14 +1317,22 @@ export default function VesselCalculator() {
                 >
                   {/* Modal Header */}
                   <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-6 rounded-t-2xl relative">
-                    <h2 className="text-2xl font-bold mb-2">{selectedRecipe.name}</h2>
+                    <Input
+                      value={editingRecipe.name}
+                      onChange={(e) => setEditingRecipe({ ...editingRecipe, name: e.target.value })}
+                      className="text-2xl font-bold mb-2 bg-white/20 border-white/40 text-white placeholder:text-white/70"
+                      placeholder="Recipe name..."
+                    />
                     {selectedRecipe.isUserRecipe && (
                       <span className="bg-yellow-400 text-yellow-900 px-3 py-1 rounded-full text-xs font-bold">
                         ⭐ YOUR RECIPE
                       </span>
                     )}
                     <button
-                      onClick={() => setShowRecipeModal(false)}
+                      onClick={() => {
+                        setShowRecipeModal(false)
+                        setEditingRecipe(null)
+                      }}
                       className="absolute top-4 right-4 bg-white text-indigo-600 w-10 h-10 rounded-full font-bold text-xl hover:bg-gray-100 transition-all"
                     >
                       ×
@@ -1329,57 +1341,124 @@ export default function VesselCalculator() {
 
                   {/* Modal Body */}
                   <div className="p-6">
+                    <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-300 dark:border-blue-700 rounded-lg">
+                      <p className="text-blue-900 dark:text-blue-100 text-sm font-semibold">
+                        ✏️ Edit Mode: Click ingredient names and percentages to modify. Add new ingredients or adjust existing ones!
+                      </p>
+                    </div>
+
                     {/* Tags */}
                     <div className="flex flex-wrap gap-2 mb-6">
-                      {selectedRecipe.profile && (
+                      {editingRecipe.profile && (
                         <span className="bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-3 py-1.5 rounded-full text-sm font-semibold">
-                          {selectedRecipe.profile}
+                          {editingRecipe.profile}
                         </span>
                       )}
-                      {selectedRecipe.purpose && (
+                      {editingRecipe.purpose && (
                         <span className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 px-3 py-1.5 rounded-full text-sm font-semibold">
-                          {selectedRecipe.purpose}
+                          {editingRecipe.purpose}
                         </span>
                       )}
-                      {selectedRecipe.audience && (
+                      {editingRecipe.audience && (
                         <span className="bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 px-3 py-1.5 rounded-full text-sm font-semibold">
-                          {selectedRecipe.audience}
+                          {editingRecipe.audience}
                         </span>
                       )}
                     </div>
 
-                    {/* Ingredients */}
+                    {/* Editable Ingredients */}
                     <div className="bg-gray-50 dark:bg-gray-900 p-5 rounded-xl mb-6">
-                      <h3 className="font-bold text-lg mb-4 text-gray-900 dark:text-gray-100">Ingredients</h3>
+                      <div className="flex justify-between items-center mb-4">
+                        <h3 className="font-bold text-lg text-gray-900 dark:text-gray-100">Ingredients</h3>
+                        <span className="text-sm text-gray-600 dark:text-gray-400">
+                          Total: {Object.values(editingRecipe.ingredients).reduce((a, b) => a + b, 0)}%
+                        </span>
+                      </div>
                       <div className="space-y-3">
-                        {Object.entries(selectedRecipe.ingredients).map(([ingredient, percent]) => (
-                          <div key={ingredient} className="flex justify-between items-center py-2 border-b border-gray-200 dark:border-gray-700 last:border-0">
-                            <span className="text-gray-700 dark:text-gray-300 font-medium">{ingredient}</span>
-                            <span className="font-bold text-indigo-600 dark:text-indigo-400 text-lg">{percent}%</span>
+                        {Object.entries(editingRecipe.ingredients).map(([ingredient, percent], idx) => (
+                          <div key={idx} className="flex gap-2 items-center py-2 border-b border-gray-200 dark:border-gray-700 last:border-0">
+                            <Input
+                              value={ingredient}
+                              onChange={(e) => {
+                                const newIngredients = { ...editingRecipe.ingredients }
+                                delete newIngredients[ingredient]
+                                newIngredients[e.target.value] = percent
+                                setEditingRecipe({ ...editingRecipe, ingredients: newIngredients })
+                              }}
+                              className="flex-1 text-sm"
+                              placeholder="Ingredient name"
+                            />
+                            <Input
+                              type="number"
+                              value={percent}
+                              onChange={(e) => {
+                                const newIngredients = { ...editingRecipe.ingredients }
+                                newIngredients[ingredient] = parseInt(e.target.value) || 0
+                                setEditingRecipe({ ...editingRecipe, ingredients: newIngredients })
+                              }}
+                              className="w-20 text-sm font-bold text-indigo-600 dark:text-indigo-400"
+                              min="0"
+                              max="100"
+                            />
+                            <span className="text-indigo-600 dark:text-indigo-400 font-bold">%</span>
+                            <button
+                              onClick={() => {
+                                const newIngredients = { ...editingRecipe.ingredients }
+                                delete newIngredients[ingredient]
+                                setEditingRecipe({ ...editingRecipe, ingredients: newIngredients })
+                              }}
+                              className="text-red-500 hover:text-red-700 font-bold text-lg px-2"
+                              title="Remove ingredient"
+                            >
+                              ×
+                            </button>
                           </div>
                         ))}
                       </div>
+                      
+                      {/* Add New Ingredient */}
+                      <button
+                        onClick={() => {
+                          const newIngredients = { ...editingRecipe.ingredients }
+                          newIngredients['New Ingredient'] = 10
+                          setEditingRecipe({ ...editingRecipe, ingredients: newIngredients })
+                        }}
+                        className="mt-4 w-full py-2 border-2 border-dashed border-indigo-300 dark:border-indigo-700 rounded-lg text-indigo-600 dark:text-indigo-400 font-semibold hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all"
+                      >
+                        + Add Ingredient
+                      </button>
                     </div>
 
                     {/* Actions */}
                     <div className="flex gap-3">
                       <button
                         onClick={() => {
-                          copyRecipe(selectedRecipe)
-                          setShowRecipeModal(false)
+                          copyRecipe(editingRecipe)
                         }}
                         className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl font-bold transition-all"
                       >
-                        📋 Copy to Clipboard
+                        📋 Copy
                       </button>
                       <button
                         onClick={() => {
-                          loadRecipeToCalculator(selectedRecipe)
+                          loadRecipeToCalculator(editingRecipe)
                           setShowRecipeModal(false)
+                          setEditingRecipe(null)
                         }}
                         className="flex-1 bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-xl font-bold transition-all"
                       >
                         📝 Load to Calculator
+                      </button>
+                      <button
+                        onClick={() => {
+                          // Save edited recipe to recipes list
+                          setRecipes(prev => prev.map(r => r.id === editingRecipe.id ? editingRecipe : r))
+                          setShowRecipeModal(false)
+                          setEditingRecipe(null)
+                        }}
+                        className="flex-1 bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl font-bold transition-all"
+                      >
+                        💾 Save Changes
                       </button>
                     </div>
                   </div>
