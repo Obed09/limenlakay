@@ -2108,8 +2108,27 @@ export default function VesselCalculator() {
                         </div>
                       </div>
 
+                      {/* Safety Disclaimer */}
+                      <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-300 dark:border-yellow-700 rounded p-2">
+                        <div className="font-semibold text-yellow-800 dark:text-yellow-300 text-xs mb-1">⚠️ Safety:</div>
+                        <div className="text-xs text-gray-700 dark:text-gray-300 leading-relaxed">
+                          Use candles and wax melts responsibly and at your own risk. By lighting this candle or using wax melts, you agree to follow all safety instructions provided by "Limen Lakay"
+                        </div>
+                      </div>
+
+                      {/* Contact Info */}
+                      <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-300 dark:border-blue-700 rounded p-2">
+                        <div className="font-semibold text-blue-800 dark:text-blue-300 text-xs mb-1">📞 Contact Us:</div>
+                        <div className="text-xs text-gray-700 dark:text-gray-300 space-y-0.5">
+                          <div>🌐 www.limenlakay.com</div>
+                          <div>📷 @limenlakay</div>
+                          <div>✉️ info@limenlakay.com</div>
+                          <div>📱 +1 (561) 593 0238</div>
+                        </div>
+                      </div>
+
                       {/* Footer */}
-                      <div className="text-center pt-3 border-t-2 border-gray-200 dark:border-gray-700">
+                      <div className="text-center pt-2 border-t-2 border-gray-200 dark:border-gray-700">
                         <div className="text-xs font-semibold text-gray-900 dark:text-gray-100">{labelData.brandName}</div>
                         <div className="text-xs text-gray-600 dark:text-gray-400">{labelData.madeIn}</div>
                         <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">Net Wt: {labelData.netWeight}</div>
@@ -2145,7 +2164,7 @@ export default function VesselCalculator() {
                 <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-3">
                   <button
                     onClick={() => {
-                      const text = `CANDLE LABEL\n\n${labelData.brandName}\n${labelData.productName}\n${labelData.scentProfile}\n\n${labelData.netWeight}\nBurn Time: ${labelData.burnTime}\n${labelData.waxType}\n\nIngredients: ${labelData.waxType}, Fragrance Oils (${labelData.ingredients})\n\nBatch: ${labelData.batchCode}\n${labelData.madeIn}\n\nSAFETY:\n${labelData.warnings.join('\n')}`
+                      const text = `CANDLE LABEL\n\n${labelData.brandName}\n${labelData.productName}\n${labelData.scentProfile}\n\n${labelData.netWeight}\nBurn Time: ${labelData.burnTime}\n${labelData.waxType}\n\nIngredients: ${labelData.waxType}, Fragrance Oils (${labelData.ingredients})\n\nBatch: ${labelData.batchCode}\n${labelData.madeIn}\n\nSAFETY INSTRUCTIONS:\n${labelData.warnings.join('\n')}\n\n⚠️ SAFETY:\nUse candles and wax melts responsibly and at your own risk. By lighting this candle or using wax melts, you agree to follow all safety instructions provided by "Limen Lakay"\n\nCONTACT INFO:\n🌐 www.limenlakay.com\n📷 @limenlakay\n✉️ info@limenlakay.com\n📱 +1 (561) 593 0238`
                       navigator.clipboard.writeText(text)
                     }}
                     className="bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl font-bold transition-all"
