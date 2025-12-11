@@ -450,17 +450,128 @@ export default function VesselCalculator() {
   // Initialize recipe database
   useEffect(() => {
     const initialRecipes: Recipe[] = [
-      // Your saved candles will appear here too
+      // FLORAL
       { id: 1, name: "Romantic Rose Garden", profile: "Floral", ingredients: {Rose: 40, Jasmine: 30, Vanilla: 20, Sandalwood: 10}, audience: "Women's" },
       { id: 2, name: "Lavender Dream", profile: "Floral", ingredients: {Lavender: 50, Chamomile: 20, Vanilla: 20, Cedarwood: 10}, purpose: "Sleep/Calming", audience: "Unisex" },
-      { id: 3, name: "Sunshine Burst", profile: "Citrus", ingredients: {"Sweet Orange": 40, Lemon: 30, Grapefruit: 20, Bergamot: 10}, purpose: "Uplifting", audience: "Unisex" },
-      { id: 4, name: "Berry Bliss", profile: "Fruity", ingredients: {Strawberry: 35, Raspberry: 25, Blueberry: 20, Vanilla: 20}, audience: "Women's" },
-      { id: 5, name: "Vanilla Bean", profile: "Gourmand", ingredients: {Vanilla: 60, Cream: 20, Caramel: 15, Sugar: 5}, audience: "Women's" },
-      { id: 6, name: "Spa Retreat", profile: "Herbal", ingredients: {Eucalyptus: 40, Mint: 30, Sage: 20, Lavender: 10}, purpose: "Self-Care", audience: "Unisex" },
-      { id: 7, name: "Cinnamon Spice", profile: "Spicy", ingredients: {Cinnamon: 40, Clove: 25, Nutmeg: 20, Vanilla: 15}, audience: "Unisex" },
-      { id: 8, name: "Fresh Linen", profile: "Clean/Spa", ingredients: {Cotton: 40, Linen: 30, Lavender: 20, Vanilla: 10}, audience: "Unisex" },
-      { id: 9, name: "Forest Walk", profile: "Earthy", ingredients: {Cedarwood: 35, Pine: 30, Moss: 20, Sandalwood: 15}, audience: "Men's" },
-      { id: 10, name: "Ocean Breeze", profile: "Clean/Spa", ingredients: {"Sea Salt": 35, Ozone: 30, Jasmine: 20, Driftwood: 15}, audience: "Unisex" },
+      { id: 3, name: "Spring Bouquet", profile: "Floral", ingredients: {Peony: 35, Lilac: 25, Rose: 20, "White Musk": 20}, audience: "Women's" },
+      { id: 4, name: "Garden Paradise", profile: "Floral", ingredients: {Gardenia: 40, Jasmine: 30, "Orange Blossom": 20, "Green Leaves": 10}, audience: "Women's" },
+      
+      // CITRUS
+      { id: 5, name: "Sunshine Burst", profile: "Citrus", ingredients: {"Sweet Orange": 40, Lemon: 30, Grapefruit: 20, Bergamot: 10}, purpose: "Uplifting", audience: "Unisex" },
+      { id: 6, name: "Mediterranean Coast", profile: "Citrus", ingredients: {Lemon: 35, Lime: 25, Basil: 20, "Sea Salt": 20}, audience: "Unisex" },
+      { id: 7, name: "Citrus Grove", profile: "Citrus", ingredients: {Orange: 30, Mandarin: 25, Grapefruit: 25, Mint: 20}, purpose: "Uplifting", audience: "Unisex" },
+      { id: 8, name: "Tropical Citrus", profile: "Citrus", ingredients: {Lime: 40, Pineapple: 25, Coconut: 20, Vanilla: 15}, audience: "Unisex" },
+      
+      // FRUITY
+      { id: 9, name: "Berry Bliss", profile: "Fruity", ingredients: {Strawberry: 35, Raspberry: 25, Blueberry: 20, Vanilla: 20}, audience: "Women's" },
+      { id: 10, name: "Tropical Paradise", profile: "Fruity", ingredients: {Pineapple: 30, Mango: 30, Papaya: 20, Coconut: 20}, audience: "Unisex" },
+      { id: 11, name: "Autumn Harvest", profile: "Fruity", ingredients: {Apple: 40, Pear: 25, Cinnamon: 20, Clove: 15}, audience: "Unisex" },
+      { id: 12, name: "Peach Orchard", profile: "Fruity", ingredients: {Peach: 50, Apricot: 25, Vanilla: 15, Almond: 10}, audience: "Women's" },
+      
+      // GOURMAND
+      { id: 13, name: "Vanilla Bean", profile: "Gourmand", ingredients: {Vanilla: 60, Cream: 20, Caramel: 15, Sugar: 5}, audience: "Women's" },
+      { id: 14, name: "Bakery Fresh", profile: "Gourmand", ingredients: {Vanilla: 30, Butter: 25, "Sugar Cookie": 25, Cinnamon: 20}, audience: "Unisex" },
+      { id: 15, name: "Caramel Latte", profile: "Gourmand", ingredients: {Coffee: 35, Caramel: 30, Vanilla: 20, Cream: 15}, purpose: "Focus", audience: "Unisex" },
+      { id: 16, name: "Chocolate Decadence", profile: "Gourmand", ingredients: {"Dark Chocolate": 50, Vanilla: 25, Hazelnut: 15, Coffee: 10}, audience: "Unisex" },
+      
+      // HERBAL
+      { id: 17, name: "Spa Retreat", profile: "Herbal", ingredients: {Eucalyptus: 40, Mint: 30, Sage: 20, Lavender: 10}, purpose: "Self-Care", audience: "Unisex" },
+      { id: 18, name: "Herb Garden", profile: "Herbal", ingredients: {Basil: 30, Rosemary: 25, Thyme: 25, Lemon: 20}, audience: "Unisex" },
+      { id: 19, name: "Mint Refresh", profile: "Herbal", ingredients: {Peppermint: 50, Spearmint: 25, Eucalyptus: 15, Vanilla: 10}, purpose: "Focus", audience: "Unisex" },
+      { id: 20, name: "Tea Time", profile: "Herbal", ingredients: {"Green Tea": 40, Jasmine: 25, Lemongrass: 20, Ginger: 15}, audience: "Unisex" },
+      
+      // SPICY
+      { id: 21, name: "Cinnamon Spice", profile: "Spicy", ingredients: {Cinnamon: 40, Clove: 25, Nutmeg: 20, Vanilla: 15}, audience: "Unisex" },
+      { id: 22, name: "Warm Chai", profile: "Spicy", ingredients: {"Chai Spice": 35, Cinnamon: 25, Cardamom: 20, Vanilla: 20}, audience: "Unisex" },
+      { id: 23, name: "Pumpkin Spice", profile: "Spicy", ingredients: {Pumpkin: 35, Cinnamon: 25, Nutmeg: 20, Clove: 10, Vanilla: 10}, audience: "Unisex" },
+      { id: 24, name: "Ginger Snap", profile: "Spicy", ingredients: {Ginger: 45, Cinnamon: 25, Molasses: 20, Vanilla: 10}, audience: "Unisex" },
+      
+      // CLEAN/SPA
+      { id: 25, name: "Fresh Linen", profile: "Clean/Spa", ingredients: {Cotton: 40, Linen: 30, Lavender: 20, Vanilla: 10}, audience: "Unisex" },
+      { id: 26, name: "Ocean Breeze", profile: "Clean/Spa", ingredients: {"Sea Salt": 35, Ozone: 30, Jasmine: 20, Driftwood: 15}, audience: "Unisex" },
+      { id: 27, name: "White Tea", profile: "Clean/Spa", ingredients: {"White Tea": 50, Ginger: 20, Bergamot: 20, Honey: 10}, purpose: "Meditation", audience: "Unisex" },
+      { id: 28, name: "Spa Day", profile: "Clean/Spa", ingredients: {Eucalyptus: 35, Spearmint: 25, Lavender: 25, Vanilla: 15}, purpose: "Self-Care", audience: "Unisex" },
+      
+      // EARTHY
+      { id: 29, name: "Forest Walk", profile: "Earthy", ingredients: {Cedarwood: 35, Pine: 30, Moss: 20, Sandalwood: 15}, audience: "Men's" },
+      { id: 30, name: "Patchouli Dream", profile: "Earthy", ingredients: {Patchouli: 45, Sandalwood: 25, Vanilla: 20, Amber: 10}, audience: "Unisex" },
+      { id: 31, name: "Sandalwood Serenity", profile: "Earthy", ingredients: {Sandalwood: 50, Vanilla: 25, Amber: 15, Cedar: 10}, purpose: "Meditation", audience: "Unisex" },
+      { id: 32, name: "Woodsy Cabin", profile: "Earthy", ingredients: {Cedarwood: 35, Oakmoss: 25, Pine: 20, Amber: 20}, audience: "Men's" },
+      
+      // SLEEP/CALMING
+      { id: 33, name: "Sweet Dreams", purpose: "Sleep/Calming", ingredients: {Lavender: 50, Chamomile: 25, Vanilla: 15, Cedarwood: 10}, audience: "Unisex" },
+      { id: 34, name: "Nighttime Zen", purpose: "Sleep/Calming", ingredients: {Lavender: 40, Bergamot: 25, Sandalwood: 20, "Ylang Ylang": 15}, audience: "Unisex" },
+      { id: 35, name: "Peaceful Slumber", purpose: "Sleep/Calming", ingredients: {Lavender: 35, Vanilla: 30, Chamomile: 20, "Tonka Bean": 15}, audience: "Unisex" },
+      
+      // MEDITATION
+      { id: 36, name: "Inner Peace", purpose: "Meditation", ingredients: {Sandalwood: 40, Frankincense: 25, Myrrh: 20, Lavender: 15}, audience: "Unisex" },
+      { id: 37, name: "Zen Garden", purpose: "Meditation", ingredients: {"White Tea": 35, Bamboo: 25, "Green Tea": 20, Jasmine: 20}, audience: "Unisex" },
+      { id: 38, name: "Mindful Moment", purpose: "Meditation", ingredients: {Sage: 35, "Palo Santo": 30, Lavender: 20, Cedar: 15}, audience: "Unisex" },
+      
+      // FOCUS
+      { id: 39, name: "Study Session", purpose: "Focus", ingredients: {Peppermint: 40, Rosemary: 30, Lemon: 20, Basil: 10}, audience: "Unisex" },
+      { id: 40, name: "Brain Boost", purpose: "Focus", ingredients: {Eucalyptus: 35, Peppermint: 30, Lemon: 20, Rosemary: 15}, audience: "Unisex" },
+      { id: 41, name: "Clear Mind", purpose: "Focus", ingredients: {Lemon: 40, Peppermint: 25, Basil: 20, Ginger: 15}, audience: "Unisex" },
+      
+      // UPLIFTING
+      { id: 42, name: "Morning Sunshine", purpose: "Uplifting", ingredients: {Orange: 40, Lemon: 25, Grapefruit: 20, Peppermint: 15}, audience: "Unisex" },
+      { id: 43, name: "Energy Boost", purpose: "Uplifting", ingredients: {Grapefruit: 35, Lime: 30, Mint: 20, Ginger: 15}, audience: "Unisex" },
+      { id: 44, name: "Happy Day", purpose: "Uplifting", ingredients: {"Sweet Orange": 40, Vanilla: 25, Bergamot: 20, Jasmine: 15}, audience: "Unisex" },
+      
+      // SELF-CARE
+      { id: 45, name: "Pamper Me", purpose: "Self-Care", ingredients: {Lavender: 35, Vanilla: 25, Rose: 20, Sandalwood: 20}, audience: "Women's" },
+      { id: 46, name: "Luxury Spa", purpose: "Self-Care", ingredients: {Eucalyptus: 30, Mint: 25, Jasmine: 25, Vanilla: 20}, audience: "Unisex" },
+      { id: 47, name: "Relaxation Ritual", purpose: "Self-Care", ingredients: {Lavender: 40, Chamomile: 25, "Ylang Ylang": 20, Sandalwood: 15}, audience: "Unisex" },
+      
+      // WEDDING
+      { id: 48, name: "Bridal Bouquet", occasion: "Wedding", ingredients: {Rose: 40, Peony: 25, Gardenia: 20, Vanilla: 15}, audience: "Women's" },
+      { id: 49, name: "White Wedding", occasion: "Wedding", ingredients: {"White Tea": 35, Jasmine: 30, Lily: 20, Musk: 15}, audience: "Unisex" },
+      { id: 50, name: "Love Story", occasion: "Wedding", ingredients: {Rose: 35, Vanilla: 30, Amber: 20, Sandalwood: 15}, audience: "Unisex" },
+      
+      // BIRTHDAY
+      { id: 51, name: "Birthday Cake", occasion: "Birthday", ingredients: {Vanilla: 40, "Butter Cream": 25, Sugar: 20, Almond: 15}, audience: "Unisex" },
+      { id: 52, name: "Celebration", occasion: "Birthday", ingredients: {Champagne: 35, Peach: 25, Vanilla: 25, Citrus: 15}, audience: "Unisex" },
+      { id: 53, name: "Party Time", occasion: "Birthday", ingredients: {"Cotton Candy": 40, Vanilla: 25, Strawberry: 20, Sugar: 15}, audience: "Unisex" },
+      
+      // ANNIVERSARY
+      { id: 54, name: "Romantic Evening", occasion: "Anniversary", ingredients: {Rose: 40, Jasmine: 25, Amber: 20, Musk: 15}, audience: "Unisex" },
+      { id: 55, name: "Timeless Love", occasion: "Anniversary", ingredients: {Vanilla: 35, Sandalwood: 30, Rose: 20, Amber: 15}, audience: "Unisex" },
+      
+      // BABY SHOWER
+      { id: 56, name: "Baby Powder", occasion: "Baby Shower", ingredients: {"Baby Powder": 50, Vanilla: 25, Cotton: 15, Lavender: 10}, audience: "Unisex" },
+      { id: 57, name: "Sweet Baby", occasion: "Baby Shower", ingredients: {Vanilla: 40, Cotton: 25, Lavender: 20, Chamomile: 15}, audience: "Unisex" },
+      { id: 58, name: "Nursery Fresh", occasion: "Baby Shower", ingredients: {Cotton: 45, Vanilla: 25, Lavender: 20, Powder: 10}, audience: "Unisex" },
+      
+      // HOUSEWARMING
+      { id: 59, name: "New Home", occasion: "Housewarming", ingredients: {"Fresh Linen": 35, Vanilla: 30, Cotton: 20, Lavender: 15}, audience: "Unisex" },
+      { id: 60, name: "Welcome Home", occasion: "Housewarming", ingredients: {"Apple Cinnamon": 40, Vanilla: 25, Nutmeg: 20, Clove: 15}, audience: "Unisex" },
+      { id: 61, name: "Cozy Nest", occasion: "Housewarming", ingredients: {Vanilla: 35, Amber: 25, Sandalwood: 20, Cedar: 20}, audience: "Unisex" },
+      
+      // MEN'S
+      { id: 62, name: "Gentleman's Club", audience: "Men's", ingredients: {Leather: 35, Tobacco: 25, Vanilla: 20, Cedar: 20} },
+      { id: 63, name: "Mountain Man", audience: "Men's", ingredients: {Pine: 35, Cedar: 30, Oakmoss: 20, Musk: 15} },
+      { id: 64, name: "Barber Shop", audience: "Men's", ingredients: {"Bay Rum": 40, Sandalwood: 25, Patchouli: 20, Vanilla: 15} },
+      { id: 65, name: "Whiskey & Oak", audience: "Men's", ingredients: {Bourbon: 40, Oak: 25, Vanilla: 20, Tobacco: 15} },
+      { id: 66, name: "Fresh Cologne", audience: "Men's", ingredients: {Bergamot: 35, Lavender: 25, Oakmoss: 20, Musk: 20} },
+      
+      // WOMEN'S
+      { id: 67, name: "Floral Romance", audience: "Women's", ingredients: {Rose: 40, Jasmine: 25, Vanilla: 20, Peony: 15} },
+      { id: 68, name: "Sweet Vanilla", audience: "Women's", ingredients: {Vanilla: 50, Caramel: 20, Cream: 20, Sugar: 10} },
+      { id: 69, name: "Garden Party", audience: "Women's", ingredients: {Peony: 35, Rose: 25, Lily: 20, Musk: 20} },
+      { id: 70, name: "Berry Sorbet", audience: "Women's", ingredients: {Strawberry: 35, Raspberry: 25, Vanilla: 25, Cream: 15} },
+      { id: 71, name: "Lavender Fields", audience: "Women's", ingredients: {Lavender: 50, Vanilla: 25, Chamomile: 15, Musk: 10} },
+      
+      // UNISEX
+      { id: 72, name: "Fresh & Clean", audience: "Unisex", ingredients: {Cotton: 40, Linen: 25, Lavender: 20, Vanilla: 15} },
+      { id: 73, name: "Citrus Woods", audience: "Unisex", ingredients: {Bergamot: 35, Cedar: 25, Sandalwood: 20, Orange: 20} },
+      { id: 74, name: "Vanilla Sandalwood", audience: "Unisex", ingredients: {Vanilla: 50, Sandalwood: 30, Amber: 20} },
+      { id: 75, name: "Ocean Mist", audience: "Unisex", ingredients: {"Sea Salt": 40, Ozone: 25, Jasmine: 20, Driftwood: 15} },
+      { id: 76, name: "Amber Noir", audience: "Unisex", ingredients: {Amber: 40, Sandalwood: 25, Vanilla: 20, Musk: 15} },
+      
+      // PET-FRIENDLY
+      { id: 77, name: "Safe & Fresh", audience: "Pet-Friendly", ingredients: {Vanilla: 60, Lemon: 25, Chamomile: 15} },
+      { id: 78, name: "Gentle Breeze", audience: "Pet-Friendly", ingredients: {Cotton: 50, Vanilla: 30, Chamomile: 20} },
+      { id: 79, name: "Natural Home", audience: "Pet-Friendly", ingredients: {Lemon: 40, Vanilla: 35, Ginger: 25} },
     ]
     setRecipes(initialRecipes)
   }, [])
