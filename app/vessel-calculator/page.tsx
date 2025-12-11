@@ -152,6 +152,16 @@ export default function VesselCalculator() {
   const [batchQuantity, setBatchQuantity] = useState(100)
   const [batchVesselIndex, setBatchVesselIndex] = useState(0)
 
+  // Inventory Management
+  const [inventory, setInventory] = useState({
+    waxLbs: 50,
+    fragranceOilLbs: 10,
+    cementLbs: 25,
+    wicks: 500,
+    paint: 100,
+  })
+  const [showInventoryManager, setShowInventoryManager] = useState(false)
+
   // Profit calculator
   const [profitCalc, setProfitCalc] = useState({
     selectedVesselIndex: 0,
@@ -744,6 +754,27 @@ export default function VesselCalculator() {
 
   const batchMaterials = calculateBatchMaterials()
 
+  // Check if user can make a recipe with current inventory
+  const canMakeRecipe = (recipe: Recipe, quantity: number = 1, vesselIndex: number = 0) => {
+    const vesselCalc = vesselCalculations[vesselIndex]
+    if (!vesselCalc) return { canMake: false, missing: [] }
+
+    const requiredWaxLbs = (vesselCalc.calc.waxWeight * quantity) / 453.6
+    const requiredFragranceLbs = (vesselCalc.calc.fragranceWeight * quantity) / 453.6
+    const requiredCementLbs = (vesselCalc.calc.cementWeight * quantity) / 453.6
+    const requiredWicks = vesselCalc.calc.wicksNeeded * quantity
+    const requiredPaint = quantity
+
+    const missing: string[] = []
+    if (inventory.waxLbs < requiredWaxLbs) missing.push(`Wax: need ${requiredWaxLbs.toFixed(1)}lbs, have ${inventory.waxLbs.toFixed(1)}lbs`)
+    if (inventory.fragranceOilLbs < requiredFragranceLbs) missing.push(`Fragrance: need ${requiredFragranceLbs.toFixed(1)}lbs, have ${inventory.fragranceOilLbs.toFixed(1)}lbs`)
+    if (inventory.cementLbs < requiredCementLbs) missing.push(`Cement: need ${requiredCementLbs.toFixed(1)}lbs, have ${inventory.cementLbs.toFixed(1)}lbs`)
+    if (inventory.wicks < requiredWicks) missing.push(`Wicks: need ${requiredWicks}, have ${inventory.wicks}`)
+    if (inventory.paint < requiredPaint) missing.push(`Paint: need ${requiredPaint}, have ${inventory.paint}`)
+
+    return { canMake: missing.length === 0, missing, requiredWaxLbs, requiredFragranceLbs, requiredCementLbs, requiredWicks, requiredPaint }
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 py-8">
       <div className="max-w-7xl mx-auto px-4">
@@ -1301,6 +1332,164 @@ export default function VesselCalculator() {
           </CardContent>
         </Card>
 
+        {/* Inventory Management */}
+        <Card className="mb-6 border-4 border-emerald-300 dark:border-emerald-700">
+          <CardHeader className="bg-gradient-to-r from-emerald-50 to-teal-100 dark:from-emerald-950 dark:to-teal-900">
+            <div className="flex justify-between items-center">
+              <div>
+                <CardTitle className="text-2xl text-emerald-900 dark:text-emerald-100">
+                  📦 Inventory Manager
+                </CardTitle>
+                <p className="text-emerald-700 dark:text-emerald-300 mt-2 text-sm">
+                  Track materials • Get low stock alerts • See what you can make
+                </p>
+              </div>
+              <button
+                onClick={() => setShowInventoryManager(!showInventoryManager)}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-xl font-bold transition-all"
+              >
+                {showInventoryManager ? '📊 Hide' : '📊 Manage Stock'}
+              </button>
+            </div>
+          </CardHeader>
+          <CardContent className="pt-6">
+            {/* Quick Stock Overview */}
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+              <div className="bg-gradient-to-br from-amber-50 to-yellow-100 dark:from-amber-900/20 dark:to-yellow-900/20 p-4 rounded-xl border-2 border-amber-300 dark:border-amber-700">
+                <div className="text-amber-900 dark:text-amber-100 text-sm font-semibold mb-1">🕯️ Wax</div>
+                <div className="text-2xl font-bold text-amber-600 dark:text-amber-400">{inventory.waxLbs} lbs</div>
+                {inventory.waxLbs < 10 && <div className="text-xs text-red-600 dark:text-red-400 mt-1">⚠️ Low stock!</div>}
+              </div>
+
+              <div className="bg-gradient-to-br from-purple-50 to-pink-100 dark:from-purple-900/20 dark:to-pink-900/20 p-4 rounded-xl border-2 border-purple-300 dark:border-purple-700">
+                <div className="text-purple-900 dark:text-purple-100 text-sm font-semibold mb-1">🌸 Fragrance</div>
+                <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">{inventory.fragranceOilLbs} lbs</div>
+                {inventory.fragranceOilLbs < 5 && <div className="text-xs text-red-600 dark:text-red-400 mt-1">⚠️ Low stock!</div>}
+              </div>
+
+              <div className="bg-gradient-to-br from-gray-50 to-slate-100 dark:from-gray-900/20 dark:to-slate-900/20 p-4 rounded-xl border-2 border-gray-300 dark:border-gray-700">
+                <div className="text-gray-900 dark:text-gray-100 text-sm font-semibold mb-1">🏗️ Cement</div>
+                <div className="text-2xl font-bold text-gray-600 dark:text-gray-400">{inventory.cementLbs} lbs</div>
+                {inventory.cementLbs < 10 && <div className="text-xs text-red-600 dark:text-red-400 mt-1">⚠️ Low stock!</div>}
+              </div>
+
+              <div className="bg-gradient-to-br from-orange-50 to-red-100 dark:from-orange-900/20 dark:to-red-900/20 p-4 rounded-xl border-2 border-orange-300 dark:border-orange-700">
+                <div className="text-orange-900 dark:text-orange-100 text-sm font-semibold mb-1">🧵 Wicks</div>
+                <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">{inventory.wicks}</div>
+                {inventory.wicks < 50 && <div className="text-xs text-red-600 dark:text-red-400 mt-1">⚠️ Low stock!</div>}
+              </div>
+
+              <div className="bg-gradient-to-br from-blue-50 to-cyan-100 dark:from-blue-900/20 dark:to-cyan-900/20 p-4 rounded-xl border-2 border-blue-300 dark:border-blue-700">
+                <div className="text-blue-900 dark:text-blue-100 text-sm font-semibold mb-1">🎨 Paint</div>
+                <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{inventory.paint}</div>
+                {inventory.paint < 20 && <div className="text-xs text-red-600 dark:text-red-400 mt-1">⚠️ Low stock!</div>}
+              </div>
+            </div>
+
+            {/* Detailed Inventory Manager */}
+            {showInventoryManager && (
+              <div className="bg-white dark:bg-gray-800 border-2 border-emerald-200 dark:border-emerald-800 rounded-xl p-6">
+                <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">Update Stock Levels</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <Label className="text-gray-900 dark:text-gray-100 font-semibold mb-2 block">
+                      🕯️ Wax (lbs)
+                    </Label>
+                    <Input
+                      type="number"
+                      value={inventory.waxLbs}
+                      onChange={(e) => setInventory({ ...inventory, waxLbs: parseFloat(e.target.value) || 0 })}
+                      step="0.1"
+                      className="text-lg"
+                    />
+                  </div>
+
+                  <div>
+                    <Label className="text-gray-900 dark:text-gray-100 font-semibold mb-2 block">
+                      🌸 Fragrance Oil (lbs)
+                    </Label>
+                    <Input
+                      type="number"
+                      value={inventory.fragranceOilLbs}
+                      onChange={(e) => setInventory({ ...inventory, fragranceOilLbs: parseFloat(e.target.value) || 0 })}
+                      step="0.1"
+                      className="text-lg"
+                    />
+                  </div>
+
+                  <div>
+                    <Label className="text-gray-900 dark:text-gray-100 font-semibold mb-2 block">
+                      🏗️ Cement (lbs)
+                    </Label>
+                    <Input
+                      type="number"
+                      value={inventory.cementLbs}
+                      onChange={(e) => setInventory({ ...inventory, cementLbs: parseFloat(e.target.value) || 0 })}
+                      step="0.1"
+                      className="text-lg"
+                    />
+                  </div>
+
+                  <div>
+                    <Label className="text-gray-900 dark:text-gray-100 font-semibold mb-2 block">
+                      🧵 Wicks (count)
+                    </Label>
+                    <Input
+                      type="number"
+                      value={inventory.wicks}
+                      onChange={(e) => setInventory({ ...inventory, wicks: parseInt(e.target.value) || 0 })}
+                      className="text-lg"
+                    />
+                  </div>
+
+                  <div>
+                    <Label className="text-gray-900 dark:text-gray-100 font-semibold mb-2 block">
+                      🎨 Paint/Finishing (units)
+                    </Label>
+                    <Input
+                      type="number"
+                      value={inventory.paint}
+                      onChange={(e) => setInventory({ ...inventory, paint: parseInt(e.target.value) || 0 })}
+                      className="text-lg"
+                    />
+                  </div>
+                </div>
+
+                {/* Quick Actions */}
+                <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-3">
+                  <button
+                    onClick={() => setInventory({ waxLbs: 50, fragranceOilLbs: 10, cementLbs: 25, wicks: 500, paint: 100 })}
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-lg font-semibold transition-all"
+                  >
+                    🔄 Reset to Default
+                  </button>
+                  <button
+                    onClick={() => setInventory({ waxLbs: 100, fragranceOilLbs: 20, cementLbs: 50, wicks: 1000, paint: 200 })}
+                    className="bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-all"
+                  >
+                    📦 Full Stock
+                  </button>
+                  <button
+                    onClick={() => setInventory({ waxLbs: 0, fragranceOilLbs: 0, cementLbs: 0, wicks: 0, paint: 0 })}
+                    className="bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-lg font-semibold transition-all"
+                  >
+                    🗑️ Clear All
+                  </button>
+                  <button
+                    onClick={() => {
+                      const data = JSON.stringify(inventory, null, 2)
+                      navigator.clipboard.writeText(data)
+                    }}
+                    className="bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-lg font-semibold transition-all"
+                  >
+                    💾 Export Data
+                  </button>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
         {/* Recipe Database */}
         <Card className="mb-6 border-4 border-indigo-300 dark:border-indigo-700">
           <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-100 dark:from-indigo-950 dark:to-purple-900">
@@ -1470,6 +1659,39 @@ export default function VesselCalculator() {
                         </div>
                       ))}
                     </div>
+
+                    {/* Can I Make This? Indicator */}
+                    {(() => {
+                      const canMake = canMakeRecipe(recipe, 1, 0)
+                      return (
+                        <div className={`mt-3 p-3 rounded-lg border-2 ${
+                          canMake.canMake 
+                            ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-300 dark:border-emerald-700' 
+                            : 'bg-red-50 dark:bg-red-900/20 border-red-300 dark:border-red-700'
+                        }`}>
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="text-lg">{canMake.canMake ? '✅' : '⚠️'}</span>
+                            <span className={`font-bold text-sm ${
+                              canMake.canMake 
+                                ? 'text-emerald-700 dark:text-emerald-300' 
+                                : 'text-red-700 dark:text-red-300'
+                            }`}>
+                              {canMake.canMake ? 'Ready to Make!' : 'Materials Needed'}
+                            </span>
+                          </div>
+                          {!canMake.canMake && (
+                            <div className="text-xs text-red-600 dark:text-red-400 space-y-0.5">
+                              {canMake.missing.slice(0, 2).map((item, idx) => (
+                                <div key={idx}>• {item}</div>
+                              ))}
+                              {canMake.missing.length > 2 && (
+                                <div>+ {canMake.missing.length - 2} more...</div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })()}
 
                     {/* Actions */}
                     <div className="mt-4 flex gap-2">
