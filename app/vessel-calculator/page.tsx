@@ -168,6 +168,15 @@ export default function VesselCalculator() {
   const [targetMargin, setTargetMargin] = useState(60) // 60% profit margin
   const [marketPosition, setMarketPosition] = useState<'budget' | 'mid-range' | 'premium' | 'luxury'>('mid-range')
 
+  // Label Generator
+  const [showLabelGenerator, setShowLabelGenerator] = useState(false)
+  const [labelRecipe, setLabelRecipe] = useState<Recipe | null>(null)
+  const [labelVesselIndex, setLabelVesselIndex] = useState(0)
+  const [labelTemplate, setLabelTemplate] = useState<'modern' | 'vintage' | 'minimalist' | 'luxury'>('modern')
+  const [labelBrandName, setLabelBrandName] = useState('Limen Lakay')
+  const [labelBurnTime, setLabelBurnTime] = useState('40-50 hours')
+  const [labelBatchSize, setLabelBatchSize] = useState(1)
+
   // Profit calculator
   const [profitCalc, setProfitCalc] = useState({
     selectedVesselIndex: 0,
@@ -840,6 +849,50 @@ export default function VesselCalculator() {
   }
 
   const pricingData = calculatePricingRecommendations()
+
+  // Open label generator with recipe
+  const openLabelGenerator = (recipe: Recipe) => {
+    setLabelRecipe(recipe)
+    setShowLabelGenerator(true)
+  }
+
+  // Generate label data
+  const generateLabelData = () => {
+    if (!labelRecipe) return null
+
+    const vesselCalc = vesselCalculations[labelVesselIndex]
+    if (!vesselCalc) return null
+
+    const ingredients = Object.entries(labelRecipe.ingredients)
+      .map(([name, percent]) => `${name} (${percent}%)`)
+      .join(', ')
+
+    const netWeight = `${vesselCalc.calc.volumeOz.toFixed(1)} oz (${(vesselCalc.calc.volumeOz * 28.35).toFixed(0)}g)`
+    
+    const warnings = [
+      '⚠️ Keep away from children and pets',
+      '🔥 Never leave burning candle unattended',
+      '✂️ Trim wick to 1/4" before each use',
+      '🕐 Burn for 2-4 hours at a time',
+      '🧊 Stop use when 1/2" of wax remains'
+    ]
+
+    return {
+      brandName: labelBrandName,
+      productName: labelRecipe.name,
+      scentProfile: labelRecipe.profile || 'Custom Blend',
+      ingredients,
+      netWeight,
+      burnTime: labelBurnTime,
+      warnings,
+      waxType: materialPrices.waxType === 'soy' ? 'Soy Wax' : 'Coconut Wax',
+      madeIn: 'Handcrafted in USA',
+      batchCode: `LK-${Date.now().toString().slice(-6)}`,
+      price: pricingData ? `$${pricingData.recommendedTarget.toFixed(2)}` : '$0.00'
+    }
+  }
+
+  const labelData = generateLabelData()
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 py-8">
@@ -1888,6 +1941,246 @@ export default function VesselCalculator() {
           </CardContent>
         </Card>
 
+        {/* Label Generator */}
+        {showLabelGenerator && labelRecipe && labelData && (
+          <div
+            className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 overflow-y-auto"
+            onClick={() => setShowLabelGenerator(false)}
+          >
+            <div
+              className="bg-white dark:bg-gray-900 rounded-2xl max-w-6xl w-full max-h-[95vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Modal Header */}
+              <div className="bg-gradient-to-r from-pink-600 to-rose-600 text-white p-6 rounded-t-2xl relative sticky top-0 z-10">
+                <h2 className="text-3xl font-bold mb-2">🏷️ Label Generator</h2>
+                <p className="text-white/90">Create professional candle labels instantly</p>
+                <button
+                  onClick={() => setShowLabelGenerator(false)}
+                  className="absolute top-4 right-4 bg-white text-pink-600 w-10 h-10 rounded-full font-bold text-xl hover:bg-gray-100 transition-all"
+                >
+                  ×
+                </button>
+              </div>
+
+              {/* Modal Body */}
+              <div className="p-6">
+                {/* Configuration */}
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                  <div>
+                    <Label className="text-gray-900 dark:text-gray-100 font-semibold mb-2 block">Template Style</Label>
+                    <select
+                      value={labelTemplate}
+                      onChange={(e) => setLabelTemplate(e.target.value as any)}
+                      className="w-full p-2 border-2 border-pink-200 dark:border-pink-800 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                    >
+                      <option value="modern">Modern</option>
+                      <option value="vintage">Vintage</option>
+                      <option value="minimalist">Minimalist</option>
+                      <option value="luxury">Luxury</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <Label className="text-gray-900 dark:text-gray-100 font-semibold mb-2 block">Vessel Type</Label>
+                    <select
+                      value={labelVesselIndex}
+                      onChange={(e) => setLabelVesselIndex(parseInt(e.target.value))}
+                      className="w-full p-2 border-2 border-pink-200 dark:border-pink-800 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                    >
+                      {vessels.map((vessel, idx) => (
+                        <option key={vessel.id} value={idx}>
+                          {vessel.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <Label className="text-gray-900 dark:text-gray-100 font-semibold mb-2 block">Brand Name</Label>
+                    <Input
+                      type="text"
+                      value={labelBrandName}
+                      onChange={(e) => setLabelBrandName(e.target.value)}
+                      className="border-pink-200 dark:border-pink-800"
+                    />
+                  </div>
+
+                  <div>
+                    <Label className="text-gray-900 dark:text-gray-100 font-semibold mb-2 block">Batch Size</Label>
+                    <Input
+                      type="number"
+                      value={labelBatchSize}
+                      onChange={(e) => setLabelBatchSize(parseInt(e.target.value) || 1)}
+                      min="1"
+                      className="border-pink-200 dark:border-pink-800"
+                    />
+                  </div>
+                </div>
+
+                {/* Label Preview */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* Front Label */}
+                  <div>
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-3">Front Label</h3>
+                    <div className={`aspect-[3/4] rounded-xl p-8 flex flex-col justify-between ${
+                      labelTemplate === 'modern' ? 'bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900 dark:to-purple-900 border-4 border-indigo-300 dark:border-indigo-700' :
+                      labelTemplate === 'vintage' ? 'bg-gradient-to-br from-amber-50 to-orange-100 dark:from-amber-900 dark:to-orange-900 border-4 border-amber-400 dark:border-amber-600' :
+                      labelTemplate === 'minimalist' ? 'bg-white dark:bg-gray-900 border-4 border-gray-300 dark:border-gray-700' :
+                      'bg-gradient-to-br from-purple-900 to-pink-900 text-white border-4 border-gold-400'
+                    }`}>
+                      {/* Brand */}
+                      <div className="text-center">
+                        <div className={`text-sm font-semibold mb-2 tracking-widest ${
+                          labelTemplate === 'luxury' ? 'text-yellow-300' : 'text-gray-600 dark:text-gray-400'
+                        }`}>
+                          {labelData.brandName.toUpperCase()}
+                        </div>
+                        <div className={`text-3xl font-bold mb-2 ${
+                          labelTemplate === 'vintage' ? 'font-serif' : ''
+                        }`}>
+                          {labelData.productName}
+                        </div>
+                        <div className={`text-sm italic ${
+                          labelTemplate === 'luxury' ? 'text-yellow-200' : 'text-gray-500 dark:text-gray-400'
+                        }`}>
+                          {labelData.scentProfile}
+                        </div>
+                      </div>
+
+                      {/* Center Decoration */}
+                      <div className="flex justify-center items-center">
+                        <div className={`text-6xl ${
+                          labelTemplate === 'modern' ? '🌸' :
+                          labelTemplate === 'vintage' ? '🕯️' :
+                          labelTemplate === 'minimalist' ? '⚪' :
+                          '✨'
+                        }`}>
+                          {labelTemplate === 'modern' ? '🌸' :
+                           labelTemplate === 'vintage' ? '🕯️' :
+                           labelTemplate === 'minimalist' ? '○' :
+                           '✨'}
+                        </div>
+                      </div>
+
+                      {/* Bottom Info */}
+                      <div className="text-center space-y-1">
+                        <div className="text-sm font-semibold">{labelData.netWeight}</div>
+                        <div className="text-xs opacity-75">{labelData.burnTime}</div>
+                        <div className="text-xs font-semibold">{labelData.waxType}</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Back Label / Info Label */}
+                  <div>
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-3">Back Label (Safety & Info)</h3>
+                    <div className="aspect-[3/4] bg-white dark:bg-gray-800 border-4 border-gray-300 dark:border-gray-700 rounded-xl p-6 text-sm space-y-3 overflow-y-auto">
+                      {/* Product Info */}
+                      <div className="border-b-2 border-gray-200 dark:border-gray-700 pb-3">
+                        <div className="font-bold text-gray-900 dark:text-gray-100 mb-1">{labelData.productName}</div>
+                        <div className="text-xs text-gray-600 dark:text-gray-400">Batch: {labelData.batchCode}</div>
+                      </div>
+
+                      {/* Ingredients */}
+                      <div>
+                        <div className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Ingredients:</div>
+                        <div className="text-xs text-gray-700 dark:text-gray-300 leading-relaxed">
+                          {labelData.waxType}, Fragrance Oils ({labelData.ingredients})
+                        </div>
+                      </div>
+
+                      {/* Burn Time */}
+                      <div>
+                        <div className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Burn Time:</div>
+                        <div className="text-xs text-gray-700 dark:text-gray-300">{labelData.burnTime}</div>
+                      </div>
+
+                      {/* Safety Warnings */}
+                      <div>
+                        <div className="font-semibold text-red-600 dark:text-red-400 mb-2">Safety Instructions:</div>
+                        <div className="space-y-1">
+                          {labelData.warnings.map((warning, idx) => (
+                            <div key={idx} className="text-xs text-gray-700 dark:text-gray-300">
+                              {warning}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Footer */}
+                      <div className="text-center pt-3 border-t-2 border-gray-200 dark:border-gray-700">
+                        <div className="text-xs font-semibold text-gray-900 dark:text-gray-100">{labelData.brandName}</div>
+                        <div className="text-xs text-gray-600 dark:text-gray-400">{labelData.madeIn}</div>
+                        <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">Net Wt: {labelData.netWeight}</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Label Info Summary */}
+                <div className="mt-6 bg-gradient-to-r from-pink-50 to-rose-50 dark:from-pink-900/20 dark:to-rose-900/20 border-2 border-pink-300 dark:border-pink-700 rounded-xl p-6">
+                  <h3 className="text-xl font-bold text-pink-900 dark:text-pink-100 mb-4">📋 Label Details</h3>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                    <div>
+                      <div className="text-gray-600 dark:text-gray-400">Template</div>
+                      <div className="font-bold text-gray-900 dark:text-gray-100 capitalize">{labelTemplate}</div>
+                    </div>
+                    <div>
+                      <div className="text-gray-600 dark:text-gray-400">Batch Code</div>
+                      <div className="font-bold text-gray-900 dark:text-gray-100">{labelData.batchCode}</div>
+                    </div>
+                    <div>
+                      <div className="text-gray-600 dark:text-gray-400">Quantity</div>
+                      <div className="font-bold text-gray-900 dark:text-gray-100">{labelBatchSize} labels</div>
+                    </div>
+                    <div>
+                      <div className="text-gray-600 dark:text-gray-400">Price</div>
+                      <div className="font-bold text-gray-900 dark:text-gray-100">{labelData.price}</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-3">
+                  <button
+                    onClick={() => {
+                      const text = `CANDLE LABEL\n\n${labelData.brandName}\n${labelData.productName}\n${labelData.scentProfile}\n\n${labelData.netWeight}\nBurn Time: ${labelData.burnTime}\n${labelData.waxType}\n\nIngredients: ${labelData.waxType}, Fragrance Oils (${labelData.ingredients})\n\nBatch: ${labelData.batchCode}\n${labelData.madeIn}\n\nSAFETY:\n${labelData.warnings.join('\n')}`
+                      navigator.clipboard.writeText(text)
+                    }}
+                    className="bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl font-bold transition-all"
+                  >
+                    📋 Copy Text
+                  </button>
+                  <button
+                    onClick={() => window.print()}
+                    className="bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl font-bold transition-all"
+                  >
+                    🖨️ Print Labels
+                  </button>
+                  <button
+                    onClick={() => {
+                      // In a real app, this would generate a PDF
+                      alert(`Generating ${labelBatchSize} label(s) as PDF...\n\nIn production, this would create a downloadable PDF file with all labels ready for printing!`)
+                    }}
+                    className="bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-xl font-bold transition-all"
+                  >
+                    📄 Export PDF
+                  </button>
+                  <button
+                    onClick={() => {
+                      alert(`Generating barcode/QR code for:\n\nBatch: ${labelData.batchCode}\nProduct: ${labelData.productName}\n\nIn production, this would create scannable codes for inventory tracking!`)
+                    }}
+                    className="bg-orange-600 hover:bg-orange-700 text-white py-3 rounded-xl font-bold transition-all"
+                  >
+                    📲 Add Barcode
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Recipe Database */}
         <Card className="mb-6 border-4 border-indigo-300 dark:border-indigo-700">
           <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-100 dark:from-indigo-950 dark:to-purple-900">
@@ -2092,13 +2385,13 @@ export default function VesselCalculator() {
                     })()}
 
                     {/* Actions */}
-                    <div className="mt-4 flex gap-2">
+                    <div className="mt-4 grid grid-cols-2 gap-2">
                       <button
                         onClick={(e) => {
                           e.stopPropagation()
                           copyRecipe(recipe)
                         }}
-                        className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg font-semibold text-sm transition-all"
+                        className="bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg font-semibold text-sm transition-all"
                       >
                         📋 Copy
                       </button>
@@ -2107,7 +2400,7 @@ export default function VesselCalculator() {
                           e.stopPropagation()
                           loadRecipeToCalculator(recipe)
                         }}
-                        className="flex-1 bg-purple-600 hover:bg-purple-700 text-white py-2 rounded-lg font-semibold text-sm transition-all"
+                        className="bg-purple-600 hover:bg-purple-700 text-white py-2 rounded-lg font-semibold text-sm transition-all"
                       >
                         📝 Load
                       </button>
@@ -2116,9 +2409,18 @@ export default function VesselCalculator() {
                           e.stopPropagation()
                           openBatchPlanner(recipe)
                         }}
-                        className="flex-1 bg-orange-600 hover:bg-orange-700 text-white py-2 rounded-lg font-semibold text-sm transition-all"
+                        className="bg-orange-600 hover:bg-orange-700 text-white py-2 rounded-lg font-semibold text-sm transition-all"
                       >
                         📦 Batch
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          openLabelGenerator(recipe)
+                        }}
+                        className="bg-pink-600 hover:bg-pink-700 text-white py-2 rounded-lg font-semibold text-sm transition-all"
+                      >
+                        🏷️ Label
                       </button>
                     </div>
                   </div>
