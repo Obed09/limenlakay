@@ -30,6 +30,18 @@ interface CustomCandle {
   tags?: string[]  // Category tags (season, mood, etc.)
 }
 
+interface Recipe {
+  id: number
+  name: string
+  category?: string
+  profile?: string
+  purpose?: string
+  audience?: string
+  occasion?: string
+  ingredients: { [key: string]: number }
+  isUserRecipe?: boolean
+}
+
 interface VesselCalculation {
   fullVolume: number
   waxVolume: number
@@ -121,6 +133,17 @@ export default function VesselCalculator() {
   const [candleTags, setCandleTags] = useState<string[]>([])
   const [savedCandles, setSavedCandles] = useState<CustomCandle[]>([])
   const [expandedCategories, setExpandedCategories] = useState<string[]>(['season', 'scent-profile'])
+
+  // Recipe Database
+  const [recipes, setRecipes] = useState<Recipe[]>([])
+  const [searchTerm, setSearchTerm] = useState('')
+  const [categoryFilter, setCategoryFilter] = useState('')
+  const [scentFilter, setScentFilter] = useState('')
+  const [audienceFilter, setAudienceFilter] = useState('')
+  const [purposeFilter, setPurposeFilter] = useState('')
+  const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null)
+  const [showRecipeModal, setShowRecipeModal] = useState(false)
+  const [editingRecipe, setEditingRecipe] = useState<Recipe | null>(null)
 
   // Profit calculator
   const [profitCalc, setProfitCalc] = useState({
@@ -423,6 +446,110 @@ export default function VesselCalculator() {
     console.log('📊 Total Vessels:', vessels.length)
     console.log('🏺 Vessels:', vessels.map(v => v.name))
   }, [])
+
+  // Initialize recipe database
+  useEffect(() => {
+    const initialRecipes: Recipe[] = [
+      // Your saved candles will appear here too
+      { id: 1, name: "Romantic Rose Garden", profile: "Floral", ingredients: {Rose: 40, Jasmine: 30, Vanilla: 20, Sandalwood: 10}, audience: "Women's" },
+      { id: 2, name: "Lavender Dream", profile: "Floral", ingredients: {Lavender: 50, Chamomile: 20, Vanilla: 20, Cedarwood: 10}, purpose: "Sleep/Calming", audience: "Unisex" },
+      { id: 3, name: "Sunshine Burst", profile: "Citrus", ingredients: {"Sweet Orange": 40, Lemon: 30, Grapefruit: 20, Bergamot: 10}, purpose: "Uplifting", audience: "Unisex" },
+      { id: 4, name: "Berry Bliss", profile: "Fruity", ingredients: {Strawberry: 35, Raspberry: 25, Blueberry: 20, Vanilla: 20}, audience: "Women's" },
+      { id: 5, name: "Vanilla Bean", profile: "Gourmand", ingredients: {Vanilla: 60, Cream: 20, Caramel: 15, Sugar: 5}, audience: "Women's" },
+      { id: 6, name: "Spa Retreat", profile: "Herbal", ingredients: {Eucalyptus: 40, Mint: 30, Sage: 20, Lavender: 10}, purpose: "Self-Care", audience: "Unisex" },
+      { id: 7, name: "Cinnamon Spice", profile: "Spicy", ingredients: {Cinnamon: 40, Clove: 25, Nutmeg: 20, Vanilla: 15}, audience: "Unisex" },
+      { id: 8, name: "Fresh Linen", profile: "Clean/Spa", ingredients: {Cotton: 40, Linen: 30, Lavender: 20, Vanilla: 10}, audience: "Unisex" },
+      { id: 9, name: "Forest Walk", profile: "Earthy", ingredients: {Cedarwood: 35, Pine: 30, Moss: 20, Sandalwood: 15}, audience: "Men's" },
+      { id: 10, name: "Ocean Breeze", profile: "Clean/Spa", ingredients: {"Sea Salt": 35, Ozone: 30, Jasmine: 20, Driftwood: 15}, audience: "Unisex" },
+    ]
+    setRecipes(initialRecipes)
+  }, [])
+
+  // Update recipes when saved candles change - convert saved candles to recipes
+  useEffect(() => {
+    const userRecipes: Recipe[] = savedCandles.map((candle, idx) => {
+      const ingredients: { [key: string]: number } = {}
+      const percentPerScent = candle.scentCount > 0 ? Math.floor(100 / candle.scentCount) : 100
+      let remaining = 100
+      
+      candle.scentNames.forEach((scent, i) => {
+        if (i === candle.scentNames.length - 1) {
+          ingredients[scent] = remaining
+        } else {
+          ingredients[scent] = percentPerScent
+          remaining -= percentPerScent
+        }
+      })
+
+      // Extract category info from tags
+      const profile = candle.tags?.find(t => t.includes('Floral') || t.includes('Citrus') || t.includes('Fruity') || t.includes('Gourmand') || t.includes('Herbal') || t.includes('Spicy') || t.includes('Clean') || t.includes('Earthy'))?.replace(/🌺|🍊|🍓|🧁|🌿|🌶️|🧼|🌍/g, '').trim()
+      const purpose = candle.tags?.find(t => t.includes('Sleep') || t.includes('Meditation') || t.includes('Focus') || t.includes('Uplifting') || t.includes('Self-Care'))?.replace(/😴|🧘|💪|☀️|🛁/g, '').trim()
+      const audience = candle.tags?.find(t => t.includes("Men's") || t.includes("Women's") || t.includes('Unisex') || t.includes('Pet-Friendly'))?.replace(/👔|👗|⚖️|🐕/g, '').trim()
+
+      return {
+        id: 1000 + idx,
+        name: candle.name,
+        profile,
+        purpose,
+        audience,
+        ingredients,
+        isUserRecipe: true
+      }
+    })
+
+    // Merge with initial recipes
+    setRecipes(prev => {
+      const baseRecipes = prev.filter(r => !r.isUserRecipe)
+      return [...userRecipes, ...baseRecipes]
+    })
+  }, [savedCandles])
+
+  // Filter recipes
+  const filteredRecipes = recipes.filter(recipe => {
+    const matchesSearch = searchTerm === '' || 
+      recipe.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      Object.keys(recipe.ingredients).some(ing => ing.toLowerCase().includes(searchTerm.toLowerCase()))
+    
+    const matchesCategory = categoryFilter === '' || 
+      (categoryFilter === 'Scent Profile' && recipe.profile) ||
+      (categoryFilter === 'Purpose/Mood' && recipe.purpose) ||
+      (categoryFilter === 'Target Audience' && recipe.audience)
+    
+    const matchesScent = scentFilter === '' || recipe.profile === scentFilter
+    const matchesAudience = audienceFilter === '' || recipe.audience === audienceFilter
+    const matchesPurpose = purposeFilter === '' || recipe.purpose === purposeFilter
+
+    return matchesSearch && matchesCategory && matchesScent && matchesAudience && matchesPurpose
+  })
+
+  // Reset filters
+  const resetFilters = () => {
+    setSearchTerm('')
+    setCategoryFilter('')
+    setScentFilter('')
+    setAudienceFilter('')
+    setPurposeFilter('')
+  }
+
+  // Copy recipe to clipboard
+  const copyRecipe = (recipe: Recipe) => {
+    let text = `${recipe.name}\n\nIngredients:\n`
+    for (const [ingredient, percent] of Object.entries(recipe.ingredients)) {
+      text += `- ${ingredient}: ${percent}%\n`
+    }
+    text += `\nTotal: 100%`
+    
+    navigator.clipboard.writeText(text)
+  }
+
+  // Load recipe into Custom Candle Calculator
+  const loadRecipeToCalculator = (recipe: Recipe) => {
+    setCandleName(recipe.name)
+    const scents = Object.keys(recipe.ingredients)
+    setScentCount(scents.length)
+    setScentNames(scents)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 py-8">
@@ -975,6 +1102,287 @@ export default function VesselCalculator() {
                       </div>
                     </div>
                   ))}
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Recipe Database */}
+        <Card className="mb-6 border-4 border-indigo-300 dark:border-indigo-700">
+          <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-100 dark:from-indigo-950 dark:to-purple-900">
+            <CardTitle className="text-2xl text-indigo-900 dark:text-indigo-100">
+              🔍 Searchable Recipe Database
+            </CardTitle>
+            <p className="text-indigo-700 dark:text-indigo-300 mt-2 text-sm">
+              Search, filter & discover perfect scent combinations • Your saved recipes appear here automatically
+            </p>
+          </CardHeader>
+          <CardContent className="pt-6">
+            {/* Search and Filters */}
+            <div className="mb-6 space-y-4">
+              {/* Search Box */}
+              <div>
+                <Input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="🔍 Search recipes by name or ingredient..."
+                  className="w-full text-lg py-6"
+                />
+              </div>
+
+              {/* Filters */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div>
+                  <Label className="text-indigo-900 dark:text-indigo-100 font-semibold mb-2 block">Category</Label>
+                  <select
+                    value={categoryFilter}
+                    onChange={(e) => setCategoryFilter(e.target.value)}
+                    className="w-full p-2 border-2 border-indigo-200 dark:border-indigo-800 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                  >
+                    <option value="">All Categories</option>
+                    <option value="Scent Profile">Scent Profile</option>
+                    <option value="Purpose/Mood">Purpose/Mood</option>
+                    <option value="Target Audience">Target Audience</option>
+                  </select>
+                </div>
+
+                <div>
+                  <Label className="text-indigo-900 dark:text-indigo-100 font-semibold mb-2 block">Scent Type</Label>
+                  <select
+                    value={scentFilter}
+                    onChange={(e) => setScentFilter(e.target.value)}
+                    className="w-full p-2 border-2 border-indigo-200 dark:border-indigo-800 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                  >
+                    <option value="">All Scents</option>
+                    <option value="Floral">Floral</option>
+                    <option value="Citrus">Citrus</option>
+                    <option value="Fruity">Fruity</option>
+                    <option value="Gourmand">Gourmand</option>
+                    <option value="Herbal">Herbal</option>
+                    <option value="Spicy">Spicy</option>
+                    <option value="Clean/Spa">Clean/Spa</option>
+                    <option value="Earthy">Earthy</option>
+                  </select>
+                </div>
+
+                <div>
+                  <Label className="text-indigo-900 dark:text-indigo-100 font-semibold mb-2 block">Target Audience</Label>
+                  <select
+                    value={audienceFilter}
+                    onChange={(e) => setAudienceFilter(e.target.value)}
+                    className="w-full p-2 border-2 border-indigo-200 dark:border-indigo-800 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                  >
+                    <option value="">All</option>
+                    <option value="Men's">Men's</option>
+                    <option value="Women's">Women's</option>
+                    <option value="Unisex">Unisex</option>
+                    <option value="Pet-Friendly">Pet-Friendly</option>
+                  </select>
+                </div>
+
+                <div>
+                  <Label className="text-indigo-900 dark:text-indigo-100 font-semibold mb-2 block">Purpose</Label>
+                  <select
+                    value={purposeFilter}
+                    onChange={(e) => setPurposeFilter(e.target.value)}
+                    className="w-full p-2 border-2 border-indigo-200 dark:border-indigo-800 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                  >
+                    <option value="">All Purposes</option>
+                    <option value="Sleep/Calming">Sleep/Calming</option>
+                    <option value="Meditation">Meditation</option>
+                    <option value="Focus">Focus/Productivity</option>
+                    <option value="Uplifting">Uplifting</option>
+                    <option value="Self-Care">Self-Care/Spa</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Stats Bar */}
+              <div className="flex justify-between items-center p-4 bg-white dark:bg-gray-800 rounded-lg border-2 border-indigo-200 dark:border-indigo-800">
+                <span className="font-bold text-indigo-600 dark:text-indigo-400 text-lg">
+                  {filteredRecipes.length} recipe{filteredRecipes.length !== 1 ? 's' : ''} found
+                </span>
+                <button
+                  onClick={resetFilters}
+                  className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition-all"
+                >
+                  Reset Filters
+                </button>
+              </div>
+            </div>
+
+            {/* Recipes Grid */}
+            {filteredRecipes.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                {filteredRecipes.map((recipe) => (
+                  <div
+                    key={recipe.id}
+                    className="bg-white dark:bg-gray-800 border-3 border-indigo-200 dark:border-indigo-800 rounded-xl p-5 hover:border-indigo-500 dark:hover:border-indigo-500 hover:shadow-xl transition-all cursor-pointer relative overflow-hidden"
+                    onClick={() => {
+                      setSelectedRecipe(recipe)
+                      setShowRecipeModal(true)
+                    }}
+                  >
+                    {/* Top colored bar */}
+                    <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-indigo-600 to-purple-600" />
+                    
+                    {/* User Recipe Badge */}
+                    {recipe.isUserRecipe && (
+                      <div className="absolute top-3 right-3 bg-yellow-400 text-yellow-900 px-2 py-1 rounded-full text-xs font-bold">
+                        ⭐ YOUR RECIPE
+                      </div>
+                    )}
+
+                    {/* Recipe Name */}
+                    <h3 className="font-bold text-lg text-gray-900 dark:text-gray-100 mb-3 mt-2">
+                      {recipe.name}
+                    </h3>
+
+                    {/* Tags */}
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {recipe.profile && (
+                        <span className="bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-2 py-1 rounded-full text-xs font-semibold">
+                          {recipe.profile}
+                        </span>
+                      )}
+                      {recipe.purpose && (
+                        <span className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 px-2 py-1 rounded-full text-xs font-semibold">
+                          {recipe.purpose}
+                        </span>
+                      )}
+                      {recipe.audience && (
+                        <span className="bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 px-2 py-1 rounded-full text-xs font-semibold">
+                          {recipe.audience}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Ingredients */}
+                    <div className="bg-gray-50 dark:bg-gray-900 p-3 rounded-lg space-y-2">
+                      {Object.entries(recipe.ingredients).map(([ingredient, percent]) => (
+                        <div key={ingredient} className="flex justify-between items-center text-sm">
+                          <span className="text-gray-700 dark:text-gray-300">{ingredient}</span>
+                          <span className="font-bold text-indigo-600 dark:text-indigo-400">{percent}%</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Actions */}
+                    <div className="mt-4 flex gap-2">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          copyRecipe(recipe)
+                        }}
+                        className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg font-semibold text-sm transition-all"
+                      >
+                        📋 Copy
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          loadRecipeToCalculator(recipe)
+                        }}
+                        className="flex-1 bg-purple-600 hover:bg-purple-700 text-white py-2 rounded-lg font-semibold text-sm transition-all"
+                      >
+                        📝 Load
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-16">
+                <div className="text-6xl mb-4">🔍</div>
+                <h3 className="text-2xl font-bold text-gray-600 dark:text-gray-400 mb-2">No Recipes Found</h3>
+                <p className="text-gray-500 dark:text-gray-500">Try adjusting your search or filters</p>
+              </div>
+            )}
+
+            {/* Recipe Modal */}
+            {showRecipeModal && selectedRecipe && (
+              <div
+                className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4"
+                onClick={() => setShowRecipeModal(false)}
+              >
+                <div
+                  className="bg-white dark:bg-gray-800 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {/* Modal Header */}
+                  <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-6 rounded-t-2xl relative">
+                    <h2 className="text-2xl font-bold mb-2">{selectedRecipe.name}</h2>
+                    {selectedRecipe.isUserRecipe && (
+                      <span className="bg-yellow-400 text-yellow-900 px-3 py-1 rounded-full text-xs font-bold">
+                        ⭐ YOUR RECIPE
+                      </span>
+                    )}
+                    <button
+                      onClick={() => setShowRecipeModal(false)}
+                      className="absolute top-4 right-4 bg-white text-indigo-600 w-10 h-10 rounded-full font-bold text-xl hover:bg-gray-100 transition-all"
+                    >
+                      ×
+                    </button>
+                  </div>
+
+                  {/* Modal Body */}
+                  <div className="p-6">
+                    {/* Tags */}
+                    <div className="flex flex-wrap gap-2 mb-6">
+                      {selectedRecipe.profile && (
+                        <span className="bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-3 py-1.5 rounded-full text-sm font-semibold">
+                          {selectedRecipe.profile}
+                        </span>
+                      )}
+                      {selectedRecipe.purpose && (
+                        <span className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 px-3 py-1.5 rounded-full text-sm font-semibold">
+                          {selectedRecipe.purpose}
+                        </span>
+                      )}
+                      {selectedRecipe.audience && (
+                        <span className="bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 px-3 py-1.5 rounded-full text-sm font-semibold">
+                          {selectedRecipe.audience}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Ingredients */}
+                    <div className="bg-gray-50 dark:bg-gray-900 p-5 rounded-xl mb-6">
+                      <h3 className="font-bold text-lg mb-4 text-gray-900 dark:text-gray-100">Ingredients</h3>
+                      <div className="space-y-3">
+                        {Object.entries(selectedRecipe.ingredients).map(([ingredient, percent]) => (
+                          <div key={ingredient} className="flex justify-between items-center py-2 border-b border-gray-200 dark:border-gray-700 last:border-0">
+                            <span className="text-gray-700 dark:text-gray-300 font-medium">{ingredient}</span>
+                            <span className="font-bold text-indigo-600 dark:text-indigo-400 text-lg">{percent}%</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex gap-3">
+                      <button
+                        onClick={() => {
+                          copyRecipe(selectedRecipe)
+                          setShowRecipeModal(false)
+                        }}
+                        className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl font-bold transition-all"
+                      >
+                        📋 Copy to Clipboard
+                      </button>
+                      <button
+                        onClick={() => {
+                          loadRecipeToCalculator(selectedRecipe)
+                          setShowRecipeModal(false)
+                        }}
+                        className="flex-1 bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-xl font-bold transition-all"
+                      >
+                        📝 Load to Calculator
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
