@@ -440,6 +440,31 @@ export default function VesselCalculator() {
     communications: []
   })
 
+  // Business Analytics & Reports Dashboard
+  interface SalesData {
+    month: string
+    revenue: number
+    orders: number
+    newCustomers: number
+  }
+
+  const [showAnalytics, setShowAnalytics] = useState(false)
+  const [analyticsTimeframe, setAnalyticsTimeframe] = useState<'week' | 'month' | 'quarter' | 'year'>('month')
+  const [salesData] = useState<SalesData[]>([
+    { month: 'Jan 2025', revenue: 2450, orders: 35, newCustomers: 8 },
+    { month: 'Feb 2025', revenue: 2890, orders: 41, newCustomers: 12 },
+    { month: 'Mar 2025', revenue: 3120, orders: 44, newCustomers: 10 },
+    { month: 'Apr 2025', revenue: 3580, orders: 51, newCustomers: 15 },
+    { month: 'May 2025', revenue: 4200, orders: 60, newCustomers: 18 },
+    { month: 'Jun 2025', revenue: 4850, orders: 69, newCustomers: 22 },
+    { month: 'Jul 2025', revenue: 5320, orders: 76, newCustomers: 20 },
+    { month: 'Aug 2025', revenue: 5100, orders: 73, newCustomers: 16 },
+    { month: 'Sep 2025', revenue: 4680, orders: 67, newCustomers: 14 },
+    { month: 'Oct 2025', revenue: 5890, orders: 84, newCustomers: 25 },
+    { month: 'Nov 2025', revenue: 6420, orders: 92, newCustomers: 28 },
+    { month: 'Dec 2025', revenue: 7200, orders: 103, newCustomers: 32 }
+  ])
+
   // Profit calculator
   const [profitCalc, setProfitCalc] = useState({
     selectedVesselIndex: 0,
@@ -1612,6 +1637,66 @@ export default function VesselCalculator() {
       const dateB = new Date(b.birthday)
       return dateA.getMonth() * 31 + dateA.getDate() - (dateB.getMonth() * 31 + dateB.getDate())
     })
+  }
+
+  // Analytics Functions
+  const getTopSellingProducts = () => {
+    const productSales: { [key: string]: number } = {}
+    
+    customers.forEach(customer => {
+      customer.orderHistory.forEach(order => {
+        productSales[order.product] = (productSales[order.product] || 0) + order.quantity
+      })
+    })
+
+    return Object.entries(productSales)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5)
+      .map(([product, quantity]) => ({ product, quantity }))
+  }
+
+  const getRevenueGrowth = () => {
+    if (salesData.length < 2) return 0
+    const lastMonth = salesData[salesData.length - 1].revenue
+    const previousMonth = salesData[salesData.length - 2].revenue
+    return ((lastMonth - previousMonth) / previousMonth * 100).toFixed(1)
+  }
+
+  const getAverageOrderValue = () => {
+    const totalRevenue = salesData.reduce((sum, data) => sum + data.revenue, 0)
+    const totalOrders = salesData.reduce((sum, data) => sum + data.orders, 0)
+    return totalOrders > 0 ? (totalRevenue / totalOrders).toFixed(2) : '0.00'
+  }
+
+  const getCustomerRetentionRate = () => {
+    const repeatCustomers = customers.filter(c => c.totalOrders > 1).length
+    return customers.length > 0 ? ((repeatCustomers / customers.length) * 100).toFixed(0) : '0'
+  }
+
+  const getTotalYearRevenue = () => {
+    return salesData.reduce((sum, data) => sum + data.revenue, 0).toFixed(2)
+  }
+
+  const getBestMonth = () => {
+    if (salesData.length === 0) return { month: 'N/A', revenue: 0 }
+    const best = salesData.reduce((max, data) => data.revenue > max.revenue ? data : max)
+    return best
+  }
+
+  const getRevenueByQuarter = () => {
+    const quarters = [
+      { name: 'Q1 2025', months: ['Jan 2025', 'Feb 2025', 'Mar 2025'] },
+      { name: 'Q2 2025', months: ['Apr 2025', 'May 2025', 'Jun 2025'] },
+      { name: 'Q3 2025', months: ['Jul 2025', 'Aug 2025', 'Sep 2025'] },
+      { name: 'Q4 2025', months: ['Oct 2025', 'Nov 2025', 'Dec 2025'] }
+    ]
+
+    return quarters.map(quarter => ({
+      quarter: quarter.name,
+      revenue: salesData
+        .filter(data => quarter.months.includes(data.month))
+        .reduce((sum, data) => sum + data.revenue, 0)
+    }))
   }
 
   // Tooltip Component
@@ -6078,6 +6163,228 @@ export default function VesselCalculator() {
             </div>
           </div>
         </div>
+
+        {/* Business Analytics & Reports Dashboard */}
+        <Card className="mb-6 border-4 border-cyan-300 dark:border-cyan-700">
+          <CardHeader className="bg-gradient-to-r from-cyan-50 to-blue-100 dark:from-cyan-950 dark:to-blue-900">
+            <div className="flex justify-between items-center">
+              <div>
+                <CardTitle className="text-2xl text-cyan-900 dark:text-cyan-100 flex items-center">
+                  📊 Business Analytics & Reports
+                  <Tooltip text="Comprehensive business intelligence dashboard with sales trends, revenue analytics, top products, and performance metrics. Export detailed reports for accounting and strategic planning." />
+                </CardTitle>
+                <p className="text-cyan-700 dark:text-cyan-300 mt-2 text-sm">
+                  Sales trends • Revenue analytics • Top products • Growth metrics • Export reports
+                </p>
+              </div>
+              <button
+                onClick={() => setShowAnalytics(!showAnalytics)}
+                className="bg-cyan-600 hover:bg-cyan-700 text-white px-6 py-3 rounded-xl font-bold transition-all"
+              >
+                {showAnalytics ? '📊 Hide' : '📊 View Dashboard'}
+              </button>
+            </div>
+          </CardHeader>
+          <CardContent className="pt-6">
+            {/* Key Metrics Overview */}
+            <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-6">
+              <div className="bg-gradient-to-br from-green-50 to-emerald-100 dark:from-green-900/20 dark:to-emerald-900/20 p-4 rounded-xl border-2 border-green-300 dark:border-green-700">
+                <div className="text-green-900 dark:text-green-100 text-sm font-semibold mb-1">💰 Total Revenue</div>
+                <div className="text-3xl font-bold text-green-600 dark:text-green-400">${getTotalYearRevenue()}</div>
+                <div className="text-xs text-green-700 dark:text-green-300 mt-1">2025 YTD</div>
+              </div>
+
+              <div className="bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-900/20 p-4 rounded-xl border-2 border-blue-300 dark:border-blue-700">
+                <div className="text-blue-900 dark:text-blue-100 text-sm font-semibold mb-1">📈 Growth Rate</div>
+                <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">+{getRevenueGrowth()}%</div>
+                <div className="text-xs text-blue-700 dark:text-blue-300 mt-1">Month over month</div>
+              </div>
+
+              <div className="bg-gradient-to-br from-purple-50 to-pink-100 dark:from-purple-900/20 dark:to-pink-900/20 p-4 rounded-xl border-2 border-purple-300 dark:border-purple-700">
+                <div className="text-purple-900 dark:text-purple-100 text-sm font-semibold mb-1">🛒 Avg Order</div>
+                <div className="text-3xl font-bold text-purple-600 dark:text-purple-400">${getAverageOrderValue()}</div>
+                <div className="text-xs text-purple-700 dark:text-purple-300 mt-1">Per transaction</div>
+              </div>
+
+              <div className="bg-gradient-to-br from-amber-50 to-yellow-100 dark:from-amber-900/20 dark:to-yellow-900/20 p-4 rounded-xl border-2 border-amber-300 dark:border-amber-700">
+                <div className="text-amber-900 dark:text-amber-100 text-sm font-semibold mb-1">🔁 Retention</div>
+                <div className="text-3xl font-bold text-amber-600 dark:text-amber-400">{getCustomerRetentionRate()}%</div>
+                <div className="text-xs text-amber-700 dark:text-amber-300 mt-1">Repeat customers</div>
+              </div>
+
+              <div className="bg-gradient-to-br from-rose-50 to-pink-100 dark:from-rose-900/20 dark:to-pink-900/20 p-4 rounded-xl border-2 border-rose-300 dark:border-rose-700">
+                <div className="text-rose-900 dark:text-rose-100 text-sm font-semibold mb-1">🏆 Best Month</div>
+                <div className="text-xl font-bold text-rose-600 dark:text-rose-400">{getBestMonth().month.split(' ')[0]}</div>
+                <div className="text-xs text-rose-700 dark:text-rose-300 mt-1">${getBestMonth().revenue.toFixed(0)}</div>
+              </div>
+
+              <div className="bg-gradient-to-br from-cyan-50 to-teal-100 dark:from-cyan-900/20 dark:to-teal-900/20 p-4 rounded-xl border-2 border-cyan-300 dark:border-cyan-700">
+                <div className="text-cyan-900 dark:text-cyan-100 text-sm font-semibold mb-1">👥 Customers</div>
+                <div className="text-3xl font-bold text-cyan-600 dark:text-cyan-400">{customers.length}</div>
+                <div className="text-xs text-cyan-700 dark:text-cyan-300 mt-1">Active buyers</div>
+              </div>
+            </div>
+
+            {/* Full Analytics Dashboard */}
+            {showAnalytics && (
+              <div className="space-y-6">
+                {/* Monthly Revenue Chart */}
+                <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border-2 border-cyan-200 dark:border-cyan-800">
+                  <h3 className="text-xl font-bold text-cyan-900 dark:text-cyan-100 mb-4">📈 Monthly Revenue Trend</h3>
+                  <div className="space-y-2">
+                    {salesData.map((data, idx) => {
+                      const maxRevenue = Math.max(...salesData.map(d => d.revenue))
+                      const barWidth = (data.revenue / maxRevenue) * 100
+                      return (
+                        <div key={idx} className="flex items-center gap-3">
+                          <div className="w-24 text-sm font-semibold text-gray-700 dark:text-gray-300">{data.month}</div>
+                          <div className="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-8 relative">
+                            <div 
+                              className="bg-gradient-to-r from-cyan-500 to-blue-600 h-8 rounded-full flex items-center justify-end pr-3 text-white font-bold text-sm transition-all"
+                              style={{ width: `${barWidth}%` }}
+                            >
+                              ${data.revenue.toLocaleString()}
+                            </div>
+                          </div>
+                          <div className="w-20 text-sm text-gray-600 dark:text-gray-400">{data.orders} orders</div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+
+                {/* Quarterly Breakdown */}
+                <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border-2 border-cyan-200 dark:border-cyan-800">
+                  <h3 className="text-xl font-bold text-cyan-900 dark:text-cyan-100 mb-4">📅 Quarterly Performance</h3>
+                  <div className="grid md:grid-cols-4 gap-4">
+                    {getRevenueByQuarter().map((quarter, idx) => (
+                      <div key={idx} className="bg-gradient-to-br from-cyan-50 to-blue-100 dark:from-cyan-900/20 dark:to-blue-900/20 p-4 rounded-xl border-2 border-cyan-300 dark:border-cyan-700">
+                        <div className="text-lg font-bold text-cyan-900 dark:text-cyan-100 mb-2">{quarter.quarter}</div>
+                        <div className="text-3xl font-bold text-cyan-600 dark:text-cyan-400">${quarter.revenue.toLocaleString()}</div>
+                        <div className="text-xs text-cyan-700 dark:text-cyan-300 mt-2">
+                          {((quarter.revenue / parseFloat(getTotalYearRevenue())) * 100).toFixed(1)}% of total
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Top Selling Products */}
+                <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border-2 border-cyan-200 dark:border-cyan-800">
+                  <h3 className="text-xl font-bold text-cyan-900 dark:text-cyan-100 mb-4">🏆 Top 5 Best-Selling Products</h3>
+                  <div className="space-y-3">
+                    {getTopSellingProducts().map((item, idx) => (
+                      <div key={idx} className="flex items-center gap-4 bg-gradient-to-r from-cyan-50 to-blue-50 dark:from-cyan-900/20 dark:to-blue-900/20 p-4 rounded-lg border-2 border-cyan-200 dark:border-cyan-800">
+                        <div className="text-3xl font-bold text-cyan-600 dark:text-cyan-400 w-12">#{idx + 1}</div>
+                        <div className="flex-1">
+                          <div className="font-bold text-lg text-gray-900 dark:text-gray-100">{item.product}</div>
+                          <div className="text-sm text-gray-600 dark:text-gray-400">{item.quantity} units sold</div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+                            {item.quantity}
+                          </div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400">units</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Customer Growth */}
+                <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border-2 border-cyan-200 dark:border-cyan-800">
+                  <h3 className="text-xl font-bold text-cyan-900 dark:text-cyan-100 mb-4">👥 New Customer Acquisition</h3>
+                  <div className="space-y-2">
+                    {salesData.map((data, idx) => {
+                      const maxCustomers = Math.max(...salesData.map(d => d.newCustomers))
+                      const barWidth = (data.newCustomers / maxCustomers) * 100
+                      return (
+                        <div key={idx} className="flex items-center gap-3">
+                          <div className="w-24 text-sm font-semibold text-gray-700 dark:text-gray-300">{data.month}</div>
+                          <div className="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-6 relative">
+                            <div 
+                              className="bg-gradient-to-r from-pink-500 to-rose-600 h-6 rounded-full flex items-center justify-end pr-3 text-white font-bold text-xs transition-all"
+                              style={{ width: `${barWidth}%` }}
+                            >
+                              {data.newCustomers} new
+                            </div>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+
+                {/* Export Reports */}
+                <div className="bg-gradient-to-br from-green-50 to-emerald-100 dark:from-green-900/20 dark:to-emerald-900/20 p-6 rounded-xl border-2 border-green-300 dark:border-green-700">
+                  <h3 className="text-xl font-bold text-green-900 dark:text-green-100 mb-4">📥 Export Reports</h3>
+                  <div className="grid md:grid-cols-3 gap-4">
+                    <button
+                      onClick={() => {
+                        const report = `REVENUE REPORT - 2025 YTD\n\n` +
+                          `Total Revenue: $${getTotalYearRevenue()}\n` +
+                          `Growth Rate: +${getRevenueGrowth()}%\n` +
+                          `Average Order: $${getAverageOrderValue()}\n` +
+                          `Retention Rate: ${getCustomerRetentionRate()}%\n\n` +
+                          `MONTHLY BREAKDOWN:\n` +
+                          salesData.map(d => `${d.month}: $${d.revenue} (${d.orders} orders)`).join('\n')
+                        
+                        const blob = new Blob([report], { type: 'text/plain' })
+                        const url = URL.createObjectURL(blob)
+                        const a = document.createElement('a')
+                        a.href = url
+                        a.download = 'revenue-report-2025.txt'
+                        a.click()
+                      }}
+                      className="bg-green-600 hover:bg-green-700 text-white px-6 py-4 rounded-xl font-bold transition-all"
+                    >
+                      📊 Revenue Report
+                    </button>
+                    <button
+                      onClick={() => {
+                        const report = `CUSTOMER REPORT - ${new Date().toLocaleDateString()}\n\n` +
+                          `Total Customers: ${customers.length}\n` +
+                          `Retention Rate: ${getCustomerRetentionRate()}%\n\n` +
+                          `CUSTOMER LIST:\n` +
+                          customers.map(c => 
+                            `${c.name} - ${c.loyaltyTier} - ${c.totalOrders} orders - $${c.totalSpent.toFixed(2)}`
+                          ).join('\n')
+                        
+                        const blob = new Blob([report], { type: 'text/plain' })
+                        const url = URL.createObjectURL(blob)
+                        const a = document.createElement('a')
+                        a.href = url
+                        a.download = 'customer-report.txt'
+                        a.click()
+                      }}
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-4 rounded-xl font-bold transition-all"
+                    >
+                      👥 Customer Report
+                    </button>
+                    <button
+                      onClick={() => {
+                        const report = `TOP PRODUCTS REPORT\n\n` +
+                          getTopSellingProducts().map((item, idx) => 
+                            `#${idx + 1}: ${item.product} - ${item.quantity} units`
+                          ).join('\n')
+                        
+                        const blob = new Blob([report], { type: 'text/plain' })
+                        const url = URL.createObjectURL(blob)
+                        const a = document.createElement('a')
+                        a.href = url
+                        a.download = 'top-products-report.txt'
+                        a.click()
+                      }}
+                      className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-4 rounded-xl font-bold transition-all"
+                    >
+                      🏆 Products Report
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </div>
   )
