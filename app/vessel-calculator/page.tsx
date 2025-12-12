@@ -1614,6 +1614,30 @@ export default function VesselCalculator() {
     })
   }
 
+  // Tooltip Component
+  const Tooltip = ({ text }: { text: string }) => {
+    const [showTooltip, setShowTooltip] = useState(false)
+    
+    return (
+      <div className="relative inline-block ml-2">
+        <button
+          onMouseEnter={() => setShowTooltip(true)}
+          onMouseLeave={() => setShowTooltip(false)}
+          onClick={() => setShowTooltip(!showTooltip)}
+          className="inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-blue-500 rounded-full hover:bg-blue-600 transition-all"
+        >
+          ?
+        </button>
+        {showTooltip && (
+          <div className="absolute left-0 top-7 z-50 w-64 p-3 bg-gray-900 text-white text-sm rounded-lg shadow-xl border-2 border-blue-500">
+            <div className="absolute -top-2 left-2 w-4 h-4 bg-gray-900 border-l-2 border-t-2 border-blue-500 transform rotate-45"></div>
+            {text}
+          </div>
+        )}
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 py-8">
       <div className="max-w-7xl mx-auto px-4">
@@ -1660,8 +1684,9 @@ export default function VesselCalculator() {
         {/* Material Prices Section */}
         <Card className="mb-6 border-4 border-blue-200 dark:border-blue-800">
           <CardHeader className="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900">
-            <CardTitle className="text-2xl text-blue-900 dark:text-blue-100">
+            <CardTitle className="text-2xl text-blue-900 dark:text-blue-100 flex items-center">
               ⚙️ Material Prices & Settings (Editable)
+              <Tooltip text="Set your raw material costs here. All vessel calculations automatically update when you change these prices. Includes wax, fragrance oil, cement, wicks, and paint costs." />
             </CardTitle>
             <p className="text-blue-700 dark:text-blue-300 mt-2 text-sm">
               Update prices anytime - all calculations update automatically!
@@ -2176,8 +2201,9 @@ export default function VesselCalculator() {
           <CardHeader className="bg-gradient-to-r from-emerald-50 to-teal-100 dark:from-emerald-950 dark:to-teal-900">
             <div className="flex justify-between items-center">
               <div>
-                <CardTitle className="text-2xl text-emerald-900 dark:text-emerald-100">
+                <CardTitle className="text-2xl text-emerald-900 dark:text-emerald-100 flex items-center">
                   📦 Inventory Manager
+                  <Tooltip text="Track your current stock levels of all materials. Get automatic low-stock alerts when supplies run low. The 'Can I Make This?' feature checks if you have enough materials for any recipe." />
                 </CardTitle>
                 <p className="text-emerald-700 dark:text-emerald-300 mt-2 text-sm">
                   Track materials • Get low stock alerts • See what you can make
@@ -2334,8 +2360,9 @@ export default function VesselCalculator() {
           <CardHeader className="bg-gradient-to-r from-amber-50 to-orange-100 dark:from-amber-950 dark:to-orange-900">
             <div className="flex justify-between items-center">
               <div>
-                <CardTitle className="text-2xl text-amber-900 dark:text-amber-100">
+                <CardTitle className="text-2xl text-amber-900 dark:text-amber-100 flex items-center">
                   💰 Pricing Wizard
+                  <Tooltip text="Smart pricing recommendations based on your target profit margin and market position. Calculates minimum, target, and premium prices. Includes bulk tier discounts and break-even analysis." />
                 </CardTitle>
                 <p className="text-amber-700 dark:text-amber-300 mt-2 text-sm">
                   Smart pricing recommendations • Profit margin calculator • Break-even analysis
@@ -2673,7 +2700,10 @@ export default function VesselCalculator() {
             >
               {/* Modal Header */}
               <div className="bg-gradient-to-r from-pink-600 to-rose-600 text-white p-6 rounded-t-2xl relative sticky top-0 z-10">
-                <h2 className="text-3xl font-bold mb-2">🏷️ Label Generator</h2>
+                <div className="flex items-center gap-2 mb-2">
+                  <h2 className="text-3xl font-bold">🏷️ Label Generator</h2>
+                  <Tooltip text="Generate professional candle labels in 4 styles: Modern, Vintage, Minimalist, or Luxury. Automatically includes safety warnings, burn time, and contact info. Download as text or print batches." />
+                </div>
                 <p className="text-white/90">Create professional candle labels instantly</p>
                 <button
                   onClick={() => setShowLabelGenerator(false)}
@@ -2932,7 +2962,10 @@ export default function VesselCalculator() {
             >
               {/* Modal Header */}
               <div className="bg-gradient-to-r from-blue-600 to-cyan-600 text-white p-6 rounded-t-2xl relative sticky top-0 z-10">
-                <h2 className="text-3xl font-bold mb-2">📢 Marketing & Sales Tools</h2>
+                <h2 className="text-3xl font-bold mb-2 flex items-center">
+                  📢 Marketing & Sales Tools
+                  <Tooltip text="Auto-generate social media posts for Instagram, Facebook, and email campaigns. Choose from 4 writing tones. Includes 30 relevant hashtags and customer persona insights for targeted marketing." />
+                </h2>
                 <p className="text-white/90">Generate ready-to-use marketing content</p>
                 <button
                   onClick={() => setShowMarketingModal(false)}
@@ -3565,8 +3598,9 @@ export default function VesselCalculator() {
           <CardHeader className="bg-gradient-to-r from-orange-50 to-amber-100 dark:from-orange-950 dark:to-amber-900">
             <div className="flex justify-between items-center">
               <div>
-                <CardTitle className="text-2xl text-orange-900 dark:text-orange-100">
+                <CardTitle className="text-2xl text-orange-900 dark:text-orange-100 flex items-center">
                   🏪 Supplier Manager
+                  <Tooltip text="Manage your vendor contacts and compare prices across suppliers. Get automatic reorder alerts when inventory is low. Track supplier ratings, order history, and contact information in one place." />
                 </CardTitle>
                 <p className="text-orange-700 dark:text-orange-300 mt-2 text-sm">
                   Track vendors • Compare prices • Get reorder alerts • Manage contacts
@@ -3865,8 +3899,9 @@ export default function VesselCalculator() {
           <CardHeader className="bg-gradient-to-r from-teal-50 to-cyan-100 dark:from-teal-950 dark:to-cyan-900">
             <div className="flex justify-between items-center">
               <div>
-                <CardTitle className="text-2xl text-teal-900 dark:text-teal-100">
+                <CardTitle className="text-2xl text-teal-900 dark:text-teal-100 flex items-center">
                   📅 Production Scheduler
+                  <Tooltip text="Track customer orders with due dates and priority levels. Shows urgent orders, overdue items, and production pipeline. Helps you stay organized and meet deadlines for all custom orders." />
                 </CardTitle>
                 <p className="text-teal-700 dark:text-teal-300 mt-2 text-sm">
                   Track orders • Manage deadlines • Plan production runs
@@ -4194,8 +4229,9 @@ export default function VesselCalculator() {
           <CardHeader className="bg-gradient-to-r from-purple-50 to-fuchsia-100 dark:from-purple-950 dark:to-fuchsia-900">
             <div className="flex justify-between items-center">
               <div>
-                <CardTitle className="text-2xl text-purple-900 dark:text-purple-100">
+                <CardTitle className="text-2xl text-purple-900 dark:text-purple-100 flex items-center">
                   💎 Cost Analysis & Profitability
+                  <Tooltip text="Deep financial analysis showing per-unit costs, profit margins, ROI, and break-even points. Set your overhead costs and sales goals to see monthly profitability projections." />
                 </CardTitle>
                 <p className="text-purple-700 dark:text-purple-300 mt-2 text-sm">
                   Track costs • Maximize profits • ROI analysis • Break-even calculator
@@ -4580,8 +4616,9 @@ export default function VesselCalculator() {
           <CardHeader className="bg-gradient-to-r from-pink-50 to-rose-100 dark:from-pink-950 dark:to-rose-900">
             <div className="flex justify-between items-center">
               <div>
-                <CardTitle className="text-2xl text-pink-900 dark:text-pink-100">
+                <CardTitle className="text-2xl text-pink-900 dark:text-pink-100 flex items-center">
                   👥 Customer Relationship Manager
+                  <Tooltip text="Manage your customer database with purchase history, favorite scents, and loyalty tiers (Bronze/Silver/Gold/Platinum). Get birthday reminders to send special offers. Track all communications in one place." />
                 </CardTitle>
                 <p className="text-pink-700 dark:text-pink-300 mt-2 text-sm">
                   Track customers • Order history • Loyalty tiers • Birthday reminders
@@ -4837,8 +4874,9 @@ export default function VesselCalculator() {
         {/* Recipe Database */}
         <Card className="mb-6 border-4 border-indigo-300 dark:border-indigo-700">
           <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-100 dark:from-indigo-950 dark:to-purple-900">
-            <CardTitle className="text-2xl text-indigo-900 dark:text-indigo-100">
+            <CardTitle className="text-2xl text-indigo-900 dark:text-indigo-100 flex items-center">
               🔍 Searchable Recipe Database
+              <Tooltip text="79 pre-made candle recipes organized by scent profile, target audience, and purpose. Search, filter, and load any recipe instantly. All recipes are fully editable and you can create your own custom recipes too." />
             </CardTitle>
             <p className="text-indigo-700 dark:text-indigo-300 mt-2 text-sm">
               Search, filter & discover perfect scent combinations • Your saved recipes appear here automatically
@@ -5461,7 +5499,10 @@ export default function VesselCalculator() {
                 >
                   {/* Modal Header */}
                   <div className="bg-gradient-to-r from-orange-600 to-amber-600 text-white p-6 rounded-t-2xl relative">
-                    <h2 className="text-3xl font-bold mb-2">📦 Batch Production Planner</h2>
+                    <div className="flex items-center gap-2 mb-2">
+                      <h2 className="text-3xl font-bold">📦 Batch Production Planner</h2>
+                      <Tooltip text="Scale up your recipes for bulk production! Enter the batch quantity and vessel type to get a complete shopping list with exact material amounts needed. Saves hours of manual calculations." />
+                    </div>
                     <p className="text-white/90">{batchRecipe.name}</p>
                     <button
                       onClick={() => setShowBatchModal(false)}
