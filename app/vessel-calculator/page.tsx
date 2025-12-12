@@ -1686,6 +1686,52 @@ export default function VesselCalculator() {
     })
   }
 
+  // Export Functions
+  const exportToCSV = (data: string[][], filename: string) => {
+    const csvContent = data.map(row => row.join(',')).join('\n')
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `${filename}.csv`
+    a.click()
+  }
+
+  const exportToPDF = (title: string, content: string) => {
+    // Create a simple HTML document for PDF conversion
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>${title}</title>
+        <style>
+          body { font-family: Arial, sans-serif; padding: 40px; }
+          h1 { color: #0891b2; border-bottom: 3px solid #0891b2; padding-bottom: 10px; }
+          h2 { color: #059669; margin-top: 30px; }
+          table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+          th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+          th { background-color: #0891b2; color: white; }
+          tr:nth-child(even) { background-color: #f2f2f2; }
+          .metric { background: #e0f2fe; padding: 15px; margin: 10px 0; border-radius: 8px; }
+          .metric strong { color: #0891b2; }
+        </style>
+      </head>
+      <body>
+        ${content}
+      </body>
+      </html>
+    `
+    
+    const blob = new Blob([htmlContent], { type: 'text/html' })
+    const url = URL.createObjectURL(blob)
+    const newWindow = window.open(url)
+    if (newWindow) {
+      setTimeout(() => {
+        newWindow.print()
+      }, 500)
+    }
+  }
+
   // Analytics Functions
   const getTopSellingProducts = () => {
     const productSales: { [key: string]: number } = {}
@@ -6547,68 +6593,200 @@ export default function VesselCalculator() {
 
                 {/* Export Reports */}
                 <div className="bg-gradient-to-br from-green-50 to-emerald-100 dark:from-green-900/20 dark:to-emerald-900/20 p-6 rounded-xl border-2 border-green-300 dark:border-green-700">
-                  <h3 className="text-xl font-bold text-green-900 dark:text-green-100 mb-4">📥 Export Reports</h3>
-                  <div className="grid md:grid-cols-3 gap-4">
-                    <button
-                      onClick={() => {
-                        const report = `REVENUE REPORT - 2025 YTD\n\n` +
-                          `Total Revenue: $${getTotalYearRevenue()}\n` +
-                          `Growth Rate: +${getRevenueGrowth()}%\n` +
-                          `Average Order: $${getAverageOrderValue()}\n` +
-                          `Retention Rate: ${getCustomerRetentionRate()}%\n\n` +
-                          `MONTHLY BREAKDOWN:\n` +
-                          salesData.map(d => `${d.month}: $${d.revenue} (${d.orders} orders)`).join('\n')
+                  <h3 className="text-xl font-bold text-green-900 dark:text-green-100 mb-4">📥 Export Reports (Choose Format)</h3>
+                  
+                  {/* Revenue Report */}
+                  <div className="mb-6 bg-white dark:bg-gray-800 p-5 rounded-xl border-2 border-green-200 dark:border-green-800">
+                    <h4 className="font-bold text-lg text-green-900 dark:text-green-100 mb-3">📊 Revenue Report</h4>
+                    <div className="grid grid-cols-3 gap-3">
+                      <button
+                        onClick={() => {
+                          const csvData = [
+                            ['REVENUE REPORT 2025 YTD'],
+                            [],
+                            ['Metric', 'Value'],
+                            ['Total Revenue', `$${getTotalYearRevenue()}`],
+                            ['Growth Rate', `+${getRevenueGrowth()}%`],
+                            ['Average Order', `$${getAverageOrderValue()}`],
+                            ['Retention Rate', `${getCustomerRetentionRate()}%`],
+                            [],
+                            ['MONTHLY BREAKDOWN'],
+                            ['Month', 'Revenue', 'Orders'],
+                            ...salesData.map(d => [d.month, `$${d.revenue}`, d.orders.toString()])
+                          ]
+                          exportToCSV(csvData, 'revenue-report-2025')
+                        }}
+                        className="bg-green-600 hover:bg-green-700 text-white px-4 py-3 rounded-lg font-bold transition-all text-sm"
+                      >
+                        📄 Excel/CSV
+                      </button>
+                      <button
+                        onClick={() => {
+                          const htmlContent = `
+                            <h1>📊 Revenue Report 2025 YTD</h1>
+                            <div class="metric"><strong>Total Revenue:</strong> $${getTotalYearRevenue()}</div>
+                            <div class="metric"><strong>Growth Rate:</strong> +${getRevenueGrowth()}%</div>
+                            <div class="metric"><strong>Average Order:</strong> $${getAverageOrderValue()}</div>
+                            <div class="metric"><strong>Retention Rate:</strong> ${getCustomerRetentionRate()}%</div>
+                            <h2>Monthly Breakdown</h2>
+                            <table>
+                              <thead><tr><th>Month</th><th>Revenue</th><th>Orders</th></tr></thead>
+                              <tbody>
+                                ${salesData.map(d => `<tr><td>${d.month}</td><td>$${d.revenue.toLocaleString()}</td><td>${d.orders}</td></tr>`).join('')}
+                              </tbody>
+                            </table>
+                          `
+                          exportToPDF('Revenue Report 2025', htmlContent)
+                        }}
+                        className="bg-red-600 hover:bg-red-700 text-white px-4 py-3 rounded-lg font-bold transition-all text-sm"
+                      >
+                        📕 PDF
+                      </button>
+                      <button
+                        onClick={() => {
+                          const report = `REVENUE REPORT - 2025 YTD\n\n` +
+                            `Total Revenue: $${getTotalYearRevenue()}\n` +
+                            `Growth Rate: +${getRevenueGrowth()}%\n` +
+                            `Average Order: $${getAverageOrderValue()}\n` +
+                            `Retention Rate: ${getCustomerRetentionRate()}%\n\n` +
+                            `MONTHLY BREAKDOWN:\n` +
+                            salesData.map(d => `${d.month}: $${d.revenue} (${d.orders} orders)`).join('\n')
+                          
+                          const blob = new Blob([report], { type: 'text/plain' })
+                          const url = URL.createObjectURL(blob)
+                          const a = document.createElement('a')
+                          a.href = url
+                          a.download = 'revenue-report-2025.txt'
+                          a.click()
+                        }}
+                        className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-3 rounded-lg font-bold transition-all text-sm"
+                      >
+                        📝 Text
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Customer Report */}
+                  <div className="mb-6 bg-white dark:bg-gray-800 p-5 rounded-xl border-2 border-blue-200 dark:border-blue-800">
+                    <h4 className="font-bold text-lg text-blue-900 dark:text-blue-100 mb-3">👥 Customer Report</h4>
+                    <div className="grid grid-cols-3 gap-3">
+                      <button
+                        onClick={() => {
+                          const csvData = [
+                            ['CUSTOMER REPORT', new Date().toLocaleDateString()],
+                            [],
+                            ['Total Customers', customers.length.toString()],
+                            ['Retention Rate', `${getCustomerRetentionRate()}%`],
+                            [],
+                            ['Name', 'Loyalty Tier', 'Total Orders', 'Total Spent', 'Email', 'Phone'],
+                            ...customers.map(c => [c.name, c.loyaltyTier, c.totalOrders.toString(), `$${c.totalSpent.toFixed(2)}`, c.email, c.phone])
+                          ]
+                          exportToCSV(csvData, 'customer-report')
+                        }}
+                        className="bg-green-600 hover:bg-green-700 text-white px-4 py-3 rounded-lg font-bold transition-all text-sm"
+                      >
+                        📄 Excel/CSV
+                      </button>
+                      <button
+                        onClick={() => {
+                          const htmlContent = `
+                            <h1>👥 Customer Report</h1>
+                            <p><strong>Date:</strong> ${new Date().toLocaleDateString()}</p>
+                            <div class="metric"><strong>Total Customers:</strong> ${customers.length}</div>
+                            <div class="metric"><strong>Retention Rate:</strong> ${getCustomerRetentionRate()}%</div>
+                            <h2>Customer List</h2>
+                            <table>
+                              <thead><tr><th>Name</th><th>Tier</th><th>Orders</th><th>Spent</th><th>Email</th></tr></thead>
+                              <tbody>
+                                ${customers.map(c => `<tr><td>${c.name}</td><td>${c.loyaltyTier}</td><td>${c.totalOrders}</td><td>$${c.totalSpent.toFixed(2)}</td><td>${c.email}</td></tr>`).join('')}
+                              </tbody>
+                            </table>
+                          `
+                          exportToPDF('Customer Report', htmlContent)
+                        }}
+                        className="bg-red-600 hover:bg-red-700 text-white px-4 py-3 rounded-lg font-bold transition-all text-sm"
+                      >
+                        📕 PDF
+                      </button>
+                      <button
+                        onClick={() => {
+                          const report = `CUSTOMER REPORT - ${new Date().toLocaleDateString()}\n\n` +
+                            `Total Customers: ${customers.length}\n` +
+                            `Retention Rate: ${getCustomerRetentionRate()}%\n\n` +
+                            `CUSTOMER LIST:\n` +
+                            customers.map(c => 
+                              `${c.name} - ${c.loyaltyTier} - ${c.totalOrders} orders - $${c.totalSpent.toFixed(2)}`
+                            ).join('\n')
+                          
+                          const blob = new Blob([report], { type: 'text/plain' })
+                          const url = URL.createObjectURL(blob)
+                          const a = document.createElement('a')
+                          a.href = url
+                          a.download = 'customer-report.txt'
+                          a.click()
+                        }}
+                        className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-3 rounded-lg font-bold transition-all text-sm"
+                      >
+                        📝 Text
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Top Products Report */}
+                  <div className="bg-white dark:bg-gray-800 p-5 rounded-xl border-2 border-purple-200 dark:border-purple-800">
+                    <h4 className="font-bold text-lg text-purple-900 dark:text-purple-100 mb-3">🏆 Top Products Report</h4>
+                    <div className="grid grid-cols-3 gap-3">
+                      <button
+                        onClick={() => {
+                          const csvData = [
+                            ['TOP SELLING PRODUCTS REPORT'],
+                            [],
+                            ['Rank', 'Product Name', 'Units Sold'],
+                            ...getTopSellingProducts().map((item, idx) => [(idx + 1).toString(), item.product, item.quantity.toString()])
+                          ]
+                          exportToCSV(csvData, 'top-products-report')
+                        }}
+                        className="bg-green-600 hover:bg-green-700 text-white px-4 py-3 rounded-lg font-bold transition-all text-sm"
+                      >
+                        📄 Excel/CSV
+                      </button>
+                      <button
+                        onClick={() => {
+                          const htmlContent = `
+                            <h1>🏆 Top Selling Products Report</h1>
+                            <table>
+                              <thead><tr><th>Rank</th><th>Product Name</th><th>Units Sold</th></tr></thead>
+                              <tbody>
+                                ${getTopSellingProducts().map((item, idx) => `<tr><td>#${idx + 1}</td><td>${item.product}</td><td>${item.quantity}</td></tr>`).join('')}
+                              </tbody>
+                            </table>
+                          `
+                          exportToPDF('Top Products Report', htmlContent)
+                        }}
+                        className="bg-red-600 hover:bg-red-700 text-white px-4 py-3 rounded-lg font-bold transition-all text-sm"
+                      >
+                        📕 PDF
+                      </button>
+                      <button
+                        onClick={() => {
+                          const report = `TOP PRODUCTS REPORT\n\n` +
+                            getTopSellingProducts().map((item, idx) => 
+                              `#${idx + 1}: ${item.product} - ${item.quantity} units`
+                            ).join('\n')
                         
-                        const blob = new Blob([report], { type: 'text/plain' })
-                        const url = URL.createObjectURL(blob)
-                        const a = document.createElement('a')
-                        a.href = url
-                        a.download = 'revenue-report-2025.txt'
-                        a.click()
-                      }}
-                      className="bg-green-600 hover:bg-green-700 text-white px-6 py-4 rounded-xl font-bold transition-all"
-                    >
-                      📊 Revenue Report
-                    </button>
-                    <button
-                      onClick={() => {
-                        const report = `CUSTOMER REPORT - ${new Date().toLocaleDateString()}\n\n` +
-                          `Total Customers: ${customers.length}\n` +
-                          `Retention Rate: ${getCustomerRetentionRate()}%\n\n` +
-                          `CUSTOMER LIST:\n` +
-                          customers.map(c => 
-                            `${c.name} - ${c.loyaltyTier} - ${c.totalOrders} orders - $${c.totalSpent.toFixed(2)}`
-                          ).join('\n')
-                        
-                        const blob = new Blob([report], { type: 'text/plain' })
-                        const url = URL.createObjectURL(blob)
-                        const a = document.createElement('a')
-                        a.href = url
-                        a.download = 'customer-report.txt'
-                        a.click()
-                      }}
-                      className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-4 rounded-xl font-bold transition-all"
-                    >
-                      👥 Customer Report
-                    </button>
-                    <button
-                      onClick={() => {
-                        const report = `TOP PRODUCTS REPORT\n\n` +
-                          getTopSellingProducts().map((item, idx) => 
-                            `#${idx + 1}: ${item.product} - ${item.quantity} units`
-                          ).join('\n')
-                        
-                        const blob = new Blob([report], { type: 'text/plain' })
-                        const url = URL.createObjectURL(blob)
-                        const a = document.createElement('a')
-                        a.href = url
-                        a.download = 'top-products-report.txt'
-                        a.click()
-                      }}
-                      className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-4 rounded-xl font-bold transition-all"
-                    >
-                      🏆 Products Report
-                    </button>
+                          
+                          const blob = new Blob([report], { type: 'text/plain' })
+                          const url = URL.createObjectURL(blob)
+                          const a = document.createElement('a')
+                          a.href = url
+                          a.download = 'top-products-report.txt'
+                          a.click()
+                        }}
+                        className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-3 rounded-lg font-bold transition-all text-sm"
+                      >
+                        📝 Text
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
