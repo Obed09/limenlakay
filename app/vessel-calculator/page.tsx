@@ -124,6 +124,20 @@ export default function VesselCalculator() {
     }
   ]
 
+  // Custom Vessel Management
+  const [customVessels, setCustomVessels] = useState<Vessel[]>([])
+  const [showAddVesselModal, setShowAddVesselModal] = useState(false)
+  const [newVessel, setNewVessel] = useState({
+    name: '',
+    diameter: 0,
+    height: 0,
+    unit: 'cm' as 'cm' | 'inches',
+    imageName: ''
+  })
+
+  // Combine default vessels with custom vessels
+  const allVessels = [...vessels, ...customVessels]
+
   // Custom candle calculator
   const [candleName, setCandleName] = useState('')
   const [scentCount, setScentCount] = useState(1)
@@ -558,8 +572,8 @@ export default function VesselCalculator() {
     }
   }
 
-  // Calculate all vessels
-  const vesselCalculations = vessels.map(vessel => ({
+  // Calculate all vessels (including custom vessels)
+  const vesselCalculations = allVessels.map(vessel => ({
     vessel,
     calc: calculateMaterials(vessel)
   }))
@@ -980,6 +994,39 @@ export default function VesselCalculator() {
     setScentCount(scents.length)
     setScentNames(scents)
     window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  // Add Custom Vessel Function
+  const addCustomVessel = () => {
+    if (!newVessel.name || newVessel.diameter <= 0 || newVessel.height <= 0) {
+      alert('Please enter vessel name, diameter, and height')
+      return
+    }
+
+    const vessel: Vessel = {
+      id: 200 + customVessels.length, // Start custom IDs at 200
+      name: newVessel.name,
+      diameter: newVessel.diameter,
+      height: newVessel.height,
+      unit: newVessel.unit,
+      imageName: newVessel.imageName || 'vessel-100.png' // Default image if none provided
+    }
+
+    setCustomVessels([...customVessels, vessel])
+    setShowAddVesselModal(false)
+    setNewVessel({
+      name: '',
+      diameter: 0,
+      height: 0,
+      unit: 'cm',
+      imageName: ''
+    })
+  }
+
+  const deleteCustomVessel = (id: number) => {
+    if (confirm('Are you sure you want to delete this custom vessel?')) {
+      setCustomVessels(customVessels.filter(v => v.id !== id))
+    }
   }
 
   // Create new blank recipe
@@ -1746,11 +1793,17 @@ export default function VesselCalculator() {
                 🏺 Vessel Cost Calculator
               </h1>
               <p className="text-gray-600 dark:text-gray-400">
-                Calculate production costs for {vessels.length} vessel styles • Updated v2.0
+                Calculate production costs for {allVessels.length} vessel styles ({vessels.length} default + {customVessels.length} custom) • Updated v2.0
               </p>
             </div>
           </div>
           <div className="flex gap-3">
+            <button
+              onClick={() => setShowAddVesselModal(true)}
+              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-semibold"
+            >
+              ➕ Add Custom Vessel
+            </button>
             <Link 
               href="/admin-price-calculator"
               className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-semibold"
@@ -3510,6 +3563,165 @@ export default function VesselCalculator() {
                     className="bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white py-4 rounded-xl font-bold text-lg transition-all"
                   >
                     ✅ Add Supplier
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Add Custom Vessel Modal */}
+        {showAddVesselModal && (
+          <div
+            className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 overflow-y-auto"
+            onClick={() => setShowAddVesselModal(false)}
+          >
+            <div
+              className="bg-white dark:bg-gray-900 rounded-2xl max-w-2xl w-full"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Modal Header */}
+              <div className="bg-gradient-to-r from-green-600 to-emerald-600 text-white p-6 rounded-t-2xl relative">
+                <h2 className="text-3xl font-bold mb-2">➕ Add Custom Vessel</h2>
+                <p className="text-white/90">Create a new vessel that integrates with all calculations</p>
+                <button
+                  onClick={() => setShowAddVesselModal(false)}
+                  className="absolute top-4 right-4 bg-white text-green-600 w-10 h-10 rounded-full font-bold text-xl hover:bg-gray-100 transition-all"
+                >
+                  ×
+                </button>
+              </div>
+
+              {/* Modal Body */}
+              <div className="p-6 space-y-6">
+                <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 p-6 rounded-xl border-2 border-green-200 dark:border-green-800">
+                  <h3 className="text-xl font-bold text-green-900 dark:text-green-100 mb-4">🏺 Vessel Specifications</h3>
+                  <div className="space-y-4">
+                    <div>
+                      <Label className="text-gray-900 dark:text-gray-100 font-semibold mb-2 block">
+                        Vessel Name <span className="text-red-600">*</span>
+                      </Label>
+                      <input
+                        type="text"
+                        value={newVessel.name}
+                        onChange={(e) => setNewVessel({ ...newVessel, name: e.target.value })}
+                        placeholder="e.g., Large Pillar Mold, Custom Jar"
+                        className="w-full p-3 border-2 border-green-300 dark:border-green-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                      />
+                    </div>
+
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div>
+                        <Label className="text-gray-900 dark:text-gray-100 font-semibold mb-2 block">
+                          Diameter <span className="text-red-600">*</span>
+                        </Label>
+                        <input
+                          type="number"
+                          step="0.1"
+                          value={newVessel.diameter || ''}
+                          onChange={(e) => setNewVessel({ ...newVessel, diameter: parseFloat(e.target.value) || 0 })}
+                          placeholder="e.g., 8.5"
+                          className="w-full p-3 border-2 border-green-300 dark:border-green-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-gray-900 dark:text-gray-100 font-semibold mb-2 block">
+                          Height <span className="text-red-600">*</span>
+                        </Label>
+                        <input
+                          type="number"
+                          step="0.1"
+                          value={newVessel.height || ''}
+                          onChange={(e) => setNewVessel({ ...newVessel, height: parseFloat(e.target.value) || 0 })}
+                          placeholder="e.g., 10.2"
+                          className="w-full p-3 border-2 border-green-300 dark:border-green-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <Label className="text-gray-900 dark:text-gray-100 font-semibold mb-2 block">
+                        Unit of Measurement <span className="text-red-600">*</span>
+                      </Label>
+                      <div className="flex gap-4">
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="radio"
+                            checked={newVessel.unit === 'cm'}
+                            onChange={() => setNewVessel({ ...newVessel, unit: 'cm' })}
+                            className="w-5 h-5"
+                          />
+                          <span className="text-gray-900 dark:text-gray-100 font-semibold">Centimeters (cm)</span>
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="radio"
+                            checked={newVessel.unit === 'inches'}
+                            onChange={() => setNewVessel({ ...newVessel, unit: 'inches' })}
+                            className="w-5 h-5"
+                          />
+                          <span className="text-gray-900 dark:text-gray-100 font-semibold">Inches (")</span>
+                        </label>
+                      </div>
+                    </div>
+
+                    <div>
+                      <Label className="text-gray-900 dark:text-gray-100 font-semibold mb-2 block">
+                        Image Name (optional)
+                      </Label>
+                      <input
+                        type="text"
+                        value={newVessel.imageName}
+                        onChange={(e) => setNewVessel({ ...newVessel, imageName: e.target.value })}
+                        placeholder="e.g., vessel-106.png (must be in /public/images/)"
+                        className="w-full p-3 border-2 border-green-300 dark:border-green-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                      />
+                      <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                        Leave blank to use default image. Upload custom images to /public/images/ folder.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Preview */}
+                {newVessel.diameter > 0 && newVessel.height > 0 && (
+                  <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-6 rounded-xl border-2 border-blue-200 dark:border-blue-800">
+                    <h3 className="text-xl font-bold text-blue-900 dark:text-blue-100 mb-3">👁️ Preview</h3>
+                    <div className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+                      <div><span className="font-bold">Name:</span> {newVessel.name || 'Unnamed Vessel'}</div>
+                      <div><span className="font-bold">Dimensions:</span> {newVessel.diameter} × {newVessel.height} {newVessel.unit}</div>
+                      <div><span className="font-bold">Calculated Volume:</span> {
+                        newVessel.unit === 'cm' 
+                          ? ((Math.PI * Math.pow(newVessel.diameter / 2, 2) * newVessel.height) / 29.5735).toFixed(2)
+                          : ((Math.PI * Math.pow(newVessel.diameter / 2, 2) * newVessel.height)).toFixed(2)
+                      } oz</div>
+                      <div className="pt-2 border-t-2 border-blue-300 dark:border-blue-700">
+                        <span className="font-bold text-green-600 dark:text-green-400">✅ This vessel will integrate with all features:</span>
+                        <ul className="list-disc list-inside mt-2 space-y-1">
+                          <li>Material cost calculations</li>
+                          <li>Batch production planning</li>
+                          <li>Pricing wizard recommendations</li>
+                          <li>Label generator templates</li>
+                          <li>All existing recipes</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Action Buttons */}
+                <div className="grid grid-cols-2 gap-4 pt-4">
+                  <button
+                    onClick={() => setShowAddVesselModal(false)}
+                    className="bg-gray-500 hover:bg-gray-600 text-white py-4 rounded-xl font-bold text-lg transition-all"
+                  >
+                    ❌ Cancel
+                  </button>
+                  <button
+                    onClick={addCustomVessel}
+                    className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white py-4 rounded-xl font-bold text-lg transition-all"
+                  >
+                    ✅ Add Vessel
                   </button>
                 </div>
               </div>
@@ -5797,11 +6009,29 @@ export default function VesselCalculator() {
                 
                 <CardHeader className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900">
                   <div className="flex justify-between items-center mb-3">
-                    <div className="bg-amber-600 text-white px-3 py-1.5 rounded-full font-bold text-sm">
-                      {vessel.name}
+                    <div className="flex items-center gap-2">
+                      <div className="bg-amber-600 text-white px-3 py-1.5 rounded-full font-bold text-sm">
+                        {vessel.name}
+                      </div>
+                      {vessel.id >= 200 && (
+                        <span className="bg-blue-500 text-white px-2 py-1 rounded-full text-xs font-bold">
+                          CUSTOM
+                        </span>
+                      )}
                     </div>
-                    <div className="bg-green-500 text-white px-2.5 py-1 rounded-full text-xs font-bold">
-                      {calc.volumeOz.toFixed(1)} oz
+                    <div className="flex items-center gap-2">
+                      <div className="bg-green-500 text-white px-2.5 py-1 rounded-full text-xs font-bold">
+                        {calc.volumeOz.toFixed(1)} oz
+                      </div>
+                      {vessel.id >= 200 && (
+                        <button
+                          onClick={() => deleteCustomVessel(vessel.id)}
+                          className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded-full text-xs font-bold transition-all"
+                          title="Delete custom vessel"
+                        >
+                          🗑️
+                        </button>
+                      )}
                     </div>
                   </div>
                   
