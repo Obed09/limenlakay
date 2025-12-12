@@ -2130,7 +2130,7 @@ export default function VesselCalculator() {
                       {/* Footer */}
                       <div className="text-center pt-2 border-t-2 border-gray-200 dark:border-gray-700">
                         <div className="text-xs font-semibold text-gray-900 dark:text-gray-100">{labelData.brandName}</div>
-                        <div className="text-xs text-gray-600 dark:text-gray-400">{labelData.madeIn}</div>
+                        <div className="text-xs text-gray-600 dark:text-gray-400">Palm Beach FL, USA</div>
                         <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">Net Wt: {labelData.netWeight}</div>
                       </div>
                     </div>
