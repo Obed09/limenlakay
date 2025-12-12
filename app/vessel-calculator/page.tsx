@@ -227,6 +227,15 @@ export default function VesselCalculator() {
     notes: ''
   })
 
+  // Cost Analysis & Profitability Dashboard
+  const [showCostAnalysis, setShowCostAnalysis] = useState(false)
+  const [analysisVesselIndex, setAnalysisVesselIndex] = useState(0)
+  const [sellingPrice, setSellingPrice] = useState(25.00)
+  const [monthlyOverhead, setMonthlyOverhead] = useState(500) // Rent, utilities, insurance
+  const [laborHourlyRate, setLaborHourlyRate] = useState(15)
+  const [laborHoursPerUnit, setLaborHoursPerUnit] = useState(0.5) // 30 minutes per candle
+  const [monthlySalesGoal, setMonthlySalesGoal] = useState(200)
+
   // Profit calculator
   const [profitCalc, setProfitCalc] = useState({
     selectedVesselIndex: 0,
@@ -1012,6 +1021,85 @@ export default function VesselCalculator() {
   }
 
   const labelData = generateLabelData()
+
+  // Cost Analysis Calculations
+  const calculateCostAnalysis = () => {
+    const vesselCalc = vesselCalculations[analysisVesselIndex]
+    if (!vesselCalc) return null
+
+    // Material Costs per unit
+    const materialCost = vesselCalc.calc.totalCost
+
+    // Labor Cost per unit
+    const laborCost = laborHourlyRate * laborHoursPerUnit
+
+    // Total Cost per unit (materials + labor)
+    const totalCostPerUnit = materialCost + laborCost
+
+    // Selling Price Analysis
+    const revenue = sellingPrice
+    const grossProfit = revenue - totalCostPerUnit
+    const grossMargin = (grossProfit / revenue) * 100
+
+    // Monthly Analysis
+    const monthlyRevenue = revenue * monthlySalesGoal
+    const monthlyCOGS = totalCostPerUnit * monthlySalesGoal // Cost of Goods Sold
+    const monthlyGrossProfit = grossProfit * monthlySalesGoal
+    const monthlyNetProfit = monthlyGrossProfit - monthlyOverhead
+    const netMargin = (monthlyNetProfit / monthlyRevenue) * 100
+
+    // Break-even Analysis
+    const breakEvenUnits = Math.ceil(monthlyOverhead / grossProfit)
+    const daysToBreakEven = (breakEvenUnits / monthlySalesGoal) * 30
+
+    // ROI Analysis
+    const totalInvestment = monthlyOverhead + (materialCost * monthlySalesGoal)
+    const roi = ((monthlyNetProfit / totalInvestment) * 100)
+
+    // Cost Breakdown Percentages
+    const waxCost = (vesselCalc.calc.waxWeight / 453.6) * materialPrices.waxPricePerLb
+    const fragranceCost = (vesselCalc.calc.fragranceWeight / 453.6) * materialPrices.fragrancePricePerLb
+    const cementCost = (vesselCalc.calc.cementWeight / 453.6) * materialPrices.cementPricePerLb
+    const wickCost = vesselCalc.calc.wicksNeeded * materialPrices.wickPrice
+    const paintCost = materialPrices.paintPrice
+
+    const totalMaterialCost = waxCost + fragranceCost + cementCost + wickCost + paintCost
+
+    return {
+      materialCost,
+      laborCost,
+      totalCostPerUnit,
+      revenue,
+      grossProfit,
+      grossMargin,
+      monthlyRevenue,
+      monthlyCOGS,
+      monthlyGrossProfit,
+      monthlyOverhead,
+      monthlyNetProfit,
+      netMargin,
+      breakEvenUnits,
+      daysToBreakEven,
+      roi,
+      totalInvestment,
+      // Cost breakdown
+      waxCost,
+      fragranceCost,
+      cementCost,
+      wickCost,
+      paintCost,
+      totalMaterialCost,
+      waxPercent: (waxCost / totalMaterialCost) * 100,
+      fragrancePercent: (fragranceCost / totalMaterialCost) * 100,
+      cementPercent: (cementCost / totalMaterialCost) * 100,
+      wickPercent: (wickCost / totalMaterialCost) * 100,
+      paintPercent: (paintCost / totalMaterialCost) * 100,
+      laborPercent: (laborCost / totalCostPerUnit) * 100,
+      materialPercent: (materialCost / totalCostPerUnit) * 100,
+    }
+  }
+
+  const costAnalysis = calculateCostAnalysis()
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 py-8">
@@ -2647,6 +2735,392 @@ export default function VesselCalculator() {
             </div>
           </div>
         )}
+
+        {/* Cost Analysis & Profitability Dashboard */}
+        <Card className="mb-6 border-4 border-purple-300 dark:border-purple-700">
+          <CardHeader className="bg-gradient-to-r from-purple-50 to-fuchsia-100 dark:from-purple-950 dark:to-fuchsia-900">
+            <div className="flex justify-between items-center">
+              <div>
+                <CardTitle className="text-2xl text-purple-900 dark:text-purple-100">
+                  💎 Cost Analysis & Profitability
+                </CardTitle>
+                <p className="text-purple-700 dark:text-purple-300 mt-2 text-sm">
+                  Track costs • Maximize profits • ROI analysis • Break-even calculator
+                </p>
+              </div>
+              <button
+                onClick={() => setShowCostAnalysis(!showCostAnalysis)}
+                className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-xl font-bold transition-all"
+              >
+                {showCostAnalysis ? '📊 Hide' : '💰 Analyze Costs'}
+              </button>
+            </div>
+          </CardHeader>
+          <CardContent className="pt-6">
+            {/* Quick Overview */}
+            {costAnalysis && (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                <div className="bg-gradient-to-br from-green-50 to-emerald-100 dark:from-green-900/20 dark:to-emerald-900/20 p-4 rounded-xl border-2 border-green-300 dark:border-green-700">
+                  <div className="text-green-900 dark:text-green-100 text-sm font-semibold mb-1">💰 Profit/Unit</div>
+                  <div className="text-3xl font-bold text-green-600 dark:text-green-400">
+                    ${costAnalysis.grossProfit.toFixed(2)}
+                  </div>
+                  <div className="text-xs text-green-700 dark:text-green-300 mt-1">
+                    {costAnalysis.grossMargin.toFixed(1)}% margin
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-br from-blue-50 to-cyan-100 dark:from-blue-900/20 dark:to-cyan-900/20 p-4 rounded-xl border-2 border-blue-300 dark:border-blue-700">
+                  <div className="text-blue-900 dark:text-blue-100 text-sm font-semibold mb-1">📈 Monthly Profit</div>
+                  <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">
+                    ${costAnalysis.monthlyNetProfit.toFixed(0)}
+                  </div>
+                  <div className="text-xs text-blue-700 dark:text-blue-300 mt-1">
+                    Net {costAnalysis.netMargin.toFixed(1)}% margin
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-br from-orange-50 to-amber-100 dark:from-orange-900/20 dark:to-amber-900/20 p-4 rounded-xl border-2 border-orange-300 dark:border-orange-700">
+                  <div className="text-orange-900 dark:text-orange-100 text-sm font-semibold mb-1">⚖️ Break Even</div>
+                  <div className="text-3xl font-bold text-orange-600 dark:text-orange-400">
+                    {costAnalysis.breakEvenUnits}
+                  </div>
+                  <div className="text-xs text-orange-700 dark:text-orange-300 mt-1">
+                    units ({costAnalysis.daysToBreakEven.toFixed(0)} days)
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-br from-purple-50 to-pink-100 dark:from-purple-900/20 dark:to-pink-900/20 p-4 rounded-xl border-2 border-purple-300 dark:border-purple-700">
+                  <div className="text-purple-900 dark:text-purple-100 text-sm font-semibold mb-1">🎯 ROI</div>
+                  <div className="text-3xl font-bold text-purple-600 dark:text-purple-400">
+                    {costAnalysis.roi.toFixed(1)}%
+                  </div>
+                  <div className="text-xs text-purple-700 dark:text-purple-300 mt-1">
+                    Monthly return
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Detailed Analysis */}
+            {showCostAnalysis && costAnalysis && (
+              <div className="space-y-6">
+                {/* Configuration */}
+                <div className="bg-white dark:bg-gray-800 border-2 border-purple-200 dark:border-purple-800 rounded-xl p-6">
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">⚙️ Analysis Settings</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                    <div>
+                      <Label className="text-gray-900 dark:text-gray-100 font-semibold mb-2 block text-sm">Vessel Type</Label>
+                      <select
+                        value={analysisVesselIndex}
+                        onChange={(e) => setAnalysisVesselIndex(parseInt(e.target.value))}
+                        className="w-full p-2 border-2 border-purple-200 dark:border-purple-800 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 text-sm"
+                      >
+                        {vessels.map((vessel, idx) => (
+                          <option key={vessel.id} value={idx}>
+                            {vessel.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <Label className="text-gray-900 dark:text-gray-100 font-semibold mb-2 block text-sm">Selling Price</Label>
+                      <Input
+                        type="number"
+                        value={sellingPrice}
+                        onChange={(e) => setSellingPrice(parseFloat(e.target.value) || 0)}
+                        step="0.5"
+                        className="text-sm"
+                      />
+                    </div>
+
+                    <div>
+                      <Label className="text-gray-900 dark:text-gray-100 font-semibold mb-2 block text-sm">Labor Rate ($/hr)</Label>
+                      <Input
+                        type="number"
+                        value={laborHourlyRate}
+                        onChange={(e) => setLaborHourlyRate(parseFloat(e.target.value) || 0)}
+                        step="1"
+                        className="text-sm"
+                      />
+                    </div>
+
+                    <div>
+                      <Label className="text-gray-900 dark:text-gray-100 font-semibold mb-2 block text-sm">Hours/Unit</Label>
+                      <Input
+                        type="number"
+                        value={laborHoursPerUnit}
+                        onChange={(e) => setLaborHoursPerUnit(parseFloat(e.target.value) || 0)}
+                        step="0.1"
+                        className="text-sm"
+                      />
+                    </div>
+
+                    <div>
+                      <Label className="text-gray-900 dark:text-gray-100 font-semibold mb-2 block text-sm">Monthly Sales Goal</Label>
+                      <Input
+                        type="number"
+                        value={monthlySalesGoal}
+                        onChange={(e) => setMonthlySalesGoal(parseInt(e.target.value) || 0)}
+                        className="text-sm"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Per Unit Cost Breakdown */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <div className="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border-2 border-amber-300 dark:border-amber-700 rounded-xl p-6">
+                    <h3 className="text-xl font-bold text-amber-900 dark:text-amber-100 mb-4">💵 Per Unit Breakdown</h3>
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center p-3 bg-white dark:bg-gray-800 rounded-lg">
+                        <span className="text-gray-700 dark:text-gray-300 font-semibold">Materials</span>
+                        <span className="text-xl font-bold text-amber-600 dark:text-amber-400">
+                          ${costAnalysis.materialCost.toFixed(2)}
+                        </span>
+                      </div>
+
+                      <div className="flex justify-between items-center p-3 bg-white dark:bg-gray-800 rounded-lg">
+                        <span className="text-gray-700 dark:text-gray-300 font-semibold">Labor</span>
+                        <span className="text-xl font-bold text-amber-600 dark:text-amber-400">
+                          ${costAnalysis.laborCost.toFixed(2)}
+                        </span>
+                      </div>
+
+                      <div className="flex justify-between items-center p-3 bg-amber-100 dark:bg-amber-900/40 rounded-lg border-2 border-amber-400 dark:border-amber-600">
+                        <span className="text-amber-900 dark:text-amber-100 font-bold">Total Cost</span>
+                        <span className="text-2xl font-bold text-amber-700 dark:text-amber-300">
+                          ${costAnalysis.totalCostPerUnit.toFixed(2)}
+                        </span>
+                      </div>
+
+                      <div className="flex justify-between items-center p-3 bg-green-100 dark:bg-green-900/40 rounded-lg border-2 border-green-400 dark:border-green-600">
+                        <span className="text-green-900 dark:text-green-100 font-bold">Selling Price</span>
+                        <span className="text-2xl font-bold text-green-700 dark:text-green-300">
+                          ${costAnalysis.revenue.toFixed(2)}
+                        </span>
+                      </div>
+
+                      <div className="flex justify-between items-center p-3 bg-purple-100 dark:bg-purple-900/40 rounded-lg border-2 border-purple-400 dark:border-purple-600">
+                        <span className="text-purple-900 dark:text-purple-100 font-bold">Gross Profit</span>
+                        <span className="text-2xl font-bold text-purple-700 dark:text-purple-300">
+                          ${costAnalysis.grossProfit.toFixed(2)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Material Cost Breakdown */}
+                  <div className="bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 border-2 border-blue-300 dark:border-blue-700 rounded-xl p-6">
+                    <h3 className="text-xl font-bold text-blue-900 dark:text-blue-100 mb-4">🧪 Material Costs</h3>
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center p-2 bg-white dark:bg-gray-800 rounded-lg">
+                        <div>
+                          <div className="text-gray-700 dark:text-gray-300 font-semibold text-sm">🕯️ Wax</div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400">
+                            {costAnalysis.waxPercent.toFixed(1)}% of materials
+                          </div>
+                        </div>
+                        <span className="text-lg font-bold text-blue-600 dark:text-blue-400">
+                          ${costAnalysis.waxCost.toFixed(2)}
+                        </span>
+                      </div>
+
+                      <div className="flex justify-between items-center p-2 bg-white dark:bg-gray-800 rounded-lg">
+                        <div>
+                          <div className="text-gray-700 dark:text-gray-300 font-semibold text-sm">🌸 Fragrance</div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400">
+                            {costAnalysis.fragrancePercent.toFixed(1)}% of materials
+                          </div>
+                        </div>
+                        <span className="text-lg font-bold text-blue-600 dark:text-blue-400">
+                          ${costAnalysis.fragranceCost.toFixed(2)}
+                        </span>
+                      </div>
+
+                      <div className="flex justify-between items-center p-2 bg-white dark:bg-gray-800 rounded-lg">
+                        <div>
+                          <div className="text-gray-700 dark:text-gray-300 font-semibold text-sm">🏗️ Cement</div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400">
+                            {costAnalysis.cementPercent.toFixed(1)}% of materials
+                          </div>
+                        </div>
+                        <span className="text-lg font-bold text-blue-600 dark:text-blue-400">
+                          ${costAnalysis.cementCost.toFixed(2)}
+                        </span>
+                      </div>
+
+                      <div className="flex justify-between items-center p-2 bg-white dark:bg-gray-800 rounded-lg">
+                        <div>
+                          <div className="text-gray-700 dark:text-gray-300 font-semibold text-sm">🧵 Wicks</div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400">
+                            {costAnalysis.wickPercent.toFixed(1)}% of materials
+                          </div>
+                        </div>
+                        <span className="text-lg font-bold text-blue-600 dark:text-blue-400">
+                          ${costAnalysis.wickCost.toFixed(2)}
+                        </span>
+                      </div>
+
+                      <div className="flex justify-between items-center p-2 bg-white dark:bg-gray-800 rounded-lg">
+                        <div>
+                          <div className="text-gray-700 dark:text-gray-300 font-semibold text-sm">🎨 Paint</div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400">
+                            {costAnalysis.paintPercent.toFixed(1)}% of materials
+                          </div>
+                        </div>
+                        <span className="text-lg font-bold text-blue-600 dark:text-blue-400">
+                          ${costAnalysis.paintCost.toFixed(2)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Monthly Profitability */}
+                <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-2 border-green-300 dark:border-green-700 rounded-xl p-6">
+                  <h3 className="text-xl font-bold text-green-900 dark:text-green-100 mb-4">📊 Monthly Profitability ({monthlySalesGoal} units)</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                    <div className="bg-white dark:bg-gray-800 p-4 rounded-xl">
+                      <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">Revenue</div>
+                      <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                        ${costAnalysis.monthlyRevenue.toFixed(0)}
+                      </div>
+                    </div>
+
+                    <div className="bg-white dark:bg-gray-800 p-4 rounded-xl">
+                      <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">COGS</div>
+                      <div className="text-2xl font-bold text-red-600 dark:text-red-400">
+                        -${costAnalysis.monthlyCOGS.toFixed(0)}
+                      </div>
+                    </div>
+
+                    <div className="bg-white dark:bg-gray-800 p-4 rounded-xl">
+                      <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">Gross Profit</div>
+                      <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+                        ${costAnalysis.monthlyGrossProfit.toFixed(0)}
+                      </div>
+                    </div>
+
+                    <div className="bg-white dark:bg-gray-800 p-4 rounded-xl">
+                      <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">Overhead</div>
+                      <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">
+                        -${monthlyOverhead}
+                      </div>
+                      <button
+                        onClick={() => {
+                          const newOverhead = prompt('Monthly Overhead (rent, utilities, insurance):', monthlyOverhead.toString())
+                          if (newOverhead) setMonthlyOverhead(parseFloat(newOverhead) || 500)
+                        }}
+                        className="text-xs text-blue-600 hover:underline mt-1"
+                      >
+                        Edit
+                      </button>
+                    </div>
+
+                    <div className="bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/40 dark:to-pink-900/40 p-4 rounded-xl border-2 border-purple-400 dark:border-purple-600">
+                      <div className="text-sm text-purple-700 dark:text-purple-300 mb-1 font-semibold">Net Profit</div>
+                      <div className={`text-2xl font-bold ${costAnalysis.monthlyNetProfit >= 0 ? 'text-green-700 dark:text-green-300' : 'text-red-700 dark:text-red-300'}`}>
+                        ${costAnalysis.monthlyNetProfit.toFixed(0)}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Break-Even & ROI */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="bg-white dark:bg-gray-800 border-2 border-orange-200 dark:border-orange-800 rounded-xl p-6">
+                    <h3 className="text-xl font-bold text-orange-900 dark:text-orange-100 mb-4">⚖️ Break-Even Analysis</h3>
+                    <div className="space-y-4">
+                      <div className="text-center p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
+                        <div className="text-sm text-orange-700 dark:text-orange-300 mb-1">Units to Break Even</div>
+                        <div className="text-4xl font-bold text-orange-600 dark:text-orange-400">
+                          {costAnalysis.breakEvenUnits}
+                        </div>
+                        <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                          ≈ {costAnalysis.daysToBreakEven.toFixed(0)} days at current pace
+                        </div>
+                      </div>
+
+                      <div className="text-sm text-gray-700 dark:text-gray-300 space-y-2">
+                        <div className="flex justify-between">
+                          <span>Fixed Costs (Overhead):</span>
+                          <span className="font-bold">${monthlyOverhead}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Profit per Unit:</span>
+                          <span className="font-bold text-green-600 dark:text-green-400">
+                            ${costAnalysis.grossProfit.toFixed(2)}
+                          </span>
+                        </div>
+                        <div className="flex justify-between pt-2 border-t-2">
+                          <span className="font-bold">Current Progress:</span>
+                          <span className="font-bold text-orange-600 dark:text-orange-400">
+                            {((monthlySalesGoal / costAnalysis.breakEvenUnits) * 100).toFixed(0)}%
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-white dark:bg-gray-800 border-2 border-purple-200 dark:border-purple-800 rounded-xl p-6">
+                    <h3 className="text-xl font-bold text-purple-900 dark:text-purple-100 mb-4">🎯 ROI Analysis</h3>
+                    <div className="space-y-4">
+                      <div className="text-center p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+                        <div className="text-sm text-purple-700 dark:text-purple-300 mb-1">Monthly Return on Investment</div>
+                        <div className="text-4xl font-bold text-purple-600 dark:text-purple-400">
+                          {costAnalysis.roi.toFixed(1)}%
+                        </div>
+                        <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                          {costAnalysis.roi > 0 ? '✅ Profitable' : '⚠️ Needs Improvement'}
+                        </div>
+                      </div>
+
+                      <div className="text-sm text-gray-700 dark:text-gray-300 space-y-2">
+                        <div className="flex justify-between">
+                          <span>Total Investment:</span>
+                          <span className="font-bold">${costAnalysis.totalInvestment.toFixed(0)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Net Profit:</span>
+                          <span className={`font-bold ${costAnalysis.monthlyNetProfit >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                            ${costAnalysis.monthlyNetProfit.toFixed(0)}
+                          </span>
+                        </div>
+                        <div className="flex justify-between pt-2 border-t-2">
+                          <span className="font-bold">Payback Period:</span>
+                          <span className="font-bold text-purple-600 dark:text-purple-400">
+                            {costAnalysis.monthlyNetProfit > 0 ? `${(costAnalysis.totalInvestment / costAnalysis.monthlyNetProfit).toFixed(1)} months` : 'N/A'}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Export */}
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => {
+                      const text = `COST ANALYSIS REPORT\n\n=== PER UNIT ===\nMaterials: $${costAnalysis.materialCost.toFixed(2)}\nLabor: $${costAnalysis.laborCost.toFixed(2)}\nTotal Cost: $${costAnalysis.totalCostPerUnit.toFixed(2)}\nSelling Price: $${costAnalysis.revenue.toFixed(2)}\nGross Profit: $${costAnalysis.grossProfit.toFixed(2)} (${costAnalysis.grossMargin.toFixed(1)}%)\n\n=== MONTHLY (${monthlySalesGoal} units) ===\nRevenue: $${costAnalysis.monthlyRevenue.toFixed(0)}\nCOGS: $${costAnalysis.monthlyCOGS.toFixed(0)}\nGross Profit: $${costAnalysis.monthlyGrossProfit.toFixed(0)}\nOverhead: $${monthlyOverhead}\nNet Profit: $${costAnalysis.monthlyNetProfit.toFixed(0)} (${costAnalysis.netMargin.toFixed(1)}%)\n\n=== BREAK-EVEN ===\nUnits Needed: ${costAnalysis.breakEvenUnits}\nDays to Break Even: ${costAnalysis.daysToBreakEven.toFixed(0)}\n\n=== ROI ===\nReturn on Investment: ${costAnalysis.roi.toFixed(1)}%\nTotal Investment: $${costAnalysis.totalInvestment.toFixed(0)}`
+                      navigator.clipboard.writeText(text)
+                    }}
+                    className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-xl font-bold transition-all text-lg"
+                  >
+                    📋 Copy Report
+                  </button>
+                  <button
+                    onClick={() => window.print()}
+                    className="flex-1 bg-purple-600 hover:bg-purple-700 text-white py-4 rounded-xl font-bold transition-all text-lg"
+                  >
+                    🖨️ Print Report
+                  </button>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
         {/* Recipe Database */}
         <Card className="mb-6 border-4 border-indigo-300 dark:border-indigo-700">
