@@ -3364,6 +3364,65 @@ export default function VesselCalculator() {
                   </div>
                 </div>
 
+                {/* Social Media Direct Links */}
+                <div className="mt-6 bg-gradient-to-br from-indigo-50 to-blue-50 dark:from-indigo-900/20 dark:to-blue-900/20 border-2 border-indigo-300 dark:border-indigo-700 rounded-xl p-6">
+                  <h3 className="text-lg font-bold text-indigo-900 dark:text-indigo-100 mb-4 flex items-center">
+                    🚀 Post Directly to Social Media
+                    <span className="ml-2 text-xs font-normal text-indigo-700 dark:text-indigo-300">(Content will be copied - paste when page opens)</span>
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <button
+                      onClick={() => {
+                        const content = generateSocialMediaPost()
+                        const hashtags = generateHashtags().join(' ')
+                        const fullContent = `${content}\n\n${hashtags}`
+                        navigator.clipboard.writeText(fullContent)
+                        window.open('https://www.instagram.com/', '_blank')
+                      }}
+                      className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white py-4 px-6 rounded-xl font-bold transition-all flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
+                    >
+                      <span className="text-2xl">📷</span>
+                      <div className="text-left">
+                        <div className="text-sm">Post to</div>
+                        <div className="text-lg font-bold">Instagram</div>
+                      </div>
+                    </button>
+                    <button
+                      onClick={() => {
+                        const content = generateSocialMediaPost()
+                        const hashtags = generateHashtags().join(' ')
+                        const fullContent = `${content}\n\n${hashtags}`
+                        navigator.clipboard.writeText(fullContent)
+                        window.open('https://www.facebook.com/', '_blank')
+                      }}
+                      className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white py-4 px-6 rounded-xl font-bold transition-all flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
+                    >
+                      <span className="text-2xl">👥</span>
+                      <div className="text-left">
+                        <div className="text-sm">Post to</div>
+                        <div className="text-lg font-bold">Facebook</div>
+                      </div>
+                    </button>
+                    <button
+                      onClick={() => {
+                        const content = generateSocialMediaPost()
+                        navigator.clipboard.writeText(content)
+                        window.open('https://www.linkedin.com/feed/', '_blank')
+                      }}
+                      className="bg-gradient-to-r from-blue-700 to-blue-900 hover:from-blue-800 hover:to-blue-950 text-white py-4 px-6 rounded-xl font-bold transition-all flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
+                    >
+                      <span className="text-2xl">💼</span>
+                      <div className="text-left">
+                        <div className="text-sm">Post to</div>
+                        <div className="text-lg font-bold">LinkedIn</div>
+                      </div>
+                    </button>
+                  </div>
+                  <div className="mt-3 text-xs text-center text-gray-600 dark:text-gray-400">
+                    💡 Your content is automatically copied - just paste it when the social media page opens!
+                  </div>
+                </div>
+
                 {/* Actions */}
                 <div className="mt-6 grid grid-cols-3 gap-3">
                   <button
