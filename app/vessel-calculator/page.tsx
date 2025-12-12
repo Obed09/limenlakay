@@ -326,6 +326,120 @@ export default function VesselCalculator() {
     lastOrderDate: new Date().toISOString().split('T')[0]
   })
 
+  // Customer Relationship Manager (CRM)
+  interface Customer {
+    id: string
+    name: string
+    email: string
+    phone: string
+    address: string
+    birthday: string
+    favoriteScents: string[]
+    totalOrders: number
+    totalSpent: number
+    lastOrderDate: string
+    loyaltyTier: 'Bronze' | 'Silver' | 'Gold' | 'Platinum'
+    notes: string
+    orderHistory: {
+      date: string
+      product: string
+      quantity: number
+      amount: number
+    }[]
+    communications: {
+      date: string
+      type: 'Email' | 'Phone' | 'Text' | 'In-Person'
+      notes: string
+    }[]
+  }
+
+  const [showCRMManager, setShowCRMManager] = useState(false)
+  const [customers, setCustomers] = useState<Customer[]>([
+    {
+      id: '1',
+      name: 'Sarah Johnson',
+      email: 'sarah.j@email.com',
+      phone: '(561) 555-0123',
+      address: '123 Ocean Ave, Palm Beach, FL 33480',
+      birthday: '1985-06-15',
+      favoriteScents: ['Lavender', 'Ocean Breeze', 'Vanilla'],
+      totalOrders: 8,
+      totalSpent: 640.00,
+      lastOrderDate: '2025-12-05',
+      loyaltyTier: 'Gold',
+      notes: 'VIP customer. Loves floral scents. Always orders 2-3 candles per month.',
+      orderHistory: [
+        { date: '2025-12-05', product: 'Lavender Dreams', quantity: 2, amount: 80.00 },
+        { date: '2025-11-20', product: 'Ocean Breeze', quantity: 3, amount: 120.00 },
+        { date: '2025-10-10', product: 'Vanilla Bean', quantity: 2, amount: 80.00 }
+      ],
+      communications: [
+        { date: '2025-12-01', type: 'Email', notes: 'Sent holiday promotion' },
+        { date: '2025-11-15', type: 'Phone', notes: 'Called to confirm custom order' }
+      ]
+    },
+    {
+      id: '2',
+      name: 'Michael Chen',
+      email: 'mchen@business.com',
+      phone: '(561) 555-0456',
+      address: '456 Worth Ave, Palm Beach, FL 33480',
+      birthday: '1990-03-22',
+      favoriteScents: ['Sandalwood', 'Cedar', 'Coffee'],
+      totalOrders: 15,
+      totalSpent: 1875.00,
+      lastOrderDate: '2025-12-08',
+      loyaltyTier: 'Platinum',
+      notes: 'Bulk buyer for office. Orders monthly for conference rooms.',
+      orderHistory: [
+        { date: '2025-12-08', product: 'Cedar & Sage', quantity: 10, amount: 400.00 },
+        { date: '2025-11-10', product: 'Coffee House', quantity: 8, amount: 320.00 }
+      ],
+      communications: [
+        { date: '2025-12-05', type: 'Email', notes: 'Requested bulk discount quote' },
+        { date: '2025-11-08', type: 'In-Person', notes: 'Met at market, discussed corporate orders' }
+      ]
+    },
+    {
+      id: '3',
+      name: 'Emily Rodriguez',
+      email: 'emily.r@gmail.com',
+      phone: '(561) 555-0789',
+      address: '789 Royal Palm Way, Palm Beach, FL 33480',
+      birthday: '1988-09-30',
+      favoriteScents: ['Citrus', 'Eucalyptus', 'Mint'],
+      totalOrders: 4,
+      totalSpent: 160.00,
+      lastOrderDate: '2025-11-28',
+      loyaltyTier: 'Silver',
+      notes: 'Gift buyer. Usually purchases around holidays and birthdays.',
+      orderHistory: [
+        { date: '2025-11-28', product: 'Citrus Splash', quantity: 2, amount: 80.00 },
+        { date: '2025-09-15', product: 'Eucalyptus Mint', quantity: 2, amount: 80.00 }
+      ],
+      communications: [
+        { date: '2025-11-20', type: 'Text', notes: 'Confirmed delivery address' }
+      ]
+    }
+  ])
+  const [showAddCustomerModal, setShowAddCustomerModal] = useState(false)
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null)
+  const [newCustomer, setNewCustomer] = useState<Partial<Customer>>({
+    name: '',
+    email: '',
+    phone: '',
+    address: '',
+    birthday: '',
+    favoriteScents: [],
+    totalOrders: 0,
+    totalSpent: 0,
+    lastOrderDate: new Date().toISOString().split('T')[0],
+    loyaltyTier: 'Bronze',
+    notes: '',
+    orderHistory: [],
+    communications: []
+  })
+
   // Profit calculator
   const [profitCalc, setProfitCalc] = useState({
     selectedVesselIndex: 0,
@@ -1412,6 +1526,92 @@ export default function VesselCalculator() {
     }
 
     return recommendations
+  }
+
+  // CRM Functions
+  const addCustomer = () => {
+    if (!newCustomer.name || !newCustomer.email) {
+      alert('Please enter customer name and email')
+      return
+    }
+
+    const customer: Customer = {
+      id: Date.now().toString(),
+      name: newCustomer.name || '',
+      email: newCustomer.email || '',
+      phone: newCustomer.phone || '',
+      address: newCustomer.address || '',
+      birthday: newCustomer.birthday || '',
+      favoriteScents: newCustomer.favoriteScents || [],
+      totalOrders: newCustomer.totalOrders || 0,
+      totalSpent: newCustomer.totalSpent || 0,
+      lastOrderDate: newCustomer.lastOrderDate || new Date().toISOString().split('T')[0],
+      loyaltyTier: newCustomer.loyaltyTier || 'Bronze',
+      notes: newCustomer.notes || '',
+      orderHistory: newCustomer.orderHistory || [],
+      communications: newCustomer.communications || []
+    }
+
+    setCustomers([...customers, customer])
+    setShowAddCustomerModal(false)
+    setNewCustomer({
+      name: '',
+      email: '',
+      phone: '',
+      address: '',
+      birthday: '',
+      favoriteScents: [],
+      totalOrders: 0,
+      totalSpent: 0,
+      lastOrderDate: new Date().toISOString().split('T')[0],
+      loyaltyTier: 'Bronze',
+      notes: '',
+      orderHistory: [],
+      communications: []
+    })
+  }
+
+  const deleteCustomer = (id: string) => {
+    if (confirm('Are you sure you want to delete this customer?')) {
+      setCustomers(customers.filter(c => c.id !== id))
+      if (selectedCustomer?.id === id) {
+        setSelectedCustomer(null)
+      }
+    }
+  }
+
+  const getLoyaltyTierColor = (tier: string) => {
+    switch (tier) {
+      case 'Platinum': return 'from-purple-100 to-pink-100 border-purple-400 dark:from-purple-900/30 dark:to-pink-900/30'
+      case 'Gold': return 'from-yellow-100 to-amber-100 border-yellow-400 dark:from-yellow-900/30 dark:to-amber-900/30'
+      case 'Silver': return 'from-gray-100 to-slate-100 border-gray-400 dark:from-gray-900/30 dark:to-slate-900/30'
+      default: return 'from-orange-100 to-amber-100 border-orange-400 dark:from-orange-900/30 dark:to-amber-900/30'
+    }
+  }
+
+  const getLoyaltyBenefits = (tier: string) => {
+    switch (tier) {
+      case 'Platinum': return '25% off + Free shipping + Priority support + Birthday gift'
+      case 'Gold': return '15% off + Free shipping + Birthday gift'
+      case 'Silver': return '10% off + Birthday gift'
+      default: return '5% off on orders over $50'
+    }
+  }
+
+  const getUpcomingBirthdays = () => {
+    const today = new Date()
+    const thirtyDaysFromNow = new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000)
+    
+    return customers.filter(customer => {
+      if (!customer.birthday) return false
+      const birthday = new Date(customer.birthday)
+      const thisYearBirthday = new Date(today.getFullYear(), birthday.getMonth(), birthday.getDate())
+      return thisYearBirthday >= today && thisYearBirthday <= thirtyDaysFromNow
+    }).sort((a, b) => {
+      const dateA = new Date(a.birthday)
+      const dateB = new Date(b.birthday)
+      return dateA.getMonth() * 31 + dateA.getDate() - (dateB.getMonth() * 31 + dateB.getDate())
+    })
   }
 
   return (
@@ -3199,6 +3399,167 @@ export default function VesselCalculator() {
           </div>
         )}
 
+        {/* Add Customer Modal */}
+        {showAddCustomerModal && (
+          <div
+            className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 overflow-y-auto"
+            onClick={() => setShowAddCustomerModal(false)}
+          >
+            <div
+              className="bg-white dark:bg-gray-900 rounded-2xl max-w-3xl w-full max-h-[95vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Modal Header */}
+              <div className="bg-gradient-to-r from-pink-600 to-rose-600 text-white p-6 rounded-t-2xl relative sticky top-0 z-10">
+                <h2 className="text-3xl font-bold mb-2">➕ Add New Customer</h2>
+                <p className="text-white/90">Track customer info, preferences, and purchase history</p>
+                <button
+                  onClick={() => setShowAddCustomerModal(false)}
+                  className="absolute top-4 right-4 bg-white text-pink-600 w-10 h-10 rounded-full font-bold text-xl hover:bg-gray-100 transition-all"
+                >
+                  ×
+                </button>
+              </div>
+
+              {/* Modal Body */}
+              <div className="p-6 space-y-6">
+                {/* Basic Information */}
+                <div className="bg-gradient-to-br from-pink-50 to-rose-50 dark:from-pink-900/20 dark:to-rose-900/20 p-6 rounded-xl border-2 border-pink-200 dark:border-pink-800">
+                  <h3 className="text-xl font-bold text-pink-900 dark:text-pink-100 mb-4">📋 Basic Information</h3>
+                  <div className="space-y-4">
+                    <div>
+                      <Label className="text-gray-900 dark:text-gray-100 font-semibold mb-2 block">
+                        Customer Name <span className="text-red-600">*</span>
+                      </Label>
+                      <input
+                        type="text"
+                        value={newCustomer.name || ''}
+                        onChange={(e) => setNewCustomer({ ...newCustomer, name: e.target.value })}
+                        placeholder="John Smith"
+                        className="w-full p-3 border-2 border-pink-300 dark:border-pink-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                      />
+                    </div>
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div>
+                        <Label className="text-gray-900 dark:text-gray-100 font-semibold mb-2 block">
+                          Email <span className="text-red-600">*</span>
+                        </Label>
+                        <input
+                          type="email"
+                          value={newCustomer.email || ''}
+                          onChange={(e) => setNewCustomer({ ...newCustomer, email: e.target.value })}
+                          placeholder="customer@email.com"
+                          className="w-full p-3 border-2 border-pink-300 dark:border-pink-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-gray-900 dark:text-gray-100 font-semibold mb-2 block">Phone</Label>
+                        <input
+                          type="tel"
+                          value={newCustomer.phone || ''}
+                          onChange={(e) => setNewCustomer({ ...newCustomer, phone: e.target.value })}
+                          placeholder="(555) 123-4567"
+                          className="w-full p-3 border-2 border-pink-300 dark:border-pink-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <Label className="text-gray-900 dark:text-gray-100 font-semibold mb-2 block">Address</Label>
+                      <input
+                        type="text"
+                        value={newCustomer.address || ''}
+                        onChange={(e) => setNewCustomer({ ...newCustomer, address: e.target.value })}
+                        placeholder="123 Main St, City, State 12345"
+                        className="w-full p-3 border-2 border-pink-300 dark:border-pink-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-gray-900 dark:text-gray-100 font-semibold mb-2 block">Birthday</Label>
+                      <input
+                        type="date"
+                        value={newCustomer.birthday || ''}
+                        onChange={(e) => setNewCustomer({ ...newCustomer, birthday: e.target.value })}
+                        className="w-full p-3 border-2 border-pink-300 dark:border-pink-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Preferences */}
+                <div className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 p-6 rounded-xl border-2 border-purple-200 dark:border-purple-800">
+                  <h3 className="text-xl font-bold text-purple-900 dark:text-purple-100 mb-4">🌸 Favorite Scents</h3>
+                  <div className="flex flex-wrap gap-3">
+                    {['Lavender', 'Vanilla', 'Ocean Breeze', 'Sandalwood', 'Citrus', 'Rose', 'Eucalyptus', 'Coffee', 'Cedar'].map(scent => (
+                      <label key={scent} className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={newCustomer.favoriteScents?.includes(scent)}
+                          onChange={(e) => {
+                            const current = newCustomer.favoriteScents || []
+                            if (e.target.checked) {
+                              setNewCustomer({ ...newCustomer, favoriteScents: [...current, scent] })
+                            } else {
+                              setNewCustomer({ ...newCustomer, favoriteScents: current.filter(s => s !== scent) })
+                            }
+                          }}
+                          className="w-5 h-5"
+                        />
+                        <span className="text-gray-900 dark:text-gray-100 font-semibold">{scent}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Loyalty & Notes */}
+                <div className="bg-gradient-to-br from-amber-50 to-yellow-50 dark:from-amber-900/20 dark:to-yellow-900/20 p-6 rounded-xl border-2 border-amber-200 dark:border-amber-800">
+                  <h3 className="text-xl font-bold text-amber-900 dark:text-amber-100 mb-4">🏆 Loyalty Tier & Notes</h3>
+                  <div className="space-y-4">
+                    <div>
+                      <Label className="text-gray-900 dark:text-gray-100 font-semibold mb-2 block">Loyalty Tier</Label>
+                      <select
+                        value={newCustomer.loyaltyTier || 'Bronze'}
+                        onChange={(e) => setNewCustomer({ ...newCustomer, loyaltyTier: e.target.value as any })}
+                        className="w-full p-3 border-2 border-amber-300 dark:border-amber-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                      >
+                        <option value="Bronze">Bronze (5% off)</option>
+                        <option value="Silver">Silver (10% off)</option>
+                        <option value="Gold">Gold (15% off)</option>
+                        <option value="Platinum">Platinum (25% off)</option>
+                      </select>
+                    </div>
+                    <div>
+                      <Label className="text-gray-900 dark:text-gray-100 font-semibold mb-2 block">Notes</Label>
+                      <textarea
+                        value={newCustomer.notes || ''}
+                        onChange={(e) => setNewCustomer({ ...newCustomer, notes: e.target.value })}
+                        placeholder="Preferences, allergies, special requests..."
+                        rows={4}
+                        className="w-full p-3 border-2 border-amber-300 dark:border-amber-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="grid grid-cols-2 gap-4 pt-4">
+                  <button
+                    onClick={() => setShowAddCustomerModal(false)}
+                    className="bg-gray-500 hover:bg-gray-600 text-white py-4 rounded-xl font-bold text-lg transition-all"
+                  >
+                    ❌ Cancel
+                  </button>
+                  <button
+                    onClick={addCustomer}
+                    className="bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-700 hover:to-rose-700 text-white py-4 rounded-xl font-bold text-lg transition-all"
+                  >
+                    ✅ Add Customer
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Supplier & Vendor Management */}
         <Card className="mb-6 border-4 border-orange-300 dark:border-orange-700">
           <CardHeader className="bg-gradient-to-r from-orange-50 to-amber-100 dark:from-orange-950 dark:to-amber-900">
@@ -4208,6 +4569,265 @@ export default function VesselCalculator() {
                   >
                     🖨️ Print Report
                   </button>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Customer Relationship Manager (CRM) */}
+        <Card className="mb-6 border-4 border-pink-300 dark:border-pink-700">
+          <CardHeader className="bg-gradient-to-r from-pink-50 to-rose-100 dark:from-pink-950 dark:to-rose-900">
+            <div className="flex justify-between items-center">
+              <div>
+                <CardTitle className="text-2xl text-pink-900 dark:text-pink-100">
+                  👥 Customer Relationship Manager
+                </CardTitle>
+                <p className="text-pink-700 dark:text-pink-300 mt-2 text-sm">
+                  Track customers • Order history • Loyalty tiers • Birthday reminders
+                </p>
+              </div>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowAddCustomerModal(true)}
+                  className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl font-bold transition-all"
+                >
+                  ➕ Add Customer
+                </button>
+                <button
+                  onClick={() => setShowCRMManager(!showCRMManager)}
+                  className="bg-pink-600 hover:bg-pink-700 text-white px-6 py-3 rounded-xl font-bold transition-all"
+                >
+                  {showCRMManager ? '📊 Hide' : '📊 View All'}
+                </button>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="pt-6">
+            {/* Quick Stats */}
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+              <div className="bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-900/20 p-4 rounded-xl border-2 border-blue-300 dark:border-blue-700">
+                <div className="text-blue-900 dark:text-blue-100 text-sm font-semibold mb-1">👥 Total Customers</div>
+                <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">{customers.length}</div>
+              </div>
+
+              <div className="bg-gradient-to-br from-green-50 to-emerald-100 dark:from-green-900/20 dark:to-emerald-900/20 p-4 rounded-xl border-2 border-green-300 dark:border-green-700">
+                <div className="text-green-900 dark:text-green-100 text-sm font-semibold mb-1">💰 Total Revenue</div>
+                <div className="text-3xl font-bold text-green-600 dark:text-green-400">
+                  ${customers.reduce((sum, c) => sum + c.totalSpent, 0).toFixed(2)}
+                </div>
+              </div>
+
+              <div className="bg-gradient-to-br from-purple-50 to-pink-100 dark:from-purple-900/20 dark:to-pink-900/20 p-4 rounded-xl border-2 border-purple-300 dark:border-purple-700">
+                <div className="text-purple-900 dark:text-purple-100 text-sm font-semibold mb-1">📦 Total Orders</div>
+                <div className="text-3xl font-bold text-purple-600 dark:text-purple-400">
+                  {customers.reduce((sum, c) => sum + c.totalOrders, 0)}
+                </div>
+              </div>
+
+              <div className="bg-gradient-to-br from-amber-50 to-yellow-100 dark:from-amber-900/20 dark:to-yellow-900/20 p-4 rounded-xl border-2 border-amber-300 dark:border-amber-700">
+                <div className="text-amber-900 dark:text-amber-100 text-sm font-semibold mb-1">💵 Avg Order Value</div>
+                <div className="text-3xl font-bold text-amber-600 dark:text-amber-400">
+                  ${customers.length > 0 ? (customers.reduce((sum, c) => sum + c.totalSpent, 0) / customers.reduce((sum, c) => sum + c.totalOrders, 0)).toFixed(2) : '0.00'}
+                </div>
+              </div>
+
+              <div className="bg-gradient-to-br from-rose-50 to-pink-100 dark:from-rose-900/20 dark:to-pink-900/20 p-4 rounded-xl border-2 border-rose-300 dark:border-rose-700">
+                <div className="text-rose-900 dark:text-rose-100 text-sm font-semibold mb-1">🎂 Upcoming Birthdays</div>
+                <div className="text-3xl font-bold text-rose-600 dark:text-rose-400">
+                  {getUpcomingBirthdays().length}
+                </div>
+                <div className="text-xs text-rose-700 dark:text-rose-300 mt-1">Next 30 days</div>
+              </div>
+            </div>
+
+            {/* Loyalty Tiers Breakdown */}
+            <div className="mb-6 bg-white dark:bg-gray-800 p-6 rounded-xl border-2 border-pink-200 dark:border-pink-800">
+              <h3 className="text-xl font-bold text-pink-900 dark:text-pink-100 mb-4">🏆 Loyalty Tiers</h3>
+              <div className="grid md:grid-cols-4 gap-4">
+                {['Platinum', 'Gold', 'Silver', 'Bronze'].map(tier => {
+                  const count = customers.filter(c => c.loyaltyTier === tier).length
+                  const total = customers.filter(c => c.loyaltyTier === tier).reduce((sum, c) => sum + c.totalSpent, 0)
+                  return (
+                    <div key={tier} className={`bg-gradient-to-br ${getLoyaltyTierColor(tier)} p-4 rounded-xl border-2`}>
+                      <div className="text-lg font-bold mb-1">{tier}</div>
+                      <div className="text-2xl font-bold mb-1">{count} customers</div>
+                      <div className="text-sm font-semibold text-gray-700 dark:text-gray-300">${total.toFixed(2)} revenue</div>
+                      <div className="text-xs mt-2 text-gray-600 dark:text-gray-400">{getLoyaltyBenefits(tier)}</div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+
+            {/* Upcoming Birthdays Alert */}
+            {getUpcomingBirthdays().length > 0 && (
+              <div className="mb-6 bg-gradient-to-br from-pink-50 to-rose-100 dark:from-pink-900/20 dark:to-rose-900/20 p-6 rounded-xl border-2 border-pink-300 dark:border-pink-700">
+                <h3 className="text-xl font-bold text-pink-900 dark:text-pink-100 mb-4 flex items-center gap-2">
+                  🎂 Upcoming Birthdays
+                  <span className="bg-pink-600 text-white text-sm px-3 py-1 rounded-full">{getUpcomingBirthdays().length}</span>
+                </h3>
+                <div className="space-y-3">
+                  {getUpcomingBirthdays().map(customer => (
+                    <div key={customer.id} className="bg-white dark:bg-gray-800 p-4 rounded-lg border-2 border-pink-200 dark:border-pink-800 flex justify-between items-center">
+                      <div>
+                        <div className="font-bold text-pink-900 dark:text-pink-100 text-lg">{customer.name}</div>
+                        <div className="text-sm text-gray-700 dark:text-gray-300">
+                          {new Date(customer.birthday).toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <a
+                          href={`mailto:${customer.email}?subject=Happy Birthday ${customer.name}!&body=Happy Birthday! Enjoy 20% off your next order with code BDAY20.`}
+                          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-bold transition-all"
+                        >
+                          📧 Send Email
+                        </a>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Customer Directory */}
+            {showCRMManager && (
+              <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border-2 border-pink-200 dark:border-pink-800">
+                <h3 className="text-xl font-bold text-pink-900 dark:text-pink-100 mb-6">📇 Customer Directory</h3>
+                <div className="space-y-4">
+                  {customers.map(customer => (
+                    <div key={customer.id} className="bg-gradient-to-br from-pink-50 to-rose-50 dark:from-pink-900/20 dark:to-rose-900/20 p-6 rounded-xl border-2 border-pink-200 dark:border-pink-800">
+                      <div className="flex justify-between items-start mb-4">
+                        <div>
+                          <h4 className="text-2xl font-bold text-pink-900 dark:text-pink-100">{customer.name}</h4>
+                          <div className={`inline-block bg-gradient-to-r ${getLoyaltyTierColor(customer.loyaltyTier)} px-4 py-1 rounded-full mt-2 border-2`}>
+                            <span className="font-bold text-sm">{customer.loyaltyTier} Member</span>
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => setSelectedCustomer(selectedCustomer?.id === customer.id ? null : customer)}
+                            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-bold transition-all"
+                          >
+                            {selectedCustomer?.id === customer.id ? '📋 Hide Details' : '📋 View Details'}
+                          </button>
+                          <button
+                            onClick={() => deleteCustomer(customer.id)}
+                            className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-bold transition-all"
+                          >
+                            🗑️
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="grid md:grid-cols-3 gap-4 mb-4">
+                        <div>
+                          <div className="text-sm font-bold text-pink-800 dark:text-pink-200 mb-2">📞 Contact</div>
+                          <div className="space-y-1 text-sm text-gray-700 dark:text-gray-300">
+                            <div><a href={`mailto:${customer.email}`} className="text-blue-600 dark:text-blue-400 hover:underline">{customer.email}</a></div>
+                            <div><a href={`tel:${customer.phone}`} className="text-blue-600 dark:text-blue-400 hover:underline">{customer.phone}</a></div>
+                            <div>{customer.address}</div>
+                          </div>
+                        </div>
+
+                        <div>
+                          <div className="text-sm font-bold text-pink-800 dark:text-pink-200 mb-2">📊 Stats</div>
+                          <div className="space-y-1 text-sm text-gray-700 dark:text-gray-300">
+                            <div><span className="font-semibold">Orders:</span> {customer.totalOrders}</div>
+                            <div><span className="font-semibold">Total Spent:</span> <span className="text-green-600 dark:text-green-400 font-bold">${customer.totalSpent.toFixed(2)}</span></div>
+                            <div><span className="font-semibold">Last Order:</span> {new Date(customer.lastOrderDate).toLocaleDateString()}</div>
+                          </div>
+                        </div>
+
+                        <div>
+                          <div className="text-sm font-bold text-pink-800 dark:text-pink-200 mb-2">🌸 Favorite Scents</div>
+                          <div className="flex flex-wrap gap-2">
+                            {customer.favoriteScents.map((scent, idx) => (
+                              <span key={idx} className="bg-purple-200 dark:bg-purple-800 text-purple-900 dark:text-purple-100 px-2 py-1 rounded-full text-xs font-semibold">
+                                {scent}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+
+                      {customer.notes && (
+                        <div className="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-lg border-2 border-yellow-300 dark:border-yellow-700 mb-4">
+                          <div className="text-sm font-bold text-yellow-900 dark:text-yellow-100 mb-1">📝 Notes</div>
+                          <div className="text-sm text-yellow-800 dark:text-yellow-200">{customer.notes}</div>
+                        </div>
+                      )}
+
+                      {selectedCustomer?.id === customer.id && (
+                        <div className="mt-4 space-y-4">
+                          {/* Order History */}
+                          <div className="bg-white dark:bg-gray-700 p-4 rounded-lg border-2 border-pink-300 dark:border-pink-700">
+                            <h5 className="text-lg font-bold text-pink-900 dark:text-pink-100 mb-3">📦 Order History</h5>
+                            {customer.orderHistory.length > 0 ? (
+                              <div className="space-y-2">
+                                {customer.orderHistory.map((order, idx) => (
+                                  <div key={idx} className="flex justify-between items-center bg-pink-50 dark:bg-pink-900/20 p-3 rounded-lg">
+                                    <div>
+                                      <div className="font-bold text-gray-900 dark:text-gray-100">{order.product}</div>
+                                      <div className="text-sm text-gray-600 dark:text-gray-400">
+                                        {new Date(order.date).toLocaleDateString()} • Qty: {order.quantity}
+                                      </div>
+                                    </div>
+                                    <div className="text-lg font-bold text-green-600 dark:text-green-400">
+                                      ${order.amount.toFixed(2)}
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <div className="text-gray-500 dark:text-gray-400 text-sm">No orders yet</div>
+                            )}
+                          </div>
+
+                          {/* Communication Log */}
+                          <div className="bg-white dark:bg-gray-700 p-4 rounded-lg border-2 border-blue-300 dark:border-blue-700">
+                            <h5 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-3">💬 Communication Log</h5>
+                            {customer.communications.length > 0 ? (
+                              <div className="space-y-2">
+                                {customer.communications.map((comm, idx) => (
+                                  <div key={idx} className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg">
+                                    <div className="flex justify-between items-start mb-1">
+                                      <span className="font-bold text-blue-600 dark:text-blue-400">{comm.type}</span>
+                                      <span className="text-sm text-gray-600 dark:text-gray-400">{new Date(comm.date).toLocaleDateString()}</span>
+                                    </div>
+                                    <div className="text-sm text-gray-700 dark:text-gray-300">{comm.notes}</div>
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <div className="text-gray-500 dark:text-gray-400 text-sm">No communications logged</div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="flex gap-3 mt-4">
+                        <a
+                          href={`mailto:${customer.email}`}
+                          className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg font-bold text-center transition-all"
+                        >
+                          📧 Email
+                        </a>
+                        <a
+                          href={`tel:${customer.phone}`}
+                          className="flex-1 bg-green-600 hover:bg-green-700 text-white px-4 py-3 rounded-lg font-bold text-center transition-all"
+                        >
+                          📞 Call
+                        </a>
+                        <a
+                          href={`sms:${customer.phone}`}
+                          className="flex-1 bg-purple-600 hover:bg-purple-700 text-white px-4 py-3 rounded-lg font-bold text-center transition-all"
+                        >
+                          💬 Text
+                        </a>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
