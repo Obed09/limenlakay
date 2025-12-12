@@ -245,6 +245,87 @@ export default function VesselCalculator() {
   const [marketingTone, setMarketingTone] = useState<'casual' | 'luxury' | 'professional' | 'playful'>('casual')
   const [showMarketingModal, setShowMarketingModal] = useState(false)
 
+  // Supplier & Vendor Management
+  interface Supplier {
+    id: string
+    name: string
+    contact: string
+    email: string
+    phone: string
+    website: string
+    materials: string[]
+    waxPrice: number
+    fragrancePrice: number
+    wickPrice: number
+    rating: number
+    notes: string
+    lastOrderDate: string
+  }
+
+  const [showSupplierManager, setShowSupplierManager] = useState(false)
+  const [suppliers, setSuppliers] = useState<Supplier[]>([
+    {
+      id: '1',
+      name: 'CandleScience',
+      contact: 'Sales Team',
+      email: 'orders@candlescience.com',
+      phone: '(866) 652-2635',
+      website: 'www.candlescience.com',
+      materials: ['Soy Wax', 'Coconut Wax', 'Fragrance Oils', 'Wicks', 'Containers'],
+      waxPrice: 3.50,
+      fragrancePrice: 18.00,
+      wickPrice: 0.40,
+      rating: 5,
+      notes: 'Fast shipping, excellent quality. Free shipping over $100.',
+      lastOrderDate: '2025-11-15'
+    },
+    {
+      id: '2',
+      name: 'Lone Star Candle Supply',
+      contact: 'Customer Service',
+      email: 'info@lonestarcandlesupply.com',
+      phone: '(214) 800-2655',
+      website: 'www.lonestarcandlesupply.com',
+      materials: ['Soy Wax', 'Fragrance Oils', 'Wicks', 'Dyes'],
+      waxPrice: 3.25,
+      fragrancePrice: 16.50,
+      wickPrice: 0.35,
+      rating: 4,
+      notes: 'Best prices, bulk discounts. Slower shipping.',
+      lastOrderDate: '2025-10-20'
+    },
+    {
+      id: '3',
+      name: 'Bramble Berry',
+      contact: 'Orders Department',
+      email: 'support@brambleberry.com',
+      phone: '(877) 627-7883',
+      website: 'www.brambleberry.com',
+      materials: ['Coconut Wax', 'Essential Oils', 'Containers', 'Labels'],
+      waxPrice: 4.00,
+      fragrancePrice: 20.00,
+      wickPrice: 0.50,
+      rating: 5,
+      notes: 'Premium quality, great for luxury candles. Higher prices.',
+      lastOrderDate: '2025-12-01'
+    }
+  ])
+  const [showAddSupplierModal, setShowAddSupplierModal] = useState(false)
+  const [newSupplier, setNewSupplier] = useState<Partial<Supplier>>({
+    name: '',
+    contact: '',
+    email: '',
+    phone: '',
+    website: '',
+    materials: [],
+    waxPrice: 0,
+    fragrancePrice: 0,
+    wickPrice: 0,
+    rating: 3,
+    notes: '',
+    lastOrderDate: new Date().toISOString().split('T')[0]
+  })
+
   // Profit calculator
   const [profitCalc, setProfitCalc] = useState({
     selectedVesselIndex: 0,
@@ -1211,6 +1292,126 @@ export default function VesselCalculator() {
     allHashtags.push('#SmallBusiness', '#SupportLocal', '#PalmBeachFL', '#CandleAddict', '#HomeDecor', '#CandleCommunity')
 
     return allHashtags.slice(0, 30) // Instagram allows up to 30 hashtags
+  }
+
+  // Supplier Management Functions
+  const addSupplier = () => {
+    if (!newSupplier.name || !newSupplier.email) {
+      alert('Please enter supplier name and email')
+      return
+    }
+
+    const supplier: Supplier = {
+      id: Date.now().toString(),
+      name: newSupplier.name || '',
+      contact: newSupplier.contact || '',
+      email: newSupplier.email || '',
+      phone: newSupplier.phone || '',
+      website: newSupplier.website || '',
+      materials: newSupplier.materials || [],
+      waxPrice: newSupplier.waxPrice || 0,
+      fragrancePrice: newSupplier.fragrancePrice || 0,
+      wickPrice: newSupplier.wickPrice || 0,
+      rating: newSupplier.rating || 3,
+      notes: newSupplier.notes || '',
+      lastOrderDate: newSupplier.lastOrderDate || new Date().toISOString().split('T')[0]
+    }
+
+    setSuppliers([...suppliers, supplier])
+    setShowAddSupplierModal(false)
+    setNewSupplier({
+      name: '',
+      contact: '',
+      email: '',
+      phone: '',
+      website: '',
+      materials: [],
+      waxPrice: 0,
+      fragrancePrice: 0,
+      wickPrice: 0,
+      rating: 3,
+      notes: '',
+      lastOrderDate: new Date().toISOString().split('T')[0]
+    })
+  }
+
+  const deleteSupplier = (id: string) => {
+    if (confirm('Are you sure you want to delete this supplier?')) {
+      setSuppliers(suppliers.filter(s => s.id !== id))
+    }
+  }
+
+  const updateSupplierRating = (id: string, rating: number) => {
+    setSuppliers(suppliers.map(s => s.id === id ? { ...s, rating } : s))
+  }
+
+  const getCheapestSupplier = (material: 'wax' | 'fragrance' | 'wick') => {
+    const priceKey = material === 'wax' ? 'waxPrice' : material === 'fragrance' ? 'fragrancePrice' : 'wickPrice'
+    const validSuppliers = suppliers.filter(s => s[priceKey] > 0)
+    if (validSuppliers.length === 0) return null
+    return validSuppliers.reduce((min, s) => s[priceKey] < min[priceKey] ? s : min)
+  }
+
+  const calculatePotentialSavings = () => {
+    const cheapestWax = getCheapestSupplier('wax')
+    const cheapestFragrance = getCheapestSupplier('fragrance')
+    const cheapestWick = getCheapestSupplier('wick')
+
+    const currentWaxPrice = materialPrices.waxPerLb
+    const currentFragrancePrice = materialPrices.fragrancePerLb
+    const currentWickPrice = materialPrices.wickCost
+
+    let savings = 0
+    if (cheapestWax && cheapestWax.waxPrice < currentWaxPrice) {
+      savings += (currentWaxPrice - cheapestWax.waxPrice) * inventory.waxLbs
+    }
+    if (cheapestFragrance && cheapestFragrance.fragrancePrice < currentFragrancePrice) {
+      savings += (currentFragrancePrice - cheapestFragrance.fragrancePrice) * inventory.fragranceOilLbs
+    }
+    if (cheapestWick && cheapestWick.wickPrice < currentWickPrice) {
+      savings += (currentWickPrice - cheapestWick.wickPrice) * inventory.wicks
+    }
+
+    return savings
+  }
+
+  const getReorderRecommendations = () => {
+    const recommendations = []
+    
+    if (inventory.waxLbs < 20) {
+      const supplier = getCheapestSupplier('wax')
+      recommendations.push({
+        material: 'Wax',
+        currentStock: inventory.waxLbs,
+        reorderAmount: 50,
+        supplier: supplier?.name || 'Best available',
+        estimatedCost: (supplier?.waxPrice || materialPrices.waxPerLb) * 50
+      })
+    }
+
+    if (inventory.fragranceOilLbs < 5) {
+      const supplier = getCheapestSupplier('fragrance')
+      recommendations.push({
+        material: 'Fragrance Oil',
+        currentStock: inventory.fragranceOilLbs,
+        reorderAmount: 10,
+        supplier: supplier?.name || 'Best available',
+        estimatedCost: (supplier?.fragrancePrice || materialPrices.fragrancePerLb) * 10
+      })
+    }
+
+    if (inventory.wicks < 50) {
+      const supplier = getCheapestSupplier('wick')
+      recommendations.push({
+        material: 'Wicks',
+        currentStock: inventory.wicks,
+        reorderAmount: 100,
+        supplier: supplier?.name || 'Best available',
+        estimatedCost: (supplier?.wickPrice || materialPrices.wickCost) * 100
+      })
+    }
+
+    return recommendations
   }
 
   return (
@@ -2785,6 +2986,518 @@ export default function VesselCalculator() {
             </div>
           </div>
         )}
+
+        {/* Add Supplier Modal */}
+        {showAddSupplierModal && (
+          <div
+            className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 overflow-y-auto"
+            onClick={() => setShowAddSupplierModal(false)}
+          >
+            <div
+              className="bg-white dark:bg-gray-900 rounded-2xl max-w-3xl w-full max-h-[95vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Modal Header */}
+              <div className="bg-gradient-to-r from-orange-600 to-amber-600 text-white p-6 rounded-t-2xl relative sticky top-0 z-10">
+                <h2 className="text-3xl font-bold mb-2">➕ Add New Supplier</h2>
+                <p className="text-white/90">Track vendor contact info, pricing, and performance</p>
+                <button
+                  onClick={() => setShowAddSupplierModal(false)}
+                  className="absolute top-4 right-4 bg-white text-orange-600 w-10 h-10 rounded-full font-bold text-xl hover:bg-gray-100 transition-all"
+                >
+                  ×
+                </button>
+              </div>
+
+              {/* Modal Body */}
+              <div className="p-6 space-y-6">
+                {/* Basic Information */}
+                <div className="bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20 p-6 rounded-xl border-2 border-orange-200 dark:border-orange-800">
+                  <h3 className="text-xl font-bold text-orange-900 dark:text-orange-100 mb-4">📋 Basic Information</h3>
+                  <div className="space-y-4">
+                    <div>
+                      <Label className="text-gray-900 dark:text-gray-100 font-semibold mb-2 block">
+                        Supplier Name <span className="text-red-600">*</span>
+                      </Label>
+                      <input
+                        type="text"
+                        value={newSupplier.name || ''}
+                        onChange={(e) => setNewSupplier({ ...newSupplier, name: e.target.value })}
+                        placeholder="e.g., CandleScience, Bramble Berry"
+                        className="w-full p-3 border-2 border-orange-300 dark:border-orange-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-gray-900 dark:text-gray-100 font-semibold mb-2 block">Contact Person</Label>
+                      <input
+                        type="text"
+                        value={newSupplier.contact || ''}
+                        onChange={(e) => setNewSupplier({ ...newSupplier, contact: e.target.value })}
+                        placeholder="e.g., Sales Team, Account Manager"
+                        className="w-full p-3 border-2 border-orange-300 dark:border-orange-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                      />
+                    </div>
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div>
+                        <Label className="text-gray-900 dark:text-gray-100 font-semibold mb-2 block">
+                          Email <span className="text-red-600">*</span>
+                        </Label>
+                        <input
+                          type="email"
+                          value={newSupplier.email || ''}
+                          onChange={(e) => setNewSupplier({ ...newSupplier, email: e.target.value })}
+                          placeholder="contact@supplier.com"
+                          className="w-full p-3 border-2 border-orange-300 dark:border-orange-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-gray-900 dark:text-gray-100 font-semibold mb-2 block">Phone</Label>
+                        <input
+                          type="tel"
+                          value={newSupplier.phone || ''}
+                          onChange={(e) => setNewSupplier({ ...newSupplier, phone: e.target.value })}
+                          placeholder="(555) 123-4567"
+                          className="w-full p-3 border-2 border-orange-300 dark:border-orange-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <Label className="text-gray-900 dark:text-gray-100 font-semibold mb-2 block">Website</Label>
+                      <input
+                        type="text"
+                        value={newSupplier.website || ''}
+                        onChange={(e) => setNewSupplier({ ...newSupplier, website: e.target.value })}
+                        placeholder="www.supplier.com"
+                        className="w-full p-3 border-2 border-orange-300 dark:border-orange-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Pricing */}
+                <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 p-6 rounded-xl border-2 border-green-200 dark:border-green-800">
+                  <h3 className="text-xl font-bold text-green-900 dark:text-green-100 mb-4">💰 Material Pricing</h3>
+                  <div className="grid md:grid-cols-3 gap-4">
+                    <div>
+                      <Label className="text-gray-900 dark:text-gray-100 font-semibold mb-2 block">Wax (per lb)</Label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={newSupplier.waxPrice || 0}
+                        onChange={(e) => setNewSupplier({ ...newSupplier, waxPrice: parseFloat(e.target.value) || 0 })}
+                        placeholder="3.50"
+                        className="w-full p-3 border-2 border-green-300 dark:border-green-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-gray-900 dark:text-gray-100 font-semibold mb-2 block">Fragrance Oil (per lb)</Label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={newSupplier.fragrancePrice || 0}
+                        onChange={(e) => setNewSupplier({ ...newSupplier, fragrancePrice: parseFloat(e.target.value) || 0 })}
+                        placeholder="18.00"
+                        className="w-full p-3 border-2 border-green-300 dark:border-green-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-gray-900 dark:text-gray-100 font-semibold mb-2 block">Wick (each)</Label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={newSupplier.wickPrice || 0}
+                        onChange={(e) => setNewSupplier({ ...newSupplier, wickPrice: parseFloat(e.target.value) || 0 })}
+                        placeholder="0.40"
+                        className="w-full p-3 border-2 border-green-300 dark:border-green-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Materials Supplied */}
+                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-6 rounded-xl border-2 border-blue-200 dark:border-blue-800">
+                  <h3 className="text-xl font-bold text-blue-900 dark:text-blue-100 mb-4">📦 Materials Supplied</h3>
+                  <div className="flex flex-wrap gap-3">
+                    {['Soy Wax', 'Coconut Wax', 'Fragrance Oils', 'Essential Oils', 'Wicks', 'Containers', 'Dyes', 'Labels'].map(material => (
+                      <label key={material} className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={newSupplier.materials?.includes(material)}
+                          onChange={(e) => {
+                            const current = newSupplier.materials || []
+                            if (e.target.checked) {
+                              setNewSupplier({ ...newSupplier, materials: [...current, material] })
+                            } else {
+                              setNewSupplier({ ...newSupplier, materials: current.filter(m => m !== material) })
+                            }
+                          }}
+                          className="w-5 h-5"
+                        />
+                        <span className="text-gray-900 dark:text-gray-100 font-semibold">{material}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Rating & Notes */}
+                <div className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 p-6 rounded-xl border-2 border-purple-200 dark:border-purple-800">
+                  <h3 className="text-xl font-bold text-purple-900 dark:text-purple-100 mb-4">⭐ Rating & Notes</h3>
+                  <div className="space-y-4">
+                    <div>
+                      <Label className="text-gray-900 dark:text-gray-100 font-semibold mb-2 block">Quality Rating</Label>
+                      <div className="flex gap-2">
+                        {[1, 2, 3, 4, 5].map(star => (
+                          <button
+                            key={star}
+                            onClick={() => setNewSupplier({ ...newSupplier, rating: star })}
+                            className="text-4xl hover:scale-125 transition-transform"
+                          >
+                            {star <= (newSupplier.rating || 3) ? '⭐' : '☆'}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <Label className="text-gray-900 dark:text-gray-100 font-semibold mb-2 block">Notes</Label>
+                      <textarea
+                        value={newSupplier.notes || ''}
+                        onChange={(e) => setNewSupplier({ ...newSupplier, notes: e.target.value })}
+                        placeholder="Quality, shipping speed, customer service, special offers..."
+                        rows={4}
+                        className="w-full p-3 border-2 border-purple-300 dark:border-purple-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-gray-900 dark:text-gray-100 font-semibold mb-2 block">Last Order Date</Label>
+                      <input
+                        type="date"
+                        value={newSupplier.lastOrderDate || new Date().toISOString().split('T')[0]}
+                        onChange={(e) => setNewSupplier({ ...newSupplier, lastOrderDate: e.target.value })}
+                        className="w-full p-3 border-2 border-purple-300 dark:border-purple-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="grid grid-cols-2 gap-4 pt-4">
+                  <button
+                    onClick={() => setShowAddSupplierModal(false)}
+                    className="bg-gray-500 hover:bg-gray-600 text-white py-4 rounded-xl font-bold text-lg transition-all"
+                  >
+                    ❌ Cancel
+                  </button>
+                  <button
+                    onClick={addSupplier}
+                    className="bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white py-4 rounded-xl font-bold text-lg transition-all"
+                  >
+                    ✅ Add Supplier
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Supplier & Vendor Management */}
+        <Card className="mb-6 border-4 border-orange-300 dark:border-orange-700">
+          <CardHeader className="bg-gradient-to-r from-orange-50 to-amber-100 dark:from-orange-950 dark:to-amber-900">
+            <div className="flex justify-between items-center">
+              <div>
+                <CardTitle className="text-2xl text-orange-900 dark:text-orange-100">
+                  🏪 Supplier Manager
+                </CardTitle>
+                <p className="text-orange-700 dark:text-orange-300 mt-2 text-sm">
+                  Track vendors • Compare prices • Get reorder alerts • Manage contacts
+                </p>
+              </div>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowAddSupplierModal(true)}
+                  className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl font-bold transition-all"
+                >
+                  ➕ Add Supplier
+                </button>
+                <button
+                  onClick={() => setShowSupplierManager(!showSupplierManager)}
+                  className="bg-orange-600 hover:bg-orange-700 text-white px-6 py-3 rounded-xl font-bold transition-all"
+                >
+                  {showSupplierManager ? '📊 Hide' : '📊 View All'}
+                </button>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="pt-6">
+            {/* Quick Stats */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+              <div className="bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-900/20 p-4 rounded-xl border-2 border-blue-300 dark:border-blue-700">
+                <div className="text-blue-900 dark:text-blue-100 text-sm font-semibold mb-1">👥 Total Suppliers</div>
+                <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">{suppliers.length}</div>
+              </div>
+
+              <div className="bg-gradient-to-br from-green-50 to-emerald-100 dark:from-green-900/20 dark:to-emerald-900/20 p-4 rounded-xl border-2 border-green-300 dark:border-green-700">
+                <div className="text-green-900 dark:text-green-100 text-sm font-semibold mb-1">💰 Potential Savings</div>
+                <div className="text-3xl font-bold text-green-600 dark:text-green-400">${calculatePotentialSavings().toFixed(2)}</div>
+                <div className="text-xs text-green-700 dark:text-green-300 mt-1">By switching to cheapest suppliers</div>
+              </div>
+
+              <div className="bg-gradient-to-br from-amber-50 to-yellow-100 dark:from-amber-900/20 dark:to-yellow-900/20 p-4 rounded-xl border-2 border-amber-300 dark:border-amber-700">
+                <div className="text-amber-900 dark:text-amber-100 text-sm font-semibold mb-1">🔔 Reorder Alerts</div>
+                <div className="text-3xl font-bold text-amber-600 dark:text-amber-400">{getReorderRecommendations().length}</div>
+                <div className="text-xs text-amber-700 dark:text-amber-300 mt-1">Low stock materials</div>
+              </div>
+
+              <div className="bg-gradient-to-br from-purple-50 to-pink-100 dark:from-purple-900/20 dark:to-pink-900/20 p-4 rounded-xl border-2 border-purple-300 dark:border-purple-700">
+                <div className="text-purple-900 dark:text-purple-100 text-sm font-semibold mb-1">⭐ Avg Rating</div>
+                <div className="text-3xl font-bold text-purple-600 dark:text-purple-400">
+                  {suppliers.length > 0 ? (suppliers.reduce((sum, s) => sum + s.rating, 0) / suppliers.length).toFixed(1) : '0.0'}
+                </div>
+                <div className="text-xs text-purple-700 dark:text-purple-300 mt-1">Supplier quality score</div>
+              </div>
+            </div>
+
+            {/* Price Comparison Table */}
+            <div className="mb-6 bg-white dark:bg-gray-800 p-6 rounded-xl border-2 border-orange-200 dark:border-orange-800">
+              <h3 className="text-xl font-bold text-orange-900 dark:text-orange-100 mb-4">💵 Price Comparison</h3>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b-2 border-orange-200 dark:border-orange-800">
+                      <th className="text-left py-3 px-4 text-orange-900 dark:text-orange-100 font-bold">Supplier</th>
+                      <th className="text-right py-3 px-4 text-orange-900 dark:text-orange-100 font-bold">Wax (per lb)</th>
+                      <th className="text-right py-3 px-4 text-orange-900 dark:text-orange-100 font-bold">Fragrance (per lb)</th>
+                      <th className="text-right py-3 px-4 text-orange-900 dark:text-orange-100 font-bold">Wick (each)</th>
+                      <th className="text-center py-3 px-4 text-orange-900 dark:text-orange-100 font-bold">Rating</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {suppliers.map(supplier => {
+                      const cheapestWax = getCheapestSupplier('wax')
+                      const cheapestFragrance = getCheapestSupplier('fragrance')
+                      const cheapestWick = getCheapestSupplier('wick')
+                      
+                      return (
+                        <tr key={supplier.id} className="border-b border-orange-100 dark:border-orange-900 hover:bg-orange-50 dark:hover:bg-orange-950/30">
+                          <td className="py-3 px-4">
+                            <div className="font-bold text-gray-900 dark:text-gray-100">{supplier.name}</div>
+                            <div className="text-xs text-gray-600 dark:text-gray-400">{supplier.contact}</div>
+                          </td>
+                          <td className="text-right py-3 px-4">
+                            <span className={`font-bold ${supplier.id === cheapestWax?.id ? 'text-green-600 dark:text-green-400' : 'text-gray-900 dark:text-gray-100'}`}>
+                              ${supplier.waxPrice.toFixed(2)}
+                              {supplier.id === cheapestWax?.id && ' 🏆'}
+                            </span>
+                          </td>
+                          <td className="text-right py-3 px-4">
+                            <span className={`font-bold ${supplier.id === cheapestFragrance?.id ? 'text-green-600 dark:text-green-400' : 'text-gray-900 dark:text-gray-100'}`}>
+                              ${supplier.fragrancePrice.toFixed(2)}
+                              {supplier.id === cheapestFragrance?.id && ' 🏆'}
+                            </span>
+                          </td>
+                          <td className="text-right py-3 px-4">
+                            <span className={`font-bold ${supplier.id === cheapestWick?.id ? 'text-green-600 dark:text-green-400' : 'text-gray-900 dark:text-gray-100'}`}>
+                              ${supplier.wickPrice.toFixed(2)}
+                              {supplier.id === cheapestWick?.id && ' 🏆'}
+                            </span>
+                          </td>
+                          <td className="text-center py-3 px-4">
+                            <div className="flex justify-center gap-1">
+                              {[1, 2, 3, 4, 5].map(star => (
+                                <button
+                                  key={star}
+                                  onClick={() => updateSupplierRating(supplier.id, star)}
+                                  className="text-xl hover:scale-125 transition-transform"
+                                >
+                                  {star <= supplier.rating ? '⭐' : '☆'}
+                                </button>
+                              ))}
+                            </div>
+                          </td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Reorder Recommendations */}
+            {getReorderRecommendations().length > 0 && (
+              <div className="mb-6 bg-gradient-to-br from-red-50 to-orange-100 dark:from-red-900/20 dark:to-orange-900/20 p-6 rounded-xl border-2 border-red-300 dark:border-red-700">
+                <h3 className="text-xl font-bold text-red-900 dark:text-red-100 mb-4 flex items-center gap-2">
+                  🔔 Reorder Alerts
+                  <span className="bg-red-600 text-white text-sm px-3 py-1 rounded-full">{getReorderRecommendations().length}</span>
+                </h3>
+                <div className="space-y-3">
+                  {getReorderRecommendations().map((rec, idx) => (
+                    <div key={idx} className="bg-white dark:bg-gray-800 p-4 rounded-lg border-2 border-red-200 dark:border-red-800">
+                      <div className="flex justify-between items-start flex-wrap gap-3">
+                        <div>
+                          <div className="font-bold text-red-900 dark:text-red-100 text-lg">{rec.material}</div>
+                          <div className="text-sm text-gray-700 dark:text-gray-300 mt-1">
+                            Current: <span className="font-bold text-red-600 dark:text-red-400">{rec.currentStock} units</span>
+                          </div>
+                          <div className="text-sm text-gray-700 dark:text-gray-300">
+                            Recommended Order: <span className="font-bold text-green-600 dark:text-green-400">{rec.reorderAmount} units</span>
+                          </div>
+                          <div className="text-sm text-gray-700 dark:text-gray-300">
+                            Best Supplier: <span className="font-bold text-blue-600 dark:text-blue-400">{rec.supplier}</span>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">
+                            ${rec.estimatedCost.toFixed(2)}
+                          </div>
+                          <div className="text-xs text-gray-600 dark:text-gray-400">Estimated cost</div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  <div className="mt-4 p-4 bg-gradient-to-r from-orange-100 to-amber-100 dark:from-orange-900/40 dark:to-amber-900/40 rounded-lg border-2 border-orange-300 dark:border-orange-700">
+                    <div className="flex justify-between items-center">
+                      <span className="font-bold text-orange-900 dark:text-orange-100">Total Reorder Cost:</span>
+                      <span className="text-2xl font-bold text-orange-600 dark:text-orange-400">
+                        ${getReorderRecommendations().reduce((sum, rec) => sum + rec.estimatedCost, 0).toFixed(2)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Full Supplier Directory */}
+            {showSupplierManager && (
+              <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border-2 border-orange-200 dark:border-orange-800">
+                <h3 className="text-xl font-bold text-orange-900 dark:text-orange-100 mb-6">📇 Complete Supplier Directory</h3>
+                <div className="space-y-4">
+                  {suppliers.map(supplier => (
+                    <div key={supplier.id} className="bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20 p-6 rounded-xl border-2 border-orange-200 dark:border-orange-800">
+                      <div className="flex justify-between items-start mb-4">
+                        <div>
+                          <h4 className="text-2xl font-bold text-orange-900 dark:text-orange-100">{supplier.name}</h4>
+                          <div className="flex gap-1 mt-2">
+                            {[1, 2, 3, 4, 5].map(star => (
+                              <button
+                                key={star}
+                                onClick={() => updateSupplierRating(supplier.id, star)}
+                                className="text-2xl hover:scale-125 transition-transform"
+                              >
+                                {star <= supplier.rating ? '⭐' : '☆'}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => deleteSupplier(supplier.id)}
+                          className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-bold transition-all"
+                        >
+                          🗑️ Delete
+                        </button>
+                      </div>
+
+                      <div className="grid md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                          <div className="text-sm font-bold text-orange-800 dark:text-orange-200 mb-2">📞 Contact Information</div>
+                          <div className="space-y-1 text-sm text-gray-700 dark:text-gray-300">
+                            <div><span className="font-semibold">Contact:</span> {supplier.contact}</div>
+                            <div className="flex items-center gap-2">
+                              <span className="font-semibold">Email:</span> 
+                              <a href={`mailto:${supplier.email}`} className="text-blue-600 dark:text-blue-400 hover:underline">
+                                {supplier.email}
+                              </a>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className="font-semibold">Phone:</span>
+                              <a href={`tel:${supplier.phone}`} className="text-blue-600 dark:text-blue-400 hover:underline">
+                                {supplier.phone}
+                              </a>
+                            </div>
+                            {supplier.website && (
+                              <div className="flex items-center gap-2">
+                                <span className="font-semibold">Website:</span>
+                                <a href={`https://${supplier.website}`} target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">
+                                  {supplier.website}
+                                </a>
+                              </div>
+                            )}
+                            <div><span className="font-semibold">Last Order:</span> {new Date(supplier.lastOrderDate).toLocaleDateString()}</div>
+                          </div>
+                        </div>
+
+                        <div>
+                          <div className="text-sm font-bold text-orange-800 dark:text-orange-200 mb-2">📦 Materials & Pricing</div>
+                          <div className="space-y-2">
+                            <div className="bg-white dark:bg-gray-700 p-3 rounded-lg">
+                              <div className="flex justify-between items-center">
+                                <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Wax:</span>
+                                <span className="text-lg font-bold text-amber-600 dark:text-amber-400">${supplier.waxPrice}/lb</span>
+                              </div>
+                            </div>
+                            <div className="bg-white dark:bg-gray-700 p-3 rounded-lg">
+                              <div className="flex justify-between items-center">
+                                <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Fragrance:</span>
+                                <span className="text-lg font-bold text-purple-600 dark:text-purple-400">${supplier.fragrancePrice}/lb</span>
+                              </div>
+                            </div>
+                            <div className="bg-white dark:bg-gray-700 p-3 rounded-lg">
+                              <div className="flex justify-between items-center">
+                                <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Wick:</span>
+                                <span className="text-lg font-bold text-blue-600 dark:text-blue-400">${supplier.wickPrice} each</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="mb-4">
+                        <div className="text-sm font-bold text-orange-800 dark:text-orange-200 mb-2">🏷️ Supplies</div>
+                        <div className="flex flex-wrap gap-2">
+                          {supplier.materials.map((material, idx) => (
+                            <span key={idx} className="bg-orange-200 dark:bg-orange-800 text-orange-900 dark:text-orange-100 px-3 py-1 rounded-full text-sm font-semibold">
+                              {material}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+
+                      {supplier.notes && (
+                        <div className="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-lg border-2 border-yellow-300 dark:border-yellow-700">
+                          <div className="text-sm font-bold text-yellow-900 dark:text-yellow-100 mb-1">📝 Notes</div>
+                          <div className="text-sm text-yellow-800 dark:text-yellow-200">{supplier.notes}</div>
+                        </div>
+                      )}
+
+                      <div className="flex gap-3 mt-4">
+                        <a
+                          href={`mailto:${supplier.email}`}
+                          className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg font-bold text-center transition-all"
+                        >
+                          📧 Send Email
+                        </a>
+                        <a
+                          href={`tel:${supplier.phone}`}
+                          className="flex-1 bg-green-600 hover:bg-green-700 text-white px-4 py-3 rounded-lg font-bold text-center transition-all"
+                        >
+                          📞 Call Now
+                        </a>
+                        {supplier.website && (
+                          <a
+                            href={`https://${supplier.website}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex-1 bg-purple-600 hover:bg-purple-700 text-white px-4 py-3 rounded-lg font-bold text-center transition-all"
+                          >
+                            🌐 Visit Site
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
         {/* Production Scheduler */}
         <Card className="mb-6 border-4 border-teal-300 dark:border-teal-700">
