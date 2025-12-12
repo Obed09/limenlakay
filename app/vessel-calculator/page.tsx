@@ -1357,9 +1357,9 @@ export default function VesselCalculator() {
     const cheapestFragrance = getCheapestSupplier('fragrance')
     const cheapestWick = getCheapestSupplier('wick')
 
-    const currentWaxPrice = materialPrices.waxPerLb
-    const currentFragrancePrice = materialPrices.fragrancePerLb
-    const currentWickPrice = materialPrices.wickCost
+    const currentWaxPrice = materialPrices.waxPricePerLb
+    const currentFragrancePrice = materialPrices.fragrancePricePerLb
+    const currentWickPrice = materialPrices.wickPrice
 
     let savings = 0
     if (cheapestWax && cheapestWax.waxPrice < currentWaxPrice) {
@@ -1385,7 +1385,7 @@ export default function VesselCalculator() {
         currentStock: inventory.waxLbs,
         reorderAmount: 50,
         supplier: supplier?.name || 'Best available',
-        estimatedCost: (supplier?.waxPrice || materialPrices.waxPerLb) * 50
+        estimatedCost: (supplier?.waxPrice || materialPrices.waxPricePerLb) * 50
       })
     }
 
@@ -1396,7 +1396,7 @@ export default function VesselCalculator() {
         currentStock: inventory.fragranceOilLbs,
         reorderAmount: 10,
         supplier: supplier?.name || 'Best available',
-        estimatedCost: (supplier?.fragrancePrice || materialPrices.fragrancePerLb) * 10
+        estimatedCost: (supplier?.fragrancePrice || materialPrices.fragrancePricePerLb) * 10
       })
     }
 
@@ -1407,7 +1407,7 @@ export default function VesselCalculator() {
         currentStock: inventory.wicks,
         reorderAmount: 100,
         supplier: supplier?.name || 'Best available',
-        estimatedCost: (supplier?.wickPrice || materialPrices.wickCost) * 100
+        estimatedCost: (supplier?.wickPrice || materialPrices.wickPrice) * 100
       })
     }
 
