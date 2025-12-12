@@ -236,6 +236,15 @@ export default function VesselCalculator() {
   const [laborHoursPerUnit, setLaborHoursPerUnit] = useState(0.5) // 30 minutes per candle
   const [monthlySalesGoal, setMonthlySalesGoal] = useState(200)
 
+  // Marketing & Sales Tools
+  const [showMarketingTools, setShowMarketingTools] = useState(false)
+  const [marketingRecipe, setMarketingRecipe] = useState<Recipe | null>(null)
+  const [marketingProductName, setMarketingProductName] = useState('')
+  const [marketingPrice, setMarketingPrice] = useState(25.00)
+  const [marketingPlatform, setMarketingPlatform] = useState<'instagram' | 'facebook' | 'email'>('instagram')
+  const [marketingTone, setMarketingTone] = useState<'casual' | 'luxury' | 'professional' | 'playful'>('casual')
+  const [showMarketingModal, setShowMarketingModal] = useState(false)
+
   // Profit calculator
   const [profitCalc, setProfitCalc] = useState({
     selectedVesselIndex: 0,
@@ -1100,6 +1109,109 @@ export default function VesselCalculator() {
   }
 
   const costAnalysis = calculateCostAnalysis()
+
+  // Marketing Content Generators
+  const openMarketingTools = (recipe: Recipe) => {
+    setMarketingRecipe(recipe)
+    setMarketingProductName(recipe.name)
+    setShowMarketingModal(true)
+  }
+
+  const generateSocialMediaPost = () => {
+    if (!marketingRecipe) return ''
+
+    const ingredients = Object.keys(marketingRecipe.ingredients).slice(0, 3).join(', ')
+    
+    const templates = {
+      instagram: {
+        casual: `✨ Meet ${marketingProductName}! ✨\n\n🌸 Handcrafted with love using ${ingredients}\n🕯️ ${marketingRecipe.profile || 'Custom blend'} vibes\n💰 $${marketingPrice}\n\n${marketingRecipe.purpose ? `Perfect for ${marketingRecipe.purpose.toLowerCase()} ` : ''}${marketingRecipe.audience ? `• ${marketingRecipe.audience}` : ''}\n\n🛒 Shop now! Link in bio\n\n#LimenLakay #HandmadeCandles #SoyCandles #CandleLover #HomeFragrance #SelfCare #CandleAddict #SmallBusiness #SupportLocal #PalmBeachFL`,
+        
+        luxury: `Introducing ${marketingProductName} 🕊️\n\nAn exquisite blend of ${ingredients}, meticulously crafted for the discerning connoisseur.\n\n${marketingRecipe.profile || 'Masterfully blended'} | Premium ${materialPrices.waxType} wax | $${marketingPrice}\n\n${marketingRecipe.purpose ? `Designed for ${marketingRecipe.purpose.toLowerCase()}.\n\n` : ''}Limited availability.\n\nExperience luxury. Experience Limen Lakay.\n\n#LuxuryCandles #PremiumHomeFragrance #ArtisanCandles #LimenLakay #ElevatedLiving #LuxuryHome`,
+        
+        professional: `NEW: ${marketingProductName}\n\nCrafted with precision using ${ingredients}.\n\n• ${marketingRecipe.profile || 'Custom formulated'}\n• Premium ${materialPrices.waxType} wax\n• ${marketingRecipe.audience || 'Universal appeal'}\n• $${marketingPrice}\n\n${marketingRecipe.purpose ? `Ideal for ${marketingRecipe.purpose.toLowerCase()}.\n\n` : ''}Quality guaranteed. Made in Palm Beach, FL.\n\nOrder yours today: www.limenlakay.com\n\n#LimenLakay #CandleBusiness #QualityCandles #HomeDecor`,
+        
+        playful: `🎉 OMG! ${marketingProductName} just dropped! 🎉\n\n💕 Packed with ${ingredients}\n🌈 ${marketingRecipe.profile || 'Amazing'} feels!\n✨ Only $${marketingPrice}\n\n${marketingRecipe.purpose ? `Your new fave for ${marketingRecipe.purpose.toLowerCase()}! ` : ''}Grab yours before they're gone! 🏃‍♀️💨\n\n👉 Link in bio!\n\n#LimenLakay #CandleObsessed #TreatYourself #CandleCommunity #CandleGoals #Mood #Vibes`
+      },
+      facebook: {
+        casual: `Excited to introduce ${marketingProductName}! 🕯️\n\nWe've been working hard on this one, and we think you're going to love it! Featuring ${ingredients}, this candle brings ${marketingRecipe.profile || 'an amazing scent'} right to your home.\n\n${marketingRecipe.purpose ? `Perfect for ${marketingRecipe.purpose.toLowerCase()}` : 'Perfect for any occasion'}${marketingRecipe.audience ? ` - especially loved by ${marketingRecipe.audience.toLowerCase()} customers` : ''}!\n\nNow available for $${marketingPrice}.\n\n🛒 Shop: www.limenlakay.com\n📧 Questions? info@limenlakay.com\n📱 (561) 593-0238\n\nHandcrafted with love in Palm Beach, FL 🌴`,
+        
+        luxury: `Unveiling ${marketingProductName} - Where Artistry Meets Aromatherapy\n\nOur master candlemakers have curated an extraordinary experience featuring ${ingredients}, creating a ${marketingRecipe.profile || 'sophisticated'} ambiance that transforms your space.\n\n${marketingRecipe.purpose ? `Expertly designed for ${marketingRecipe.purpose.toLowerCase()}, ` : ''}this premium creation represents the pinnacle of artisan candle making.\n\nInvestment: $${marketingPrice}\n\nDiscover the difference that true craftsmanship makes.\n\nwww.limenlakay.com | Handcrafted in Palm Beach, FL`,
+        
+        professional: `Product Launch: ${marketingProductName}\n\nLimen Lakay is proud to announce our latest creation, featuring:\n\n✓ ${ingredients}\n✓ ${marketingRecipe.profile || 'Custom formulated scent profile'}\n✓ Premium ${materialPrices.waxType} wax base\n✓ ${marketingRecipe.audience || 'Broad market appeal'}\n\nPrice Point: $${marketingPrice}\n${marketingRecipe.purpose ? `Application: ${marketingRecipe.purpose}\n` : ''}\nAvailability: In Stock\n\nContact Information:\n🌐 www.limenlakay.com\n📧 info@limenlakay.com\n📱 (561) 593-0238\n\nManufactured in Palm Beach, Florida`,
+        
+        playful: `🚨 ALERT! ALERT! 🚨\n\nThe ${marketingProductName} is HERE and it's EVERYTHING! 😍\n\nLoaded with ${ingredients} and radiating ${marketingRecipe.profile || 'amazing'} energy! ${marketingRecipe.purpose ? `Your ${marketingRecipe.purpose.toLowerCase()} routine just got a MAJOR upgrade! ` : ''}\n\nOnly $${marketingPrice}! (Seriously, that's a steal! 🤑)\n\nTrust us, your home is about to smell INCREDIBLE! ✨\n\nGrab yours NOW: www.limenlakay.com\n\nTag a friend who NEEDS this! 👇`
+      },
+      email: {
+        casual: `Subject: You're Going to Love Our New ${marketingProductName}! 🕯️\n\nHey there!\n\nWe're so excited to share our latest creation with you - ${marketingProductName}!\n\nThis candle features ${ingredients} and creates a ${marketingRecipe.profile || 'wonderful'} atmosphere in any room. ${marketingRecipe.purpose ? `It's perfect for ${marketingRecipe.purpose.toLowerCase()}` : 'It works beautifully anywhere in your home'}.\n\nSpecial Launch Price: $${marketingPrice}\n\n[Shop Now Button]\n\nAs always, handcrafted with love in Palm Beach, FL.\n\nThanks for supporting our small business!\n\nWarm regards,\nLimen Lakay Team\n\nwww.limenlakay.com | @limenlakay`,
+        
+        luxury: `Subject: Introducing ${marketingProductName} - An Olfactory Masterpiece\n\nDear Valued Client,\n\nWe are delighted to present ${marketingProductName}, our newest addition to the Limen Lakay collection.\n\nThis exceptional piece features ${ingredients}, expertly balanced to create a ${marketingRecipe.profile || 'refined and sophisticated'} sensory experience.\n\n${marketingRecipe.purpose ? `Designed specifically for ${marketingRecipe.purpose.toLowerCase()}, this candle ` : 'This candle '}represents the zenith of artisan craftsmanship.\n\nAvailable now at $${marketingPrice}.\n\n[Discover More]\n\nWith appreciation,\nThe Limen Lakay Atelier\nPalm Beach, Florida`,
+        
+        professional: `Subject: Product Launch - ${marketingProductName}\n\nDear Customer,\n\nLimen Lakay is pleased to announce the release of ${marketingProductName}.\n\nProduct Specifications:\n• Scent Profile: ${ingredients}\n• Category: ${marketingRecipe.profile || 'Custom blend'}\n• Target Audience: ${marketingRecipe.audience || 'General market'}\n• Price: $${marketingPrice}\n• Wax Type: Premium ${materialPrices.waxType}\n\n${marketingRecipe.purpose ? `Recommended Use: ${marketingRecipe.purpose}\n\n` : ''}[Order Now]\n\nFor questions or bulk orders, contact:\ninfo@limenlakay.com | (561) 593-0238\n\nBest regards,\nLimen Lakay\nwww.limenlakay.com`,
+        
+        playful: `Subject: 🎉 OMG! ${marketingProductName} Is Here! 🎉\n\nHEY YOU! 👋\n\nGuess what just landed?! Our AMAZING new ${marketingProductName}! 😍\n\nIt's got ${ingredients} and smells like ${marketingRecipe.profile || 'absolute HEAVEN'}! ${marketingRecipe.purpose ? `Perfect for your ${marketingRecipe.purpose.toLowerCase()} vibes! ` : ''}\n\nAnd the price? Just $${marketingPrice}! 🤑\n\n[SHOP NOW - You Know You Want To!]\n\nP.S. Your home is about to smell SO GOOD! 🏠✨\n\nXOXO,\nThe Limen Lakay Crew\n\nwww.limenlakay.com | Follow us @limenlakay`
+      }
+    }
+
+    return templates[marketingPlatform][marketingTone]
+  }
+
+  const generateHashtags = () => {
+    if (!marketingRecipe) return []
+
+    const baseHashtags = ['#LimenLakay', '#HandmadeCandles', '#CandleLover', '#HomeFragrance']
+    
+    const scentHashtags: { [key: string]: string[] } = {
+      'Floral': ['#FloralCandle', '#FloralScent', '#BotanicalCandle'],
+      'Citrus': ['#CitrusCandle', '#FreshScent', '#Energizing'],
+      'Fruity': ['#FruityCandle', '#SweetScent', '#SummerVibes'],
+      'Gourmand': ['#GourmandCandle', '#FoodieCandle', '#CozyVibes'],
+      'Herbal': ['#HerbalCandle', '#Aromatherapy', '#NaturalScent'],
+      'Spicy': ['#SpicyCandle', '#WarmScent', '#CozyHome'],
+      'Clean/Spa': ['#SpaCandle', '#CleanScent', '#Relaxing'],
+      'Earthy': ['#EarthyCandle', '#WoodlandScent', '#Nature']
+    }
+
+    const audienceHashtags: { [key: string]: string[] } = {
+      "Men's": ['#MensCandle', '#ForHim', '#MasculineScent'],
+      "Women's": ['#WomensCandle', '#ForHer', '#FeminineScent'],
+      'Unisex': ['#UnisexCandle', '#ForEveryone', '#GenderNeutral'],
+      'Pet-Friendly': ['#PetSafe', '#PetFriendly', '#SafeForPets']
+    }
+
+    const purposeHashtags: { [key: string]: string[] } = {
+      'Sleep/Calming': ['#SleepAid', '#Relaxation', '#BedtimeRoutine'],
+      'Meditation': ['#Meditation', '#Mindfulness', '#Zen'],
+      'Focus': ['#Productivity', '#Focus', '#WorkFromHome'],
+      'Uplifting': ['#Uplifting', '#MoodBooster', '#PositiveVibes'],
+      'Self-Care': ['#SelfCare', '#Wellness', '#MeTime']
+    }
+
+    let allHashtags = [...baseHashtags]
+
+    if (marketingRecipe.profile && scentHashtags[marketingRecipe.profile]) {
+      allHashtags = [...allHashtags, ...scentHashtags[marketingRecipe.profile]]
+    }
+
+    if (marketingRecipe.audience && audienceHashtags[marketingRecipe.audience]) {
+      allHashtags = [...allHashtags, ...audienceHashtags[marketingRecipe.audience]]
+    }
+
+    if (marketingRecipe.purpose && purposeHashtags[marketingRecipe.purpose]) {
+      allHashtags = [...allHashtags, ...purposeHashtags[marketingRecipe.purpose]]
+    }
+
+    // Add wax type
+    if (materialPrices.waxType === 'soy') {
+      allHashtags.push('#SoyCandles', '#EcoFriendly', '#Natural')
+    } else {
+      allHashtags.push('#CoconutWax', '#CleanBurning', '#Sustainable')
+    }
+
+    // Add general popular hashtags
+    allHashtags.push('#SmallBusiness', '#SupportLocal', '#PalmBeachFL', '#CandleAddict', '#HomeDecor', '#CandleCommunity')
+
+    return allHashtags.slice(0, 30) // Instagram allows up to 30 hashtags
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 py-8">
@@ -2407,6 +2519,273 @@ export default function VesselCalculator() {
           </div>
         )}
 
+        {/* Marketing & Sales Tools Modal */}
+        {showMarketingModal && marketingRecipe && (
+          <div
+            className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 overflow-y-auto"
+            onClick={() => setShowMarketingModal(false)}
+          >
+            <div
+              className="bg-white dark:bg-gray-900 rounded-2xl max-w-4xl w-full max-h-[95vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Modal Header */}
+              <div className="bg-gradient-to-r from-blue-600 to-cyan-600 text-white p-6 rounded-t-2xl relative sticky top-0 z-10">
+                <h2 className="text-3xl font-bold mb-2">📢 Marketing & Sales Tools</h2>
+                <p className="text-white/90">Generate ready-to-use marketing content</p>
+                <button
+                  onClick={() => setShowMarketingModal(false)}
+                  className="absolute top-4 right-4 bg-white text-blue-600 w-10 h-10 rounded-full font-bold text-xl hover:bg-gray-100 transition-all"
+                >
+                  ×
+                </button>
+              </div>
+
+              {/* Modal Body */}
+              <div className="p-6">
+                {/* Configuration */}
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                  <div>
+                    <Label className="text-gray-900 dark:text-gray-100 font-semibold mb-2 block">Platform</Label>
+                    <select
+                      value={marketingPlatform}
+                      onChange={(e) => setMarketingPlatform(e.target.value as any)}
+                      className="w-full p-2 border-2 border-blue-200 dark:border-blue-800 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                    >
+                      <option value="instagram">Instagram</option>
+                      <option value="facebook">Facebook</option>
+                      <option value="email">Email</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <Label className="text-gray-900 dark:text-gray-100 font-semibold mb-2 block">Tone</Label>
+                    <select
+                      value={marketingTone}
+                      onChange={(e) => setMarketingTone(e.target.value as any)}
+                      className="w-full p-2 border-2 border-blue-200 dark:border-blue-800 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                    >
+                      <option value="casual">Casual</option>
+                      <option value="luxury">Luxury</option>
+                      <option value="professional">Professional</option>
+                      <option value="playful">Playful</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <Label className="text-gray-900 dark:text-gray-100 font-semibold mb-2 block">Product Name</Label>
+                    <Input
+                      value={marketingProductName}
+                      onChange={(e) => setMarketingProductName(e.target.value)}
+                      className="border-blue-200 dark:border-blue-800"
+                    />
+                  </div>
+
+                  <div>
+                    <Label className="text-gray-900 dark:text-gray-100 font-semibold mb-2 block">Price</Label>
+                    <Input
+                      type="number"
+                      value={marketingPrice}
+                      onChange={(e) => setMarketingPrice(parseFloat(e.target.value) || 0)}
+                      step="0.5"
+                      className="border-blue-200 dark:border-blue-800"
+                    />
+                  </div>
+                </div>
+
+                {/* Generated Content */}
+                <div className="bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 border-2 border-blue-300 dark:border-blue-700 rounded-xl p-6 mb-6">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-xl font-bold text-blue-900 dark:text-blue-100">
+                      {marketingPlatform === 'instagram' ? '📷 Instagram Post' :
+                       marketingPlatform === 'facebook' ? '👥 Facebook Post' :
+                       '✉️ Email Template'}
+                    </h3>
+                    <button
+                      onClick={() => {
+                        const content = generateSocialMediaPost()
+                        navigator.clipboard.writeText(content)
+                      }}
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold text-sm transition-all"
+                    >
+                      📋 Copy
+                    </button>
+                  </div>
+                  <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
+                    <pre className="whitespace-pre-wrap text-sm text-gray-800 dark:text-gray-200 font-sans">
+                      {generateSocialMediaPost()}
+                    </pre>
+                  </div>
+                </div>
+
+                {/* Hashtags (for Instagram/Facebook) */}
+                {(marketingPlatform === 'instagram' || marketingPlatform === 'facebook') && (
+                  <div className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-2 border-purple-300 dark:border-purple-700 rounded-xl p-6 mb-6">
+                    <div className="flex justify-between items-center mb-4">
+                      <h3 className="text-xl font-bold text-purple-900 dark:text-purple-100">#️⃣ Suggested Hashtags</h3>
+                      <button
+                        onClick={() => {
+                          const hashtags = generateHashtags().join(' ')
+                          navigator.clipboard.writeText(hashtags)
+                        }}
+                        className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-semibold text-sm transition-all"
+                      >
+                        📋 Copy All
+                      </button>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {generateHashtags().map((tag, idx) => (
+                        <span
+                          key={idx}
+                          className="bg-white dark:bg-gray-800 text-purple-700 dark:text-purple-300 px-3 py-1 rounded-full text-sm font-semibold border border-purple-300 dark:border-purple-700 cursor-pointer hover:bg-purple-100 dark:hover:bg-purple-900/40 transition-all"
+                          onClick={() => navigator.clipboard.writeText(tag)}
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                    <div className="mt-3 text-xs text-gray-600 dark:text-gray-400">
+                      💡 Click any hashtag to copy it individually
+                    </div>
+                  </div>
+                )}
+
+                {/* Marketing Tips */}
+                <div className="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border-2 border-amber-300 dark:border-amber-700 rounded-xl p-6 mb-6">
+                  <h3 className="text-xl font-bold text-amber-900 dark:text-amber-100 mb-4">💡 Marketing Tips</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-700 dark:text-gray-300">
+                    <div className="bg-white dark:bg-gray-800 p-3 rounded-lg">
+                      <div className="font-bold text-amber-900 dark:text-amber-100 mb-1">📸 Visual Content</div>
+                      <div>Post high-quality photos with natural lighting. Show the candle lit and in a styled setting.</div>
+                    </div>
+                    <div className="bg-white dark:bg-gray-800 p-3 rounded-lg">
+                      <div className="font-bold text-amber-900 dark:text-amber-100 mb-1">⏰ Best Posting Times</div>
+                      <div>Instagram: 11am-1pm & 7-9pm. Facebook: 1-3pm. Weekdays perform better.</div>
+                    </div>
+                    <div className="bg-white dark:bg-gray-800 p-3 rounded-lg">
+                      <div className="font-bold text-amber-900 dark:text-amber-100 mb-1">🎯 Engagement</div>
+                      <div>Ask questions, run polls, share behind-the-scenes. Respond to all comments within 1 hour.</div>
+                    </div>
+                    <div className="bg-white dark:bg-gray-800 p-3 rounded-lg">
+                      <div className="font-bold text-amber-900 dark:text-amber-100 mb-1">🎁 Promotions</div>
+                      <div>Launch discounts (15-20% off), bundle deals, or limited editions to drive urgency.</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Customer Personas */}
+                <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-2 border-green-300 dark:border-green-700 rounded-xl p-6">
+                  <h3 className="text-xl font-bold text-green-900 dark:text-green-100 mb-4">👥 Target Customers for {marketingProductName}</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                    {marketingRecipe.audience === "Women's" && (
+                      <>
+                        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
+                          <div className="font-bold text-green-900 dark:text-green-100 mb-2">💼 Professional Sarah</div>
+                          <div className="text-gray-700 dark:text-gray-300">
+                            Age 28-45 • $60k+ income • Self-care enthusiast • Shops boutique brands • Values quality & aesthetics
+                          </div>
+                        </div>
+                        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
+                          <div className="font-bold text-green-900 dark:text-green-100 mb-2">🏡 Homemaker Amy</div>
+                          <div className="text-gray-700 dark:text-gray-300">
+                            Age 30-50 • Home decor focused • Pinterest user • Buys for ambiance • Shares with friends
+                          </div>
+                        </div>
+                        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
+                          <div className="font-bold text-green-900 dark:text-green-100 mb-2">🎁 Gift-Giver Lisa</div>
+                          <div className="text-gray-700 dark:text-gray-300">
+                            Age 25-55 • Frequent gifter • Seeks unique items • Buys 5-10 per year • Hosts events
+                          </div>
+                        </div>
+                      </>
+                    )}
+                    {marketingRecipe.audience === "Men's" && (
+                      <>
+                        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
+                          <div className="font-bold text-green-900 dark:text-green-100 mb-2">💪 Modern Mike</div>
+                          <div className="text-gray-700 dark:text-gray-300">
+                            Age 25-40 • Grooming conscious • Apartment/condo • Masculine scents • Premium quality
+                          </div>
+                        </div>
+                        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
+                          <div className="font-bold text-green-900 dark:text-green-100 mb-2">🏠 Homeowner David</div>
+                          <div className="text-gray-700 dark:text-gray-300">
+                            Age 35-55 • Man cave decor • Earthy/woody scents • Values craftsmanship
+                          </div>
+                        </div>
+                        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
+                          <div className="font-bold text-green-900 dark:text-green-100 mb-2">🎯 Partner Peter</div>
+                          <div className="text-gray-700 dark:text-gray-300">
+                            Age 25-50 • Buying for partner • Seeks gift ideas • Occasion buyer • Values presentation
+                          </div>
+                        </div>
+                      </>
+                    )}
+                    {(!marketingRecipe.audience || marketingRecipe.audience === 'Unisex') && (
+                      <>
+                        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
+                          <div className="font-bold text-green-900 dark:text-green-100 mb-2">🌟 Wellness Warrior</div>
+                          <div className="text-gray-700 dark:text-gray-300">
+                            Age 25-45 • Health conscious • Yoga/meditation • Natural products • Instagram active
+                          </div>
+                        </div>
+                        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
+                          <div className="font-bold text-green-900 dark:text-green-100 mb-2">🎨 Design Lover</div>
+                          <div className="text-gray-700 dark:text-gray-300">
+                            Age 28-50 • Interior design fan • Aesthetic-driven • Curates home • Shares on social
+                          </div>
+                        </div>
+                        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
+                          <div className="font-bold text-green-900 dark:text-green-100 mb-2">💝 Experience Seeker</div>
+                          <div className="text-gray-700 dark:text-gray-300">
+                            Age 22-40 • Buys experiences • Ambiance creator • Event host • Values memories
+                          </div>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="mt-6 grid grid-cols-3 gap-3">
+                  <button
+                    onClick={() => {
+                      const content = generateSocialMediaPost()
+                      const hashtags = generateHashtags().join(' ')
+                      const fullContent = `${content}\n\n${hashtags}`
+                      navigator.clipboard.writeText(fullContent)
+                    }}
+                    className="bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-bold transition-all"
+                  >
+                    📋 Copy All
+                  </button>
+                  <button
+                    onClick={() => {
+                      const content = generateSocialMediaPost()
+                      const subject = marketingPlatform === 'email' ? 'Email Template' : `${marketingPlatform.charAt(0).toUpperCase() + marketingPlatform.slice(1)} Post`
+                      const blob = new Blob([content], { type: 'text/plain' })
+                      const url = URL.createObjectURL(blob)
+                      const a = document.createElement('a')
+                      a.href = url
+                      a.download = `${marketingProductName}-${marketingPlatform}-${marketingTone}.txt`
+                      a.click()
+                    }}
+                    className="bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl font-bold transition-all"
+                  >
+                    💾 Download
+                  </button>
+                  <button
+                    onClick={() => setShowMarketingModal(false)}
+                    className="bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-xl font-bold transition-all"
+                  >
+                    ✅ Done
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Production Scheduler */}
         <Card className="mb-6 border-4 border-teal-300 dark:border-teal-700">
           <CardHeader className="bg-gradient-to-r from-teal-50 to-cyan-100 dark:from-teal-950 dark:to-cyan-900">
@@ -3362,6 +3741,15 @@ export default function VesselCalculator() {
                         className="bg-pink-600 hover:bg-pink-700 text-white py-2 rounded-lg font-semibold text-sm transition-all"
                       >
                         🏷️ Label
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          openMarketingTools(recipe)
+                        }}
+                        className="col-span-2 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white py-2 rounded-lg font-semibold text-sm transition-all"
+                      >
+                        📢 Marketing
                       </button>
                     </div>
                   </div>
