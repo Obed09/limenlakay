@@ -597,6 +597,21 @@ export default function VesselCalculator() {
     businessFees: 30
   })
 
+  // Custom Cost Entries
+  interface CustomCost {
+    id: string
+    name: string
+    amount: number
+    type: 'monthly' | 'per-unit'
+  }
+  const [customCosts, setCustomCosts] = useState<CustomCost[]>([])
+  const [showAddCustomCost, setShowAddCustomCost] = useState(false)
+  const [newCustomCost, setNewCustomCost] = useState({
+    name: '',
+    amount: 0,
+    type: 'monthly' as 'monthly' | 'per-unit'
+  })
+
   // Profit calculator
   const [profitCalc, setProfitCalc] = useState({
     selectedVesselIndex: 0,
@@ -3933,9 +3948,33 @@ export default function VesselCalculator() {
                 {/* Materials Supplied */}
                 <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-6 rounded-xl border-2 border-blue-200 dark:border-blue-800">
                   <h3 className="text-xl font-bold text-blue-900 dark:text-blue-100 mb-4">📦 Materials Supplied</h3>
-                  <div className="flex flex-wrap gap-3">
-                    {['Soy Wax', 'Coconut Wax', 'Fragrance Oils', 'Essential Oils', 'Wicks', 'Containers', 'Dyes', 'Labels'].map(material => (
-                      <label key={material} className="flex items-center gap-2 cursor-pointer">
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 mb-4">
+                    {[
+                      'Soy Wax',
+                      'Coconut Wax',
+                      'Fragrance Oils',
+                      'Essential Oils',
+                      'Wicks',
+                      'Wick Stickers / Glue Dots',
+                      'Boxes / Outer Packaging',
+                      'Tissue Paper / Filler',
+                      'Lids (Metal/Wood/Cork)',
+                      'Colorants (Micas/Dyes)',
+                      'Additives (Vybar/Stearic)',
+                      'Thermometers',
+                      'Melting Equipment',
+                      'Shipping Supplies',
+                      'Thank You Cards',
+                      'Business Cards',
+                      'Wax Melt Clamshells',
+                      'Candle Vessels (Glass)',
+                      'Candle Vessels (Tins)',
+                      'Candle Vessels (Ceramic)',
+                      'Candle Vessels (Concrete)',
+                      'Containers',
+                      'Labels'
+                    ].map(material => (
+                      <label key={material} className="flex items-center gap-2 cursor-pointer bg-white dark:bg-gray-800 p-2 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all">
                         <input
                           type="checkbox"
                           checked={newSupplier.materials?.includes(material)}
@@ -3947,11 +3986,88 @@ export default function VesselCalculator() {
                               setNewSupplier({ ...newSupplier, materials: current.filter(m => m !== material) })
                             }
                           }}
-                          className="w-5 h-5"
+                          className="w-4 h-4"
                         />
-                        <span className="text-gray-900 dark:text-gray-100 font-semibold">{material}</span>
+                        <span className="text-gray-900 dark:text-gray-100 text-sm font-semibold">{material}</span>
                       </label>
                     ))}
+                  </div>
+
+                  {/* Custom Material Input */}
+                  <div className="bg-indigo-50 dark:bg-indigo-900/20 p-4 rounded-lg border-2 border-indigo-300 dark:border-indigo-700">
+                    <Label className="text-indigo-900 dark:text-indigo-100 font-semibold mb-2 block">➕ Add Custom Material</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="Enter material name (e.g., UV Inhibitor, Beeswax)"
+                        onKeyPress={(e) => {
+                          if (e.key === 'Enter') {
+                            const input = e.currentTarget
+                            const customMaterial = input.value.trim()
+                            if (customMaterial && !(newSupplier.materials || []).includes(customMaterial)) {
+                              setNewSupplier({ 
+                                ...newSupplier, 
+                                materials: [...(newSupplier.materials || []), customMaterial] 
+                              })
+                              input.value = ''
+                            }
+                          }
+                        }}
+                        className="flex-1"
+                      />
+                      <button
+                        onClick={(e) => {
+                          const input = e.currentTarget.previousElementSibling as HTMLInputElement
+                          const customMaterial = input.value.trim()
+                          if (customMaterial && !(newSupplier.materials || []).includes(customMaterial)) {
+                            setNewSupplier({ 
+                              ...newSupplier, 
+                              materials: [...(newSupplier.materials || []), customMaterial] 
+                            })
+                            input.value = ''
+                          }
+                        }}
+                        className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-bold transition-all"
+                      >
+                        Add
+                      </button>
+                    </div>
+                    {newSupplier.materials && newSupplier.materials.filter(m => ![
+                      'Soy Wax', 'Coconut Wax', 'Fragrance Oils', 'Essential Oils', 'Wicks', 
+                      'Wick Stickers / Glue Dots', 'Boxes / Outer Packaging', 'Tissue Paper / Filler',
+                      'Lids (Metal/Wood/Cork)', 'Colorants (Micas/Dyes)', 'Additives (Vybar/Stearic)',
+                      'Thermometers', 'Melting Equipment', 'Shipping Supplies', 'Thank You Cards',
+                      'Business Cards', 'Wax Melt Clamshells', 'Candle Vessels (Glass)',
+                      'Candle Vessels (Tins)', 'Candle Vessels (Ceramic)', 'Candle Vessels (Concrete)',
+                      'Containers', 'Labels'
+                    ].includes(m)).length > 0 && (
+                      <div className="mt-3">
+                        <div className="text-xs text-indigo-700 dark:text-indigo-300 font-semibold mb-2">Custom Materials:</div>
+                        <div className="flex flex-wrap gap-2">
+                          {newSupplier.materials.filter(m => ![
+                            'Soy Wax', 'Coconut Wax', 'Fragrance Oils', 'Essential Oils', 'Wicks',
+                            'Wick Stickers / Glue Dots', 'Boxes / Outer Packaging', 'Tissue Paper / Filler',
+                            'Lids (Metal/Wood/Cork)', 'Colorants (Micas/Dyes)', 'Additives (Vybar/Stearic)',
+                            'Thermometers', 'Melting Equipment', 'Shipping Supplies', 'Thank You Cards',
+                            'Business Cards', 'Wax Melt Clamshells', 'Candle Vessels (Glass)',
+                            'Candle Vessels (Tins)', 'Candle Vessels (Ceramic)', 'Candle Vessels (Concrete)',
+                            'Containers', 'Labels'
+                          ].includes(m)).map(material => (
+                            <span key={material} className="bg-indigo-200 dark:bg-indigo-800 text-indigo-900 dark:text-indigo-100 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-2">
+                              {material}
+                              <button
+                                onClick={() => setNewSupplier({ 
+                                  ...newSupplier, 
+                                  materials: (newSupplier.materials || []).filter(m => m !== material) 
+                                })}
+                                className="hover:text-red-600 font-bold"
+                              >
+                                ×
+                              </button>
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -5624,7 +5740,7 @@ export default function VesselCalculator() {
                         <div className="flex justify-between text-sm">
                           <span className="text-gray-700 dark:text-gray-300">Monthly Overhead:</span>
                           <span className="font-bold text-orange-700 dark:text-orange-300">
-                            ${(advancedCosts.rent + advancedCosts.utilities + advancedCosts.equipmentDepreciation + advancedCosts.marketingAds + advancedCosts.marketingSamples + advancedCosts.marketingPhotography + advancedCosts.shopifyMonthly + advancedCosts.insurance + advancedCosts.licenses + advancedCosts.businessFees).toFixed(2)}
+                            ${(advancedCosts.rent + advancedCosts.utilities + advancedCosts.equipmentDepreciation + advancedCosts.marketingAds + advancedCosts.marketingSamples + advancedCosts.marketingPhotography + advancedCosts.shopifyMonthly + advancedCosts.insurance + advancedCosts.licenses + advancedCosts.businessFees + customCosts.filter(c => c.type === 'monthly').reduce((sum, c) => sum + c.amount, 0)).toFixed(2)}
                           </span>
                         </div>
                         <div className="flex justify-between text-sm">
@@ -5636,7 +5752,7 @@ export default function VesselCalculator() {
                         <div className="flex justify-between text-sm">
                           <span className="text-gray-700 dark:text-gray-300">Per-Unit Shipping:</span>
                           <span className="font-bold text-orange-700 dark:text-orange-300">
-                            ${(advancedCosts.shippingBubbleWrap + advancedCosts.shippingBoxes + advancedCosts.shippingLabels).toFixed(2)}
+                            ${(advancedCosts.shippingBubbleWrap + advancedCosts.shippingBoxes + advancedCosts.shippingLabels + customCosts.filter(c => c.type === 'per-unit').reduce((sum, c) => sum + c.amount, 0)).toFixed(2)}
                           </span>
                         </div>
                         <div className="flex justify-between text-sm pt-2 border-t-2 border-orange-300 dark:border-orange-700">
@@ -5646,6 +5762,94 @@ export default function VesselCalculator() {
                           </span>
                         </div>
                       </div>
+                    </div>
+
+                    {/* Custom Costs */}
+                    <div className="bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 p-4 rounded-lg border-2 border-indigo-300 dark:border-indigo-700 md:col-span-2">
+                      <div className="flex justify-between items-center mb-3">
+                        <div className="text-sm font-bold text-indigo-900 dark:text-indigo-100">🎯 Custom Costs</div>
+                        <button
+                          onClick={() => setShowAddCustomCost(!showAddCustomCost)}
+                          className="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded-lg text-xs font-bold transition-all"
+                        >
+                          {showAddCustomCost ? '✖️ Cancel' : '➕ Add Custom'}
+                        </button>
+                      </div>
+
+                      {showAddCustomCost && (
+                        <div className="bg-white dark:bg-gray-800 p-3 rounded-lg mb-3 border-2 border-indigo-200 dark:border-indigo-800">
+                          <div className="grid grid-cols-3 gap-2">
+                            <Input
+                              placeholder="Name (e.g., Website hosting)"
+                              value={newCustomCost.name}
+                              onChange={(e) => setNewCustomCost({...newCustomCost, name: e.target.value})}
+                              className="text-xs h-8"
+                            />
+                            <Input
+                              type="number"
+                              placeholder="Amount"
+                              value={newCustomCost.amount}
+                              onChange={(e) => setNewCustomCost({...newCustomCost, amount: parseFloat(e.target.value) || 0})}
+                              step="0.1"
+                              className="text-xs h-8"
+                            />
+                            <div className="flex gap-1">
+                              <select
+                                value={newCustomCost.type}
+                                onChange={(e) => setNewCustomCost({...newCustomCost, type: e.target.value as 'monthly' | 'per-unit'})}
+                                className="flex-1 text-xs p-1 border-2 border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800"
+                              >
+                                <option value="monthly">$/month</option>
+                                <option value="per-unit">$/unit</option>
+                              </select>
+                              <button
+                                onClick={() => {
+                                  if (!newCustomCost.name.trim()) {
+                                    alert('Please enter a name')
+                                    return
+                                  }
+                                  setCustomCosts([...customCosts, {
+                                    id: Date.now().toString(),
+                                    name: newCustomCost.name,
+                                    amount: newCustomCost.amount,
+                                    type: newCustomCost.type
+                                  }])
+                                  setNewCustomCost({ name: '', amount: 0, type: 'monthly' })
+                                  setShowAddCustomCost(false)
+                                }}
+                                className="bg-green-600 hover:bg-green-700 text-white px-2 rounded text-xs font-bold"
+                              >
+                                ✓
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {customCosts.length > 0 ? (
+                        <div className="space-y-2">
+                          {customCosts.map(cost => (
+                            <div key={cost.id} className="flex justify-between items-center bg-white dark:bg-gray-800 p-2 rounded text-xs">
+                              <span className="text-gray-700 dark:text-gray-300 font-semibold">{cost.name}</span>
+                              <div className="flex items-center gap-2">
+                                <span className="text-indigo-700 dark:text-indigo-300 font-bold">
+                                  ${cost.amount.toFixed(2)}/{cost.type === 'monthly' ? 'mo' : 'unit'}
+                                </span>
+                                <button
+                                  onClick={() => setCustomCosts(customCosts.filter(c => c.id !== cost.id))}
+                                  className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded font-bold"
+                                >
+                                  ×
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-xs text-gray-500 dark:text-gray-400 text-center py-2">
+                          Add custom costs like website hosting, software subscriptions, etc.
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
