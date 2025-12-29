@@ -145,7 +145,7 @@ export default function WorkshopSubscriptionPage() {
             <div className="bg-white/10 rounded-lg p-8 backdrop-blur-sm">
               <div className="aspect-square relative">
                 <Image
-                  src="/images/workshop image.png"
+                  src="/images/IMG-20251015-WA0011.jpg"
                   alt="Workshop participant"
                   fill
                   className="object-contain"
@@ -243,7 +243,7 @@ export default function WorkshopSubscriptionPage() {
             <div className="bg-white/10 rounded-lg p-8 backdrop-blur-sm">
               <div className="aspect-video relative">
                 <Image
-                  src="/images/IMG-20251015-WA0011.jpg"
+                  src="/images/workshop image.png"
                   alt="Workshop studio"
                   fill
                   className="object-contain"
