@@ -1,4 +1,5 @@
 "use client";
+// Updated: December 29, 2025 - PDF Design Implementation
 
 import { useState } from "react";
 import Image from "next/image";
