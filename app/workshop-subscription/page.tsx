@@ -82,7 +82,6 @@ const faqs = [
 ];
 
 const galleryImages = [
-  // Your actual workshop creations - save these images to public/images/
   { src: "/images/teal-gold-bowl.jpg", alt: "Stunning teal and gold concrete bowl - workshop creation" },
   { src: "/images/white-gold-vessel.jpg", alt: "Elegant white and gold textured vessel with lid" },
   { src: "/images/burgundy-vessel.jpg", alt: "Beautiful burgundy ribbed concrete vessel" },
