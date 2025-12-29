@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -153,6 +154,9 @@ export default function WorkshopSubscriptionPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!selectedPackage) return;
+    
     setIsSubmitting(true);
 
     try {
@@ -259,11 +263,13 @@ export default function WorkshopSubscriptionPage() {
               <CardContent>
                 <div className="grid grid-cols-2 gap-3">
                   {galleryImages.map((image, index) => (
-                    <div key={index} className="relative overflow-hidden rounded-lg border-2 border-amber-200 dark:border-amber-800">
-                      <img
+                    <div key={index} className="relative overflow-hidden rounded-lg border-2 border-amber-200 dark:border-amber-800 h-32">
+                      <Image
                         src={image.src}
                         alt={image.alt}
-                        className="w-full h-32 object-cover hover:scale-110 transition-transform duration-300"
+                        width={500}
+                        height={300}
+                        className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
                       />
                     </div>
                   ))}
