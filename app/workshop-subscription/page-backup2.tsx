@@ -99,6 +99,7 @@ export default function WorkshopSubscriptionPage() {
             >
               <a href="#book-now">Reserve Your Spot</a>
             </Button>
+            </Button>
           </div>
         </div>
       </section>
@@ -202,166 +203,11 @@ export default function WorkshopSubscriptionPage() {
                   </li>
                 </ul>
                 <Button
-                  asChild
+                  onClick={() => setShowBookingModal(true)}
                   className="w-full bg-white text-[#20b2aa] hover:bg-gray-100 text-lg py-6 font-bold"
                 >
-                  <a href="#book-now">Book Now</a>
+                  Book Now
                 </Button>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* Book Now Form */}
-      <section id="book-now" className="py-16 bg-[#1e3a47]">
-        <div className="container mx-auto px-4">
-          <h2 className="text-4xl font-bold text-white mb-4 text-center">
-            Book Your Workshop
-          </h2>
-          <p className="text-gray-300 text-center mb-12">
-            Complete the form below to reserve your spot
-          </p>
-          <div className="max-w-2xl mx-auto">
-            <Card className="bg-[#233d4d] border-0">
-              <CardContent className="p-8">
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  {/* Personal Information */}
-                  <div>
-                    <h3 className="text-2xl font-bold text-white mb-6">
-                      Personal Information
-                    </h3>
-                    <div className="space-y-4">
-                      <div>
-                        <Label htmlFor="name" className="text-white mb-2 block">
-                          Full Name
-                        </Label>
-                        <Input
-                          id="name"
-                          type="text"
-                          value={formData.name}
-                          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                          className="bg-white/20 border-white/30 text-white placeholder:text-white/60"
-                          placeholder="Enter your full name"
-                          required
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="email" className="text-white mb-2 block">
-                          Email Address
-                        </Label>
-                        <Input
-                          id="email"
-                          type="email"
-                          value={formData.email}
-                          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                          className="bg-white/20 border-white/30 text-white placeholder:text-white/60"
-                          placeholder="your@email.com"
-                          required
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="phone" className="text-white mb-2 block">
-                          Phone Number
-                        </Label>
-                        <Input
-                          id="phone"
-                          type="tel"
-                          value={formData.phone}
-                          onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                          className="bg-white/20 border-white/30 text-white placeholder:text-white/60"
-                          placeholder="(555) 123-4567"
-                          required
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="workshopDate" className="text-white mb-2 block">
-                          Workshop Date
-                        </Label>
-                        <select
-                          id="workshopDate"
-                          value={formData.workshopDate}
-                          onChange={(e) => setFormData({ ...formData, workshopDate: e.target.value })}
-                          className="w-full bg-white/20 border border-white/30 text-white rounded-md px-3 py-2"
-                          required
-                        >
-                          <option value="" className="text-gray-900">Select a date</option>
-                          <option value="2025-01-10" className="text-gray-900">January 10, 2025</option>
-                          <option value="2025-01-17" className="text-gray-900">January 17, 2025</option>
-                          <option value="2025-01-24" className="text-gray-900">January 24, 2025</option>
-                          <option value="2025-01-31" className="text-gray-900">January 31, 2025</option>
-                        </select>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Payment Information */}
-                  <div>
-                    <h3 className="text-2xl font-bold text-white mb-4">
-                      Payment Information
-                    </h3>
-                    <div className="flex gap-2 mb-6">
-                      <div className="px-3 py-1 bg-white/20 rounded text-white text-sm font-semibold">VISA</div>
-                      <div className="px-3 py-1 bg-white/20 rounded text-white text-sm font-semibold">MC</div>
-                      <div className="px-3 py-1 bg-white/20 rounded text-white text-sm font-semibold">AMEX</div>
-                      <div className="px-3 py-1 bg-white/20 rounded text-white text-sm font-semibold">PayPal</div>
-                    </div>
-                    <div className="space-y-4">
-                      <div>
-                        <Label htmlFor="cardNumber" className="text-white mb-2 block">
-                          Card Number
-                        </Label>
-                        <Input
-                          id="cardNumber"
-                          type="text"
-                          value={formData.cardNumber}
-                          onChange={(e) => setFormData({ ...formData, cardNumber: e.target.value })}
-                          className="bg-white/20 border-white/30 text-white placeholder:text-white/60"
-                          placeholder="1234 5678 9012 3456"
-                          required
-                        />
-                      </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <Label htmlFor="expiry" className="text-white mb-2 block">
-                            Expiry Date
-                          </Label>
-                          <Input
-                            id="expiry"
-                            type="text"
-                            value={formData.expiry}
-                            onChange={(e) => setFormData({ ...formData, expiry: e.target.value })}
-                            className="bg-white/20 border-white/30 text-white placeholder:text-white/60"
-                            placeholder="MM/YY"
-                            required
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="cvv" className="text-white mb-2 block">
-                            CVV
-                          </Label>
-                          <Input
-                            id="cvv"
-                            type="text"
-                            value={formData.cvv}
-                            onChange={(e) => setFormData({ ...formData, cvv: e.target.value })}
-                            className="bg-white/20 border-white/30 text-white placeholder:text-white/60"
-                            placeholder="123"
-                            required
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <Button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="w-full bg-[#20b2aa] hover:bg-[#1a9988] text-white text-lg py-6 font-bold"
-                  >
-                    {isSubmitting ? "Processing..." : "Complete Booking - $100"}
-                  </Button>
-                </form>
               </CardContent>
             </Card>
           </div>
@@ -586,10 +432,10 @@ export default function WorkshopSubscriptionPage() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
             <Button
-              asChild
+              onClick={() => setShowBookingModal(true)}
               className="bg-[#20b2aa] hover:bg-[#1a9988] text-white text-lg px-8 py-6 font-semibold"
             >
-              <a href="#book-now">Reserve Your Spot</a>
+              Reserve Your Spot
             </Button>
             <Button
               asChild
@@ -608,6 +454,87 @@ export default function WorkshopSubscriptionPage() {
           </div>
         </div>
       </section>
+
+      {/* Booking Modal */}
+      {showBookingModal && (
+        <div
+          className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setShowBookingModal(false);
+          }}
+        >
+          <Card className="w-full max-w-md bg-white">
+            <CardContent className="p-6">
+              <h3 className="text-2xl font-bold text-[#1e3a47] mb-6">
+                Book Your Workshop
+              </h3>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <Label htmlFor="name">Full Name</Label>
+                  <Input
+                    id="name"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="email">Email Address</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="phone">Phone Number</Label>
+                  <Input
+                    id="phone"
+                    type="tel"
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="workshopDate">Select Workshop Date</Label>
+                  <select
+                    id="workshopDate"
+                    value={formData.workshopDate}
+                    onChange={(e) => setFormData({ ...formData, workshopDate: e.target.value })}
+                    className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm"
+                    required
+                  >
+                    <option value="">Choose a date</option>
+                    <option value="january15">January 15, 2026</option>
+                    <option value="january22">January 22, 2026</option>
+                    <option value="january29">January 29, 2026</option>
+                  </select>
+                </div>
+                <div className="pt-4 space-y-3">
+                  <Button
+                    type="submit"
+                    className="w-full bg-[#20b2aa] hover:bg-[#1a9988] text-white"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? "Processing..." : "Continue to Payment"}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => setShowBookingModal(false)}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }
