@@ -254,7 +254,8 @@ export default function WorkshopSubscriptionPage() {
                   key={pkg.id}
                   className="relative shadow-2xl hover:shadow-3xl transition-all duration-300 border-4 border-amber-300 hover:border-orange-400 transform hover:-translate-y-1"
                 >
-                  <CardHeader className="bg-gradient-to-br from-orange-600 via-amber-600 to-yellow-500 text-white rounded-t-xl">\n                    <CardTitle className="text-xl">{pkg.name}</CardTitle>
+                  <CardHeader className="bg-gradient-to-br from-orange-600 via-amber-600 to-yellow-500 text-white rounded-t-xl">
+                    <CardTitle className="text-xl">{pkg.name}</CardTitle>
                     <div className="text-4xl font-bold my-3">
                       ${pkg.price}
                       <span className="text-base font-normal opacity-90">{pkg.period}</span>
@@ -293,7 +294,8 @@ export default function WorkshopSubscriptionPage() {
         </div>
 
         {/* FAQ */}
-        <Card className="shadow-lg">\n          <CardHeader>
+        <Card className="shadow-lg">
+          <CardHeader>
             <CardTitle className="text-3xl text-center text-amber-800 dark:text-amber-300">
               Frequently Asked Questions
             </CardTitle>
