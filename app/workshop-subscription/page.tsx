@@ -88,7 +88,7 @@ export default function WorkshopSubscriptionPage() {
             </h1>
             <p className="text-xl text-gray-200 mb-6 leading-relaxed">
               Learn the art of crafting beautiful cement candle vessels in our hands-on beginner workshop. 
-              Transform raw materials into stunning home décor pieces you'll treasure.
+              Transform raw materials into stunning home décor pieces you&apos;ll treasure.
             </p>
             <p className="text-2xl text-white font-semibold mb-8">
               Next Session: <span className="text-[#20b2aa]">Limited spots available — book your seat today!</span>
@@ -107,7 +107,7 @@ export default function WorkshopSubscriptionPage() {
       <section className="py-16 bg-[#233d4d]">
         <div className="container mx-auto px-4">
           <h2 className="text-4xl font-bold text-white mb-12 text-center">
-            What You'll Experience
+            What You&apos;ll Experience
           </h2>
           <div className="grid md:grid-cols-2 gap-12 max-w-4xl mx-auto">
             <div className="text-center">
@@ -116,7 +116,7 @@ export default function WorkshopSubscriptionPage() {
                 2.5 Hours of Creating
               </h3>
               <p className="text-gray-300 leading-relaxed">
-                Immerse yourself in a relaxed, guided session where you'll learn techniques from start to finish.
+                Immerse yourself in a relaxed, guided session where you&apos;ll learn techniques from start to finish.
               </p>
             </div>
             <div className="text-center">
@@ -469,7 +469,7 @@ export default function WorkshopSubscriptionPage() {
                   What should I wear?
                 </h3>
                 <p className="text-gray-300">
-                  Wear comfortable clothes you don't mind getting a little dusty. Aprons are provided.
+                  Wear comfortable clothes you don&apos;t mind getting a little dusty. Aprons are provided.
                 </p>
               </CardContent>
             </Card>
@@ -479,14 +479,14 @@ export default function WorkshopSubscriptionPage() {
                   Can I take my vessel home?
                 </h3>
                 <p className="text-gray-300">
-                  Yes! Your finished creation is yours to keep. We'll package it safely for transport.
+                  Yes! Your finished creation is yours to keep. We&apos;ll package it safely for transport.
                 </p>
               </CardContent>
             </Card>
             <Card className="bg-transparent border-2 border-[#20b2aa]">
               <CardContent className="p-6">
                 <h3 className="text-xl font-bold text-white mb-3">
-                  What's the cancellation policy?
+                  What&apos;s the cancellation policy?
                 </h3>
                 <p className="text-gray-300">
                   Full refunds available up to 48 hours before your session. Rescheduling is always an option.
