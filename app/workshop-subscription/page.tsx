@@ -1,119 +1,35 @@
 "use client";
-// Updated: December 29, 2025 - PDF Design Implementation
+// Created from design slides - December 29, 2025
 
 import { useState } from "react";
 import Image from "next/image";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { 
   Clock, 
-  MapPin, 
   Users, 
-  Package, 
-  GraduationCap, 
-  ShieldCheck, 
-  Gift,
-  Check,
-  X,
-  ChevronDown,
-  ChevronUp,
-  Lock
+  Calendar,
+  CreditCard,
+  UserCheck,
+  CheckCircle2,
+  Phone,
+  Mail
 } from "lucide-react";
 
-interface WorkshopPackage {
-  id: string;
-  name: string;
-  price: number;
-  period: string;
-  description: string;
-  features: { text: string; included: boolean }[];
-}
-
-const packages: WorkshopPackage[] = [
-  {
-    id: "single",
-    name: "Single Workshop",
-    price: 65,
-    period: "/session",
-    description: "Create your masterpiece in one amazing session!",
-    features: [
-      { text: "One 2.5-hour hands-on workshop", included: true },
-      { text: "All materials included - we've got you covered!", included: true },
-      { text: "Take home your beautiful custom vessel", included: true },
-      { text: "Step-by-step digital guide for future projects", included: true },
-      { text: "Expert hands-on instruction throughout", included: true },
-      { text: "All tools and safety gear provided", included: true },
-    ],
-  },
-];
-
-const workshopDetails = [
-  { icon: Clock, label: "Duration", value: "2.5 hours" },
-  { icon: MapPin, label: "Location", value: "Our Studio & Online Materials" },
-  { icon: Users, label: "Group Size", value: "Small groups (max 12) for personalized attention" },
-  { icon: Package, label: "Included", value: "All materials, tools, and your finished vessel to take home" },
-  { icon: GraduationCap, label: "Skill Level", value: "Complete beginners welcome!" },
-  { icon: ShieldCheck, label: "Safety", value: "Protective gear provided" },
-  { icon: Gift, label: "Bonus", value: "Digital guide with tips & future project ideas" },
-];
-
-const faqs = [
-  {
-    question: "What if I've never worked with cement before?",
-    answer: "Perfect! This workshop is designed for complete beginners. We start with the basics and guide you through every step. All techniques are easy to learn with our hands-on approach.",
-  },
-  {
-    question: "What should I wear to the workshop?",
-    answer: "Wear comfortable clothes that you don't mind getting a little dusty. Closed-toe shoes are required. We provide aprons and all protective gear (gloves, safety glasses).",
-  },
-  {
-    question: "Can I take my vessel home the same day?",
-    answer: "Yes! Your vessel will be ready to take home at the end of the workshop. We'll give you instructions for the final curing process (24-48 hours at home) before using it with candles.",
-  },
-  {
-    question: "What's your cancellation policy?",
-    answer: "You can cancel up to 48 hours before the workshop for a full refund. For subscriptions, you can cancel anytime after the first month with no additional charges.",
-  },
-];
-
-const galleryImages = [
-  { src: "/images/vessel-100.png", alt: "Beautiful handcrafted concrete vessel" },
-  { src: "/images/vessel-101.png", alt: "Elegant concrete vessel design" },
-  { src: "/images/vessel-102.png", alt: "Stunning concrete creation" },
-  { src: "/images/vessel-103.png", alt: "Workshop participant creation" },
-  { src: "/images/vessel-104.png", alt: "Artistic concrete vessel" },
-  { src: "/images/vessel-105.png", alt: "Custom concrete candle holder" },
-];
-
 export default function WorkshopSubscriptionPage() {
-  const [selectedPackage, setSelectedPackage] = useState<WorkshopPackage | null>(null);
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
+  const [showBookingModal, setShowBookingModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     phone: "",
     workshopDate: "",
-    cardNumber: "",
-    expiry: "",
-    cvv: "",
   });
-
-  const handleBooking = (pkg: WorkshopPackage) => {
-    setSelectedPackage(pkg);
-    setShowPaymentModal(true);
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!selectedPackage) return;
-    
     setIsSubmitting(true);
 
     try {
@@ -123,33 +39,19 @@ export default function WorkshopSubscriptionPage() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          name: formData.name,
-          email: formData.email,
-          phone: formData.phone,
-          workshopDate: formData.workshopDate,
-          packageType: selectedPackage.id,
-          packagePrice: selectedPackage.price,
-          cardNumber: formData.cardNumber.slice(-4),
+          ...formData,
+          packageType: "single",
+          packagePrice: 100,
         }),
       });
 
-      const data = await response.json();
-
       if (!response.ok) {
-        throw new Error(data.error || "Failed to create booking");
+        throw new Error("Failed to create booking");
       }
 
-      setShowPaymentModal(false);
-      setShowSuccessModal(true);
-      setFormData({
-        name: "",
-        email: "",
-        phone: "",
-        workshopDate: "",
-        cardNumber: "",
-        expiry: "",
-        cvv: "",
-      });
+      alert("Booking confirmed! Check your email for details.");
+      setShowBookingModal(false);
+      setFormData({ name: "", email: "", phone: "", workshopDate: "" });
     } catch (error) {
       console.error("Booking error:", error);
       alert("Failed to complete booking. Please try again.");
@@ -158,233 +60,404 @@ export default function WorkshopSubscriptionPage() {
     }
   };
 
-  const toggleFaq = (index: number) => {
-    setOpenFaqIndex(openFaqIndex === index ? null : index);
-  };
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50">
-      <div className="container mx-auto px-4 py-8 max-w-6xl">
-        
-        {/* Hero Section with Left Card and Right Gallery - PDF Design */}
-        <div className="grid lg:grid-cols-5 gap-6 mb-12">
-          {/* Left: Hero Card (2 columns) */}
-          <div className="lg:col-span-2">
-            <Card className="h-full bg-gradient-to-br from-orange-600 via-orange-500 to-amber-500 text-white border-0 shadow-2xl rounded-3xl overflow-hidden">
-              <CardContent className="p-8 flex flex-col justify-between h-full">
-                <div>
-                  <div className="text-5xl mb-4">🏺</div>
-                  <h1 className="text-3xl font-bold mb-3 leading-tight">
-                    Concrete Creations Workshop
-                  </h1>
-                  <p className="text-lg font-semibold mb-2">
-                    ✨ Unleash Your Creativity!
-                  </p>
-                  <p className="text-sm mb-6 opacity-95 leading-relaxed">
-                    Transform ordinary cement into extraordinary art pieces. Create stunning, one-of-a-kind candle vessels with your own hands!
-                  </p>
-                  
-                  <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4 border border-white/30 mb-6">
-                    <p className="font-bold text-base mb-1">🔥 Next Workshop</p>
-                    <p className="text-sm">April 15, 2026 | 2-4 PM</p>
-                    <p className="text-sm font-semibold">Only 12 Spots Available!</p>
-                  </div>
+    <div className="min-h-screen bg-[#1e3a47]">
+      {/* Hero Section */}
+      <section className="relative min-h-[600px] flex items-center">
+        <div className="absolute inset-0">
+          <Image
+            src="/images/vessel-100.png"
+            alt="Concrete vessels"
+            fill
+            className="object-cover opacity-30"
+          />
+        </div>
+        <div className="container mx-auto px-4 py-20 relative z-10">
+          <div className="max-w-3xl">
+            <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
+              Concrete Creations Workshop
+            </h1>
+            <p className="text-xl text-gray-200 mb-6 leading-relaxed">
+              Learn the art of crafting beautiful cement candle vessels in our hands-on beginner workshop. 
+              Transform raw materials into stunning home décor pieces you'll treasure.
+            </p>
+            <p className="text-2xl text-white font-semibold mb-8">
+              Next Session: <span className="text-[#20b2aa]">Limited spots available — book your seat today!</span>
+            </p>
+            <Button
+              onClick={() => setShowBookingModal(true)}
+              className="bg-[#20b2aa] hover:bg-[#1a9988] text-white text-lg px-8 py-6 rounded-lg font-semibold"
+            >
+              Reserve Your Spot
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* What You'll Experience */}
+      <section className="py-16 bg-[#233d4d]">
+        <div className="container mx-auto px-4">
+          <h2 className="text-4xl font-bold text-white mb-12 text-center">
+            What You'll Experience
+          </h2>
+          <div className="grid md:grid-cols-2 gap-12 max-w-4xl mx-auto">
+            <div className="text-center">
+              <Clock className="w-16 h-16 text-[#20b2aa] mx-auto mb-4" />
+              <h3 className="text-2xl font-bold text-white mb-4">
+                2.5 Hours of Creating
+              </h3>
+              <p className="text-gray-300 leading-relaxed">
+                Immerse yourself in a relaxed, guided session where you'll learn techniques from start to finish.
+              </p>
+            </div>
+            <div className="text-center">
+              <Users className="w-16 h-16 text-[#20b2aa] mx-auto mb-4" />
+              <h3 className="text-2xl font-bold text-white mb-4">
+                Small Group Setting
+              </h3>
+              <p className="text-gray-300 leading-relaxed">
+                Enjoy personalized attention with intimate class sizes designed for hands-on learning.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Perfect for Beginners */}
+      <section className="py-16 bg-[#1e3a47]">
+        <div className="container mx-auto px-4">
+          <h2 className="text-4xl font-bold text-white mb-12 text-center">
+            Perfect for Beginners
+          </h2>
+          <div className="grid md:grid-cols-2 gap-12 items-center max-w-6xl mx-auto">
+            <div>
+              <h3 className="text-3xl font-bold text-white mb-6">
+                No Experience Needed
+              </h3>
+              <p className="text-gray-300 text-lg mb-6 leading-relaxed">
+                Our workshop is specifically designed for those new to cement crafting. Step-by-step guidance ensures 
+                you leave with a beautiful finished piece and newfound skills.
+              </p>
+              <p className="text-[#20b2aa] text-lg font-semibold">
+                Bonus: Every participant receives a digital guide to continue creating at home!
+              </p>
+            </div>
+            <div className="bg-white/10 rounded-lg p-8 backdrop-blur-sm">
+              <div className="aspect-square relative">
+                <Image
+                  src="/images/vessel-101.png"
+                  alt="Workshop participant"
+                  fill
+                  className="object-contain"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Workshop Pricing */}
+      <section className="py-16 bg-[#233d4d]">
+        <div className="container mx-auto px-4">
+          <h2 className="text-4xl font-bold text-white mb-4 text-center">
+            Workshop Pricing
+          </h2>
+          <p className="text-gray-300 text-center mb-12">
+            Simple, transparent pricing with everything included.
+          </p>
+          <div className="max-w-xl mx-auto">
+            <Card className="bg-[#20b2aa] border-0">
+              <CardContent className="p-8">
+                <h3 className="text-3xl font-bold text-white mb-4">
+                  Single Workshop
+                </h3>
+                <div className="text-5xl font-bold text-white mb-6">
+                  $100 <span className="text-xl font-normal">one-time</span>
                 </div>
-                
-                <div className="border-t border-white/30 pt-4">
-                  <div className="text-4xl font-bold mb-1">$65</div>
-                  <p className="text-sm opacity-90">per session</p>
-                  <p className="text-sm opacity-90">All materials included!</p>
-                </div>
+                <ul className="space-y-3 mb-8">
+                  <li className="flex items-start gap-3 text-white">
+                    <CheckCircle2 className="w-5 h-5 mt-1 flex-shrink-0" />
+                    <span>2.5-hour hands-on session</span>
+                  </li>
+                  <li className="flex items-start gap-3 text-white">
+                    <CheckCircle2 className="w-5 h-5 mt-1 flex-shrink-0" />
+                    <span>All materials provided</span>
+                  </li>
+                  <li className="flex items-start gap-3 text-white">
+                    <CheckCircle2 className="w-5 h-5 mt-1 flex-shrink-0" />
+                    <span>Take home your creation</span>
+                  </li>
+                  <li className="flex items-start gap-3 text-white">
+                    <CheckCircle2 className="w-5 h-5 mt-1 flex-shrink-0" />
+                    <span>Bonus digital guide</span>
+                  </li>
+                </ul>
+                <Button
+                  onClick={() => setShowBookingModal(true)}
+                  className="w-full bg-white text-[#20b2aa] hover:bg-gray-100 text-lg py-6 font-bold"
+                >
+                  Book Now
+                </Button>
               </CardContent>
             </Card>
           </div>
+        </div>
+      </section>
 
-          {/* Right: Image Gallery (3 columns) */}
-          <div className="lg:col-span-3 grid grid-cols-3 gap-3">
-            {galleryImages.map((image, index) => (
-              <div 
-                key={index} 
-                className={`relative overflow-hidden rounded-2xl shadow-lg bg-white ${
-                  index === 0 || index === 2 ? 'row-span-2' : ''
-                }`}
-                style={{ 
-                  minHeight: index === 0 || index === 2 ? '260px' : '125px'
-                }}
-              >
+      {/* Our Creations Gallery */}
+      <section className="py-16 bg-[#1e3a47]">
+        <div className="container mx-auto px-4">
+          <h2 className="text-4xl font-bold text-white mb-4 text-center">
+            Our Creations
+          </h2>
+          <p className="text-gray-300 text-center mb-12">
+            Explore the beautiful vessels crafted in our workshops.
+          </p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-6xl mx-auto">
+            {[
+              "/images/vessel-100.png",
+              "/images/vessel-101.png",
+              "/images/vessel-102.png",
+              "/images/vessel-103.png",
+            ].map((src, index) => (
+              <div key={index} className="aspect-square relative bg-white rounded-lg overflow-hidden">
                 <Image
-                  src={image.src}
-                  alt={image.alt}
+                  src={src}
+                  alt={`Creation ${index + 1}`}
                   fill
-                  className="object-contain p-2"
-                  sizes="(max-width: 768px) 100vw, 33vw"
+                  className="object-cover"
                 />
               </div>
             ))}
           </div>
         </div>
+      </section>
 
-        {/* Reserve Section */}
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-orange-600 mb-2">
-            Reserve Your Creative Experience! 🎨
+      {/* Workshop Location */}
+      <section className="py-16 bg-[#233d4d]">
+        <div className="container mx-auto px-4">
+          <h2 className="text-4xl font-bold text-white mb-12 text-center">
+            Workshop Location
           </h2>
-          <p className="text-gray-600 text-base">
-            Join us for an unforgettable hands-on workshop
-          </p>
-        </div>
-
-        {/* Workshop Package Card */}
-        <div className="max-w-2xl mx-auto mb-12">
-          {packages.map((pkg) => (
-            <Card
-              key={pkg.id}
-              className="shadow-xl border-0 overflow-hidden rounded-2xl"
-            >
-              <div className="bg-gradient-to-br from-orange-600 to-orange-500 text-white p-6 text-center">
-                <h3 className="text-xl font-bold mb-2">{pkg.name}</h3>
-                <div className="text-5xl font-bold mb-1">
-                  ${pkg.price}
-                </div>
-                <p className="text-base opacity-95 mb-3">🎨 {pkg.description}</p>
-                <Badge className="bg-white/30 text-white border border-white/40 text-xs px-3 py-1">
-                  Everything Included!
-                </Badge>
+          <div className="grid md:grid-cols-2 gap-12 items-center max-w-5xl mx-auto">
+            <div className="bg-white/10 rounded-lg p-8 backdrop-blur-sm">
+              <div className="aspect-video relative">
+                <Image
+                  src="/images/vessel-104.png"
+                  alt="Workshop studio"
+                  fill
+                  className="object-contain"
+                />
               </div>
-              
-              <CardContent className="p-6 bg-white">
-                <div className="grid md:grid-cols-2 gap-2 mb-5">
-                  {pkg.features.map((feature, index) => (
-                    <div key={index} className="flex items-start gap-2 text-sm">
-                      <Check className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
-                      <span className="text-sm">{feature.text}</span>
-                    </div>
-                  ))}
-                </div>
-                
-                <Button
-                  onClick={() => handleBooking(pkg)}
-                  className="w-full bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-700 hover:to-orange-600 text-white font-bold text-lg py-6 shadow-lg rounded-xl"
-                >
-                  🎨 Book Your Spot Now!
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        {/* Workshop Details Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-12">
-          {workshopDetails.map((detail, index) => (
-            <Card 
-              key={index} 
-              className="text-center hover:shadow-lg transition-shadow border border-orange-200 bg-white rounded-xl"
-            >
-              <CardContent className="p-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-orange-600 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-2">
-                  <detail.icon className="w-6 h-6 text-white" />
-                </div>
-                <h3 className="font-bold text-xs text-orange-700 mb-1">{detail.label}</h3>
-                <p className="text-xs text-gray-600 leading-snug">{detail.value}</p>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        {/* FAQ Section */}
-        <Card className="shadow-lg border-0 mb-10 bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl">
-          <CardHeader className="text-center pb-4">
-            <CardTitle className="text-2xl font-bold text-orange-700">
-              Frequently Asked Questions
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="px-6 pb-6">
-            <div className="space-y-1">
-              {faqs.map((faq, index) => (
-                <div
-                  key={index}
-                  className="bg-white rounded-lg overflow-hidden shadow-sm"
-                >
-                  <button
-                    onClick={() => toggleFaq(index)}
-                    className="flex justify-between items-center w-full text-left p-4 hover:bg-amber-50 transition-colors"
-                  >
-                    <span className="font-semibold text-sm pr-4">{faq.question}</span>
-                    <div className="w-7 h-7 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0">
-                      {openFaqIndex === index ? (
-                        <ChevronUp className="w-4 h-4 text-orange-600" />
-                      ) : (
-                        <ChevronDown className="w-4 h-4 text-orange-600" />
-                      )}
-                    </div>
-                  </button>
-                  <div
-                    className={`overflow-hidden transition-all duration-300 ${
-                      openFaqIndex === index ? "max-h-40" : "max-h-0"
-                    }`}
-                  >
-                    <p className="px-4 pb-4 text-xs text-gray-600 leading-relaxed">{faq.answer}</p>
+            </div>
+            <div>
+              <h3 className="text-3xl font-bold text-white mb-6">
+                Join our live stream workshop from anywhere
+              </h3>
+              <p className="text-gray-300 mb-6">
+                link will be provided upon registration
+              </p>
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <Mail className="w-6 h-6 text-[#20b2aa]" />
+                  <div>
+                    <p className="text-[#20b2aa] font-semibold">Contact:</p>
+                    <a href="mailto:info@limenlakay.com" className="text-white hover:text-[#20b2aa]">
+                      info@limenlakay.com
+                    </a>
                   </div>
                 </div>
-              ))}
+                <div className="flex items-center gap-3">
+                  <Phone className="w-6 h-6 text-[#20b2aa]" />
+                  <div>
+                    <p className="text-[#20b2aa] font-semibold">Phone:</p>
+                    <a href="tel:5615930238" className="text-white hover:text-[#20b2aa]">
+                      561-593-0238
+                    </a>
+                  </div>
+                </div>
+              </div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
+      </section>
 
-        {/* Footer */}
-        <Card className="text-center bg-gradient-to-br from-stone-700 to-stone-800 text-white border-0 shadow-xl rounded-2xl">
-          <CardContent className="p-8">
-            <h3 className="text-xl font-bold mb-2">Ready to Get Creative? 🎨</h3>
-            <p className="text-base mb-5 opacity-90">Questions? We're here to help!</p>
-            <div className="flex flex-col sm:flex-row justify-center gap-3 mb-5">
-              <a 
-                href="mailto:info@limenlakay.com" 
-                className="inline-flex items-center justify-center gap-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm px-5 py-2.5 rounded-lg transition-all text-sm font-medium"
-              >
-                📧 info@limenlakay.com
-              </a>
-              <a 
-                href="tel:+15615930238" 
-                className="inline-flex items-center justify-center gap-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm px-5 py-2.5 rounded-lg transition-all text-sm font-medium"
-              >
-                📞 (561) 593-0238
-              </a>
+      {/* FAQ */}
+      <section className="py-16 bg-[#1e3a47]">
+        <div className="container mx-auto px-4">
+          <h2 className="text-4xl font-bold text-white mb-12 text-center">
+            Frequently Asked Questions
+          </h2>
+          <div className="grid md:grid-cols-2 gap-6 max-w-5xl mx-auto">
+            <Card className="bg-transparent border-2 border-[#20b2aa]">
+              <CardContent className="p-6">
+                <h3 className="text-xl font-bold text-white mb-3">
+                  Is this workshop suitable for beginners?
+                </h3>
+                <p className="text-gray-300">
+                  Absolutely! No prior experience is needed. Our instructors guide you through every step.
+                </p>
+              </CardContent>
+            </Card>
+            <Card className="bg-transparent border-2 border-[#20b2aa]">
+              <CardContent className="p-6">
+                <h3 className="text-xl font-bold text-white mb-3">
+                  What should I wear?
+                </h3>
+                <p className="text-gray-300">
+                  Wear comfortable clothes you don't mind getting a little dusty. Aprons are provided.
+                </p>
+              </CardContent>
+            </Card>
+            <Card className="bg-transparent border-2 border-[#20b2aa]">
+              <CardContent className="p-6">
+                <h3 className="text-xl font-bold text-white mb-3">
+                  Can I take my vessel home?
+                </h3>
+                <p className="text-gray-300">
+                  Yes! Your finished creation is yours to keep. We'll package it safely for transport.
+                </p>
+              </CardContent>
+            </Card>
+            <Card className="bg-transparent border-2 border-[#20b2aa]">
+              <CardContent className="p-6">
+                <h3 className="text-xl font-bold text-white mb-3">
+                  What's the cancellation policy?
+                </h3>
+                <p className="text-gray-300">
+                  Full refunds available up to 48 hours before your session. Rescheduling is always an option.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* How to Book */}
+      <section className="py-16 bg-[#233d4d]">
+        <div className="container mx-auto px-4">
+          <h2 className="text-4xl font-bold text-white mb-12 text-center">
+            How to Book
+          </h2>
+          <div className="grid md:grid-cols-4 gap-8 max-w-6xl mx-auto">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-[#20b2aa] rounded-full flex items-center justify-center mx-auto mb-4">
+                <Calendar className="w-8 h-8 text-white" />
+              </div>
+              <h3 className="text-xl font-bold text-white mb-2">Select a Date</h3>
+              <p className="text-gray-300 text-sm">Choose your preferred workshop session</p>
             </div>
-            <p className="text-xs opacity-75">&copy; 2026 Concrete Creations Workshop. All rights reserved.</p>
-          </CardContent>
-        </Card>
-      </div>
+            <div className="text-center">
+              <div className="w-16 h-16 bg-[#20b2aa] rounded-full flex items-center justify-center mx-auto mb-4">
+                <UserCheck className="w-8 h-8 text-white" />
+              </div>
+              <h3 className="text-xl font-bold text-white mb-2">Complete Your Info</h3>
+              <p className="text-gray-300 text-sm">Provide name, email, and phone number</p>
+            </div>
+            <div className="text-center">
+              <div className="w-16 h-16 bg-[#20b2aa] rounded-full flex items-center justify-center mx-auto mb-4">
+                <CreditCard className="w-8 h-8 text-white" />
+              </div>
+              <h3 className="text-xl font-bold text-white mb-2">Secure Payment</h3>
+              <p className="text-gray-300 text-sm">Pay via card or Zelle</p>
+            </div>
+            <div className="text-center">
+              <div className="w-16 h-16 bg-[#20b2aa] rounded-full flex items-center justify-center mx-auto mb-4">
+                <CheckCircle2 className="w-8 h-8 text-white" />
+              </div>
+              <h3 className="text-xl font-bold text-white mb-2">Confirmation</h3>
+              <p className="text-gray-300 text-sm">Receive your booking details instantly</p>
+            </div>
+          </div>
+        </div>
+      </section>
 
-      {/* Payment Modal */}
-      {showPaymentModal && selectedPackage && (
+      {/* Payment Options */}
+      <section className="py-16 bg-[#1e3a47]">
+        <div className="container mx-auto px-4">
+          <h2 className="text-4xl font-bold text-white mb-12 text-center">
+            Payment Options
+          </h2>
+          <div className="grid md:grid-cols-2 gap-12 max-w-4xl mx-auto">
+            <Card className="bg-white/10 border-0">
+              <CardContent className="p-8">
+                <h3 className="text-2xl font-bold text-white mb-4">
+                  Credit/Debit Card
+                </h3>
+                <p className="text-gray-300">
+                  Secure online payment with all major cards accepted. Your information is protected with 
+                  industry-standard encryption.
+                </p>
+              </CardContent>
+            </Card>
+            <Card className="bg-white/10 border-0">
+              <CardContent className="p-8">
+                <h3 className="text-2xl font-bold text-white mb-4">
+                  Zelle
+                </h3>
+                <p className="text-gray-300 mb-4">
+                  Send payment directly to:
+                </p>
+                <p className="text-[#20b2aa] font-bold text-lg mb-4">
+                  limenlakayllc@gmail.com
+                </p>
+                <p className="text-gray-300 text-sm">
+                  Include your name and workshop date in the memo.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer CTA */}
+      <section className="py-16 bg-[#233d4d]">
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="text-4xl font-bold text-white mb-6">
+            Ready to Create?
+          </h2>
+          <p className="text-gray-300 text-lg mb-8">
+            Join our next Concrete Creations Workshop and discover the satisfaction of handcrafted artistry. 
+            Limited spots ensure personalized attention for every participant.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+            <Button
+              onClick={() => setShowBookingModal(true)}
+              className="bg-[#20b2aa] hover:bg-[#1a9988] text-white text-lg px-8 py-6 font-semibold"
+            >
+              Reserve Your Spot
+            </Button>
+            <Button
+              asChild
+              variant="outline"
+              className="border-2 border-[#20b2aa] text-[#20b2aa] hover:bg-[#20b2aa] hover:text-white text-lg px-8 py-6 font-semibold"
+            >
+              <a href="tel:5615930238">Call Us</a>
+            </Button>
+          </div>
+          <div className="border-t border-gray-600 pt-8">
+            <h3 className="text-2xl font-bold text-white mb-4">Limen Lakay LLC</h3>
+            <p className="text-gray-300">
+              Email: <a href="mailto:info@limenlakay.com" className="text-[#20b2aa] hover:underline">info@limenlakay.com</a> | 
+              Phone: <a href="tel:5615930238" className="text-[#20b2aa] hover:underline">561-593-0238</a>
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Booking Modal */}
+      {showBookingModal && (
         <div
-          className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
+          className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4"
           onClick={(e) => {
-            if (e.target === e.currentTarget) setShowPaymentModal(false);
+            if (e.target === e.currentTarget) setShowBookingModal(false);
           }}
         >
-          <Card className="w-full max-w-lg max-h-[90vh] overflow-y-auto">
-            <CardHeader>
-              <div className="flex justify-between items-start">
-                <div>
-                  <CardTitle className="text-2xl text-orange-700">
-                    Complete Your Booking
-                  </CardTitle>
-                  <CardDescription className="mt-2">
-                    {selectedPackage.name} - ${selectedPackage.price}
-                  </CardDescription>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setShowPaymentModal(false)}
-                  className="hover:bg-destructive/10"
-                >
-                  <X className="w-5 h-5" />
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent>
+          <Card className="w-full max-w-md bg-white">
+            <CardContent className="p-6">
+              <h3 className="text-2xl font-bold text-[#1e3a47] mb-6">
+                Book Your Workshop
+              </h3>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <Label htmlFor="name">Full Name</Label>
@@ -395,7 +468,6 @@ export default function WorkshopSubscriptionPage() {
                     required
                   />
                 </div>
-
                 <div>
                   <Label htmlFor="email">Email Address</Label>
                   <Input
@@ -406,7 +478,6 @@ export default function WorkshopSubscriptionPage() {
                     required
                   />
                 </div>
-
                 <div>
                   <Label htmlFor="phone">Phone Number</Label>
                   <Input
@@ -417,121 +488,39 @@ export default function WorkshopSubscriptionPage() {
                     required
                   />
                 </div>
-
                 <div>
-                  <Label htmlFor="workshopDate">Preferred Workshop Date</Label>
+                  <Label htmlFor="workshopDate">Select Workshop Date</Label>
                   <select
                     id="workshopDate"
                     value={formData.workshopDate}
                     onChange={(e) => setFormData({ ...formData, workshopDate: e.target.value })}
-                    className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                    className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm"
                     required
                   >
-                    <option value="">Select a date</option>
-                    <option value="april15">April 15, 2026 (2-4 PM)</option>
-                    <option value="april22">April 22, 2026 (2-4 PM)</option>
-                    <option value="april29">April 29, 2026 (2-4 PM)</option>
-                    <option value="may6">May 6, 2026 (2-4 PM)</option>
+                    <option value="">Choose a date</option>
+                    <option value="january15">January 15, 2026</option>
+                    <option value="january22">January 22, 2026</option>
+                    <option value="january29">January 29, 2026</option>
                   </select>
                 </div>
-
-                <div>
-                  <Label>Payment Method</Label>
-                  <div className="flex gap-2 mt-2">
-                    {["Visa", "MC", "Amex", "PayPal"].map((method) => (
-                      <div
-                        key={method}
-                        className="px-3 py-1 bg-secondary rounded text-xs font-medium"
-                      >
-                        {method}
-                      </div>
-                    ))}
-                  </div>
+                <div className="pt-4 space-y-3">
+                  <Button
+                    type="submit"
+                    className="w-full bg-[#20b2aa] hover:bg-[#1a9988] text-white"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? "Processing..." : "Continue to Payment"}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => setShowBookingModal(false)}
+                  >
+                    Cancel
+                  </Button>
                 </div>
-
-                <div>
-                  <Label htmlFor="cardNumber">Card Number</Label>
-                  <Input
-                    id="cardNumber"
-                    placeholder="1234 5678 9012 3456"
-                    value={formData.cardNumber}
-                    onChange={(e) => setFormData({ ...formData, cardNumber: e.target.value })}
-                    required
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="expiry">Expiry Date</Label>
-                    <Input
-                      id="expiry"
-                      placeholder="MM/YY"
-                      value={formData.expiry}
-                      onChange={(e) => setFormData({ ...formData, expiry: e.target.value })}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="cvv">CVV</Label>
-                    <Input
-                      id="cvv"
-                      placeholder="123"
-                      value={formData.cvv}
-                      onChange={(e) => setFormData({ ...formData, cvv: e.target.value })}
-                      required
-                    />
-                  </div>
-                </div>
-
-                <Button
-                  type="submit"
-                  className="w-full bg-orange-600 hover:bg-orange-700 text-white"
-                  size="lg"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? "Processing..." : "Complete Payment & Book Workshop"}
-                </Button>
-
-                <p className="text-center text-sm text-muted-foreground flex items-center justify-center gap-2">
-                  <Lock className="w-4 h-4" />
-                  Your payment is secure and encrypted
-                </p>
               </form>
-            </CardContent>
-          </Card>
-        </div>
-      )}
-
-      {/* Success Modal */}
-      {showSuccessModal && (
-        <div
-          className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
-          onClick={(e) => {
-            if (e.target === e.currentTarget) setShowSuccessModal(false);
-          }}
-        >
-          <Card className="w-full max-w-md">
-            <CardContent className="text-center py-12 px-6">
-              <div className="text-6xl mb-6 text-green-600">✓</div>
-              <h3 className="text-2xl font-bold text-orange-700 mb-4">
-                Booking Confirmed!
-              </h3>
-              <p className="text-muted-foreground mb-4">
-                Thank you for signing up for our workshop. We've sent a confirmation email with all the details.
-              </p>
-              <div className="bg-amber-50 p-4 rounded-lg mb-6">
-                <p className="font-semibold mb-2">What's next?</p>
-                <p className="text-sm text-muted-foreground">
-                  You'll receive a reminder email 3 days before the workshop with the exact address and what to bring.
-                </p>
-              </div>
-              <Button
-                onClick={() => setShowSuccessModal(false)}
-                className="w-full bg-orange-600 hover:bg-orange-700 text-white"
-                size="lg"
-              >
-                Close
-              </Button>
             </CardContent>
           </Card>
         </div>
