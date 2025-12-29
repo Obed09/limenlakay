@@ -154,7 +154,7 @@ export default function WorkshopSubscriptionPage() {
             <div className="bg-white/10 rounded-lg p-8 backdrop-blur-sm">
               <div className="aspect-square relative">
                 <Image
-                  src="/images/IMG-20251015-WA0011.jpg"
+                  src="/images/no experience workshop scene.png"
                   alt="Workshop participant"
                   fill
                   className="object-contain"
