@@ -173,96 +173,104 @@ export default function WorkshopSubscriptionPage() {
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 dark:from-stone-950 dark:to-stone-900">
       <div className="container mx-auto px-4 py-12 max-w-7xl">
         
-        {/* Hero Header with Image Grid */}
+        {/* Hero Section - Left Content, Right Images */}
         <div className="grid lg:grid-cols-2 gap-8 mb-16">
-          {/* Left: Hero Content */}
-          <div className="flex flex-col justify-center">
-            <div className="bg-gradient-to-br from-orange-600 via-amber-600 to-yellow-500 text-white rounded-3xl p-10 shadow-2xl">
-              <div className="text-7xl mb-6 animate-bounce">🏺</div>
-              <h1 className="text-5xl md:text-6xl font-bold mb-6 drop-shadow-lg leading-tight">
-                Concrete Creations Workshop
-              </h1>
-              <p className="text-xl mb-4 font-medium leading-relaxed">
-                ✨ Unleash Your Creativity!
-              </p>
-              <p className="text-lg mb-6 opacity-95 leading-relaxed">
-                Transform ordinary cement into extraordinary art pieces. Create stunning, one-of-a-kind candle vessels with your own hands!
-              </p>
-              <div className="bg-white/20 backdrop-blur-sm rounded-xl p-5 border-2 border-white/40 mb-6">
-                <p className="font-bold text-xl mb-2">🔥 Next Workshop</p>
-                <p className="text-lg">April 15, 2026 | 2-4 PM</p>
-                <p className="text-lg font-semibold">Only 12 Spots Available!</p>
-              </div>
-              <div className="flex gap-4 items-center">
-                <div className="text-5xl font-bold">$65</div>
-                <div className="text-lg opacity-90">per session<br/>All materials included!</div>
-              </div>
-            </div>
+          {/* Left: Hero Card */}
+          <div className="flex items-center">
+            <Card className="w-full bg-gradient-to-br from-orange-600 via-amber-600 to-yellow-500 text-white border-0 shadow-2xl">
+              <CardContent className="p-10">
+                <div className="text-6xl mb-4">🏺</div>
+                <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight">
+                  Concrete Creations Workshop
+                </h1>
+                <p className="text-xl mb-4 font-semibold">
+                  ✨ Unleash Your Creativity!
+                </p>
+                <p className="text-base mb-6 opacity-95 leading-relaxed">
+                  Transform ordinary cement into extraordinary art pieces. Create stunning, one-of-a-kind candle vessels with your own hands!
+                </p>
+                
+                <div className="bg-white/20 backdrop-blur-sm rounded-xl p-5 border-2 border-white/30 mb-6">
+                  <p className="font-bold text-lg mb-1">🔥 Next Workshop</p>
+                  <p className="text-base">April 15, 2026 | 2-4 PM</p>
+                  <p className="text-base font-semibold">Only 12 Spots Available!</p>
+                </div>
+                
+                <div className="border-t-2 border-white/30 pt-6">
+                  <div className="text-5xl font-bold mb-2">$65</div>
+                  <p className="text-lg opacity-90">per session</p>
+                  <p className="text-base opacity-90">All materials included!</p>
+                </div>
+              </CardContent>
+            </Card>
           </div>
 
           {/* Right: Image Gallery Grid */}
           <div className="grid grid-cols-2 gap-4">
-            {galleryImages.map((image, index) => (
+            {galleryImages.slice(0, 6).map((image, index) => (
               <div 
                 key={index} 
-                className={`relative overflow-hidden rounded-2xl shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 ${
-                  index === 0 || index === 5 ? 'row-span-2' : ''
+                className={`relative overflow-hidden rounded-xl shadow-lg hover:shadow-2xl transform hover:scale-[1.02] transition-all duration-300 bg-white ${
+                  index === 0 ? 'row-span-2' : ''
                 }`}
                 style={{ 
-                  minHeight: index === 0 || index === 5 ? '400px' : '190px'
+                  height: index === 0 ? '100%' : '180px',
+                  minHeight: index === 0 ? '360px' : '180px'
                 }}
               >
                 <Image
                   src={image.src}
                   alt={image.alt}
                   fill
-                  className="object-cover"
+                  className="object-contain p-2"
                   sizes="(max-width: 768px) 100vw, 50vw"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300" />
               </div>
             ))}
           </div>
         </div>
 
-        {/* Workshop Package Card - Centered & Prominent */}
-        <div className="max-w-2xl mx-auto mb-16">
-          <h2 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-600 to-amber-600 mb-3 text-center">
+        {/* Reserve Section Title */}
+        <div className="text-center mb-12">
+          <h2 className="text-4xl font-bold text-orange-600 mb-3">
             Reserve Your Creative Experience! 🎨
           </h2>
-          <p className="text-center text-gray-600 dark:text-gray-300 mb-8 text-lg">
+          <p className="text-gray-600 dark:text-gray-300 text-lg">
             Join us for an unforgettable hands-on workshop
           </p>
-          
+        </div>
+
+        {/* Workshop Package Card */}
+        <div className="max-w-2xl mx-auto mb-16">
           {packages.map((pkg) => (
             <Card
               key={pkg.id}
-              className="shadow-2xl border-4 border-orange-400 transform hover:-translate-y-2 transition-all duration-300 overflow-hidden"
+              className="shadow-xl border-0 overflow-hidden"
             >
-              <div className="bg-gradient-to-br from-orange-600 via-amber-600 to-yellow-500 text-white p-8 text-center">
-                <h3 className="text-3xl font-bold mb-3">{pkg.name}</h3>
-                <div className="text-6xl font-bold my-4">
+              <div className="bg-gradient-to-br from-orange-600 to-amber-600 text-white p-8 text-center">
+                <h3 className="text-2xl font-bold mb-3">{pkg.name}</h3>
+                <div className="text-6xl font-bold mb-2">
                   ${pkg.price}
                 </div>
-                <p className="text-xl opacity-95 mb-2">{pkg.description}</p>
-                <Badge className="bg-white/30 text-white border-2 border-white/50 text-base px-4 py-1">
+                <p className="text-lg opacity-95 mb-3">{pkg.description}</p>
+                <Badge className="bg-white/30 text-white border-2 border-white/40 text-sm px-4 py-1">
                   Everything Included!
                 </Badge>
               </div>
               
-              <CardContent className="p-8">
-                <div className="grid md:grid-cols-2 gap-4 mb-8">
+              <CardContent className="p-8 bg-white dark:bg-stone-900">
+                <div className="grid md:grid-cols-2 gap-3 mb-6">
                   {pkg.features.map((feature, index) => (
-                    <div key={index} className="flex items-start gap-3 bg-amber-50 dark:bg-stone-800 p-4 rounded-lg">
-                      <Check className="w-6 h-6 text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0" />
-                      <span className="font-medium">{feature.text}</span>
+                    <div key={index} className="flex items-start gap-2 text-sm">
+                      <Check className="w-5 h-5 text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0" />
+                      <span>{feature.text}</span>
                     </div>
                   ))}
                 </div>
                 
                 <Button
                   onClick={() => handleBooking(pkg)}
-                  className="w-full bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white font-bold text-2xl py-8 shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-200"
+                  className="w-full bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white font-bold text-xl py-6 shadow-lg"
                 >
                   🎨 Book Your Spot Now!
                 </Button>
@@ -272,56 +280,56 @@ export default function WorkshopSubscriptionPage() {
         </div>
 
         {/* Workshop Details Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-16">
           {workshopDetails.map((detail, index) => (
             <Card 
               key={index} 
-              className="text-center hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border-2 border-amber-200 bg-gradient-to-br from-white to-amber-50/30 dark:from-stone-900 dark:to-stone-800"
+              className="text-center hover:shadow-lg transition-shadow border border-amber-200 bg-white dark:bg-stone-900"
             >
-              <CardContent className="pt-6">
-                <div className="w-16 h-16 bg-gradient-to-br from-orange-600 to-amber-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
-                  <detail.icon className="w-8 h-8 text-white" />
+              <CardContent className="p-6">
+                <div className="w-14 h-14 bg-gradient-to-br from-orange-600 to-amber-600 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <detail.icon className="w-7 h-7 text-white" />
                 </div>
-                <h3 className="font-bold text-lg text-amber-800 dark:text-amber-300 mb-2">{detail.label}</h3>
-                <p className="text-sm text-muted-foreground">{detail.value}</p>
+                <h3 className="font-bold text-sm text-orange-700 dark:text-orange-400 mb-2">{detail.label}</h3>
+                <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">{detail.value}</p>
               </CardContent>
             </Card>
           ))}
         </div>
 
         {/* FAQ Section */}
-        <Card className="shadow-xl border-2 border-amber-200 mb-12">
-          <CardHeader className="bg-gradient-to-r from-orange-100 to-amber-100 dark:from-stone-800 dark:to-stone-700">
-            <CardTitle className="text-3xl text-center text-amber-800 dark:text-amber-300">
+        <Card className="shadow-lg border-0 mb-12 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-stone-900 dark:to-stone-800">
+          <CardHeader className="text-center pb-6">
+            <CardTitle className="text-3xl font-bold text-orange-700 dark:text-orange-400">
               Frequently Asked Questions
             </CardTitle>
           </CardHeader>
-          <CardContent className="p-8">
-            <div className="space-y-6">
+          <CardContent className="px-8 pb-8">
+            <div className="space-y-1">
               {faqs.map((faq, index) => (
                 <div
                   key={index}
-                  className="border-b border-amber-200 last:border-0 pb-6 last:pb-0"
+                  className="bg-white dark:bg-stone-800 rounded-lg overflow-hidden"
                 >
                   <button
                     onClick={() => toggleFaq(index)}
-                    className="flex justify-between items-center w-full text-left font-bold text-xl hover:text-amber-700 dark:hover:text-amber-400 transition-colors"
+                    className="flex justify-between items-center w-full text-left p-5 hover:bg-amber-50 dark:hover:bg-stone-700 transition-colors"
                   >
-                    <span>{faq.question}</span>
-                    <div className="w-10 h-10 rounded-full bg-amber-100 dark:bg-stone-700 flex items-center justify-center flex-shrink-0 ml-4">
+                    <span className="font-semibold text-base pr-4">{faq.question}</span>
+                    <div className="w-8 h-8 rounded-full bg-amber-100 dark:bg-stone-600 flex items-center justify-center flex-shrink-0">
                       {openFaqIndex === index ? (
-                        <ChevronUp className="w-6 h-6" />
+                        <ChevronUp className="w-5 h-5 text-orange-600" />
                       ) : (
-                        <ChevronDown className="w-6 h-6" />
+                        <ChevronDown className="w-5 h-5 text-orange-600" />
                       )}
                     </div>
                   </button>
                   <div
                     className={`overflow-hidden transition-all duration-300 ${
-                      openFaqIndex === index ? "max-h-96 mt-4" : "max-h-0"
+                      openFaqIndex === index ? "max-h-48" : "max-h-0"
                     }`}
                   >
-                    <p className="text-muted-foreground text-lg leading-relaxed">{faq.answer}</p>
+                    <p className="px-5 pb-5 text-sm text-gray-600 dark:text-gray-300 leading-relaxed">{faq.answer}</p>
                   </div>
                 </div>
               ))}
@@ -330,25 +338,27 @@ export default function WorkshopSubscriptionPage() {
         </Card>
 
         {/* Footer */}
-        <footer className="text-center bg-gradient-to-br from-stone-700 to-stone-800 text-white rounded-3xl p-10 shadow-2xl">
-          <h3 className="text-2xl font-bold mb-4">Ready to Get Creative? 🎨</h3>
-          <p className="text-lg mb-6 opacity-90">Questions? We're here to help!</p>
-          <div className="flex flex-col md:flex-row justify-center gap-6 mb-6">
-            <a 
-              href="mailto:info@limenlakay.com" 
-              className="inline-flex items-center justify-center gap-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm px-8 py-4 rounded-xl transition-all duration-200 text-lg font-medium"
-            >
-              📧 info@limenlakay.com
-            </a>
-            <a 
-              href="tel:+15615930238" 
-              className="inline-flex items-center justify-center gap-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm px-8 py-4 rounded-xl transition-all duration-200 text-lg font-medium"
-            >
-              📞 (561) 593-0238
-            </a>
-          </div>
-          <p className="text-sm opacity-75">&copy; 2026 Concrete Creations Workshop. All rights reserved.</p>
-        </footer>
+        <Card className="text-center bg-gradient-to-br from-stone-700 to-stone-800 text-white border-0 shadow-xl">
+          <CardContent className="p-10">
+            <h3 className="text-2xl font-bold mb-3">Ready to Get Creative? 🎨</h3>
+            <p className="text-lg mb-6 opacity-90">Questions? We're here to help!</p>
+            <div className="flex flex-col sm:flex-row justify-center gap-4 mb-6">
+              <a 
+                href="mailto:info@limenlakay.com" 
+                className="inline-flex items-center justify-center gap-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm px-6 py-3 rounded-lg transition-all text-base font-medium"
+              >
+                📧 info@limenlakay.com
+              </a>
+              <a 
+                href="tel:+15615930238" 
+                className="inline-flex items-center justify-center gap-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm px-6 py-3 rounded-lg transition-all text-base font-medium"
+              >
+                📞 (561) 593-0238
+              </a>
+            </div>
+            <p className="text-sm opacity-75">&copy; 2026 Concrete Creations Workshop. All rights reserved.</p>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Payment Modal */}
