@@ -128,3 +128,43 @@ export async function PUT(request: Request) {
     );
   }
 }
+
+// DELETE: Delete a workshop session
+export async function DELETE(request: Request) {
+  try {
+    const supabase = await createClient();
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get("id");
+    
+    if (!id) {
+      return NextResponse.json(
+        { error: "Session ID is required" },
+        { status: 400 }
+      );
+    }
+    
+    const { error } = await supabase
+      .from("workshop_sessions")
+      .delete()
+      .eq("id", id);
+    
+    if (error) {
+      console.error("Error deleting session:", error);
+      return NextResponse.json(
+        { error: "Failed to delete session" },
+        { status: 500 }
+      );
+    }
+    
+    return NextResponse.json(
+      { success: true, message: "Session deleted successfully" },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Session deletion error:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}
