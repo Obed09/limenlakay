@@ -392,12 +392,12 @@ export default function WorkshopSubscriptionPage() {
               "/images/IMG-20251015-WA0008.jpg",
               "/images/new vessel 6.jpeg",
             ].map((src, index) => (
-              <div key={index} className="aspect-square relative bg-white rounded-lg overflow-hidden">
+              <div key={index} className="aspect-square relative bg-white rounded-lg overflow-hidden p-4">
                 <Image
                   src={src}
                   alt={`Creation ${index + 1}`}
                   fill
-                  className="object-cover"
+                  className="object-contain"
                 />
               </div>
             ))}
