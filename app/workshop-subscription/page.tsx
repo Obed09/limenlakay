@@ -44,38 +44,8 @@ const packages: WorkshopPackage[] = [
       { text: "All materials included", included: true },
       { text: "Take-home vessel", included: true },
       { text: "Digital guide", included: true },
-      { text: "No recurring subscription", included: false },
-    ],
-  },
-  {
-    id: "monthly",
-    name: "Monthly Membership",
-    price: 55,
-    period: "/month",
-    description: "One workshop per month",
-    popular: true,
-    features: [
-      { text: "One workshop monthly", included: true },
-      { text: "All materials included", included: true },
-      { text: "Priority booking", included: true },
-      { text: "15% off additional kits", included: true },
-      { text: "Members-only projects", included: true },
-      { text: "Cancel anytime", included: true },
-    ],
-  },
-  {
-    id: "premium",
-    name: "Premium Package",
-    price: 180,
-    period: "/3 months",
-    description: "Quarterly commitment",
-    features: [
-      { text: "3 workshops (one per month)", included: true },
-      { text: "All materials included", included: true },
-      { text: "Premium mold selection", included: true },
-      { text: "20% off additional kits", included: true },
-      { text: "Free sealing kit ($25 value)", included: true },
-      { text: "VIP project access", included: true },
+      { text: "Hands-on instruction", included: true },
+      { text: "All tools and safety gear provided", included: true },
     ],
   },
 ];
@@ -90,20 +60,7 @@ const workshopDetails = [
   { icon: Gift, label: "Bonus", value: "Digital guide with tips & future project ideas" },
 ];
 
-const testimonials = [
-  {
-    quote: "I never thought I could work with cement, but the instructor made it so accessible. My vessel turned out beautiful!",
-    author: "Sarah M.",
-  },
-  {
-    quote: "The small class size meant I got all the help I needed. Can't wait for the next workshop in the series!",
-    author: "James L.",
-  },
-  {
-    quote: "Such a therapeutic and rewarding experience. My handmade vessel is now the centerpiece of my dining table.",
-    author: "Maria K.",
-  },
-];
+
 
 const faqs = [
   {
@@ -281,25 +238,15 @@ export default function WorkshopSubscriptionPage() {
           {/* Subscription Options */}
           <div className="lg:col-span-2">
             <h2 className="text-3xl font-bold text-amber-900 dark:text-amber-200 mb-6">
-              Choose Your Workshop Option
+              Book Your Workshop
             </h2>
-            <div className="grid md:grid-cols-3 gap-6">
+            <div className="max-w-md mx-auto">
               {packages.map((pkg) => (
                 <Card
                   key={pkg.id}
-                  className={`relative shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 ${
-                    pkg.popular ? "border-2 border-amber-600 dark:border-amber-500" : ""
-                  }`}
+                  className="relative shadow-lg hover:shadow-2xl transition-all duration-300"
                 >
-                  {pkg.popular && (
-                    <div className="absolute -top-3 -right-2 z-10">
-                      <Badge className="bg-amber-600 text-white px-4 py-1 rotate-12 shadow-lg">
-                        MOST POPULAR
-                      </Badge>
-                    </div>
-                  )}
-                  <CardHeader className="bg-gradient-to-br from-stone-700 to-stone-800 text-white rounded-t-xl">
-                    <CardTitle className="text-xl">{pkg.name}</CardTitle>
+                  <CardHeader className="bg-gradient-to-br from-stone-700 to-stone-800 text-white rounded-t-xl">\n                    <CardTitle className="text-xl">{pkg.name}</CardTitle>
                     <div className="text-4xl font-bold my-3">
                       ${pkg.price}
                       <span className="text-base font-normal opacity-90">{pkg.period}</span>
@@ -328,7 +275,7 @@ export default function WorkshopSubscriptionPage() {
                       className="w-full bg-amber-700 hover:bg-amber-800 text-white"
                       size="lg"
                     >
-                      {pkg.id === "monthly" ? "Subscribe Now" : pkg.id === "premium" ? "Get Package" : "Book Now"}
+                      Book Now
                     </Button>
                   </CardContent>
                 </Card>
@@ -337,35 +284,8 @@ export default function WorkshopSubscriptionPage() {
           </div>
         </div>
 
-        {/* Testimonials */}
-        <Card className="mb-12 shadow-lg">
-          <CardHeader>
-            <CardTitle className="text-3xl text-center text-amber-800 dark:text-amber-300">
-              What Our Participants Say
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid md:grid-cols-3 gap-6">
-              {testimonials.map((testimonial, index) => (
-                <div
-                  key={index}
-                  className="bg-amber-50 dark:bg-stone-800 p-6 rounded-lg border-l-4 border-amber-600 dark:border-amber-500"
-                >
-                  <p className="italic text-muted-foreground mb-4">
-                    &ldquo;{testimonial.quote}&rdquo;
-                  </p>
-                  <p className="font-semibold text-amber-900 dark:text-amber-300">
-                    {testimonial.author}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
         {/* FAQ */}
-        <Card className="shadow-lg">
-          <CardHeader>
+        <Card className="shadow-lg">\n          <CardHeader>
             <CardTitle className="text-3xl text-center text-amber-800 dark:text-amber-300">
               Frequently Asked Questions
             </CardTitle>
@@ -407,8 +327,12 @@ export default function WorkshopSubscriptionPage() {
           <div className="space-y-2 text-sm opacity-90">
             <p>
               Questions? Contact us at{" "}
-              <a href="mailto:workshop@limenlakay.com" className="text-amber-300 hover:text-amber-200 underline">
-                workshop@limenlakay.com
+              <a href="mailto:info@limenlakay.com" className="text-amber-300 hover:text-amber-200 underline">
+                info@limenlakay.com
+              </a>
+              {" "}or call{" "}
+              <a href="tel:+15615930238" className="text-amber-300 hover:text-amber-200 underline">
+                (561) 593-0238
               </a>
             </p>
             <p>Visit us at limenlakay.com for more information</p>
