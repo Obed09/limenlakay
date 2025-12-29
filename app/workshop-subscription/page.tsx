@@ -38,13 +38,13 @@ const packages: WorkshopPackage[] = [
     name: "Single Workshop",
     price: 65,
     period: "/session",
-    description: "One-time experience",
+    description: "🎨 Create your masterpiece in one amazing session!",
     features: [
-      { text: "One 2.5-hour workshop", included: true },
-      { text: "All materials included", included: true },
-      { text: "Take-home vessel", included: true },
-      { text: "Digital guide", included: true },
-      { text: "Hands-on instruction", included: true },
+      { text: "One 2.5-hour hands-on workshop", included: true },
+      { text: "All materials included - we've got you covered!", included: true },
+      { text: "Take home your beautiful custom vessel", included: true },
+      { text: "Step-by-step digital guide for future projects", included: true },
+      { text: "Expert hands-on instruction throughout", included: true },
       { text: "All tools and safety gear provided", included: true },
     ],
   },
@@ -86,6 +86,8 @@ const galleryImages = [
   { src: "https://images.unsplash.com/photo-1590736966893-4e81daef4e57?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80", alt: "Workshop in progress" },
   { src: "https://images.unsplash.com/photo-1563241527-3004b7be0ffd?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80", alt: "Finished candles" },
   { src: "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80", alt: "Concrete texture" },
+  // TODO: Save your teal/gold concrete bowl image to: public/images/concrete-bowl.jpg
+  { src: "/images/concrete-bowl.jpg", alt: "Beautiful handcrafted concrete vessel with teal and gold accents" },
 ];
 
 export default function WorkshopSubscriptionPage() {
@@ -168,21 +170,24 @@ export default function WorkshopSubscriptionPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-amber-50 to-stone-100 dark:from-stone-950 dark:to-stone-900">
+    <div className="min-h-screen bg-gradient-to-br from-amber-100 via-orange-50 to-rose-100 dark:from-stone-950 dark:to-stone-900">
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         {/* Header */}
-        <header className="text-center mb-12 bg-gradient-to-br from-amber-700 to-amber-900 dark:from-amber-800 dark:to-amber-950 text-white rounded-2xl p-10 shadow-2xl">
-          <div className="text-6xl mb-4">🏺</div>
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">
+        <header className="text-center mb-12 bg-gradient-to-br from-orange-600 via-amber-600 to-yellow-500 dark:from-amber-800 dark:to-amber-950 text-white rounded-2xl p-10 shadow-2xl transform hover:scale-[1.01] transition-transform duration-300">
+          <div className="text-6xl mb-4 animate-bounce">🏺</div>
+          <h1 className="text-4xl md:text-5xl font-bold mb-4 drop-shadow-lg">
             Concrete Creations Workshop
           </h1>
-          <p className="text-lg md:text-xl mb-6 max-w-3xl mx-auto opacity-95">
-            Learn the art of making beautiful, durable candle vessels from cement. 
-            Join our hands-on workshop for beginners and create your own unique pieces.
+          <p className="text-lg md:text-xl mb-4 max-w-3xl mx-auto font-medium">
+            ✨ Unleash Your Creativity! Transform ordinary cement into extraordinary art pieces.
           </p>
-          <div className="inline-block bg-white/20 backdrop-blur-sm rounded-lg px-6 py-3">
-            <p className="font-semibold text-lg">
-              Next Session: April 15, 2026 | 2-4 PM | Limited to 12 Participants
+          <p className="text-base md:text-lg mb-6 max-w-3xl mx-auto opacity-95">
+            Discover the magic of working with your hands as you craft stunning, one-of-a-kind candle vessels. 
+            Perfect for beginners - no experience needed, just bring your enthusiasm!
+          </p>
+          <div className="inline-block bg-white/30 backdrop-blur-sm rounded-lg px-6 py-3 border-2 border-white/40 shadow-lg">
+            <p className="font-bold text-lg">
+              🔥 Next Session: April 15, 2026 | 2-4 PM | Only 12 Spots Available!
             </p>
           </div>
         </header>
@@ -191,7 +196,7 @@ export default function WorkshopSubscriptionPage() {
         <div className="grid lg:grid-cols-3 gap-8 mb-12">
           {/* Workshop Info */}
           <div className="lg:col-span-1">
-            <Card className="shadow-lg">
+            <Card className="shadow-xl border-2 border-amber-200 bg-gradient-to-br from-white to-amber-50/50 dark:from-stone-900 dark:to-stone-800">
               <CardHeader>
                 <CardTitle className="text-2xl text-amber-800 dark:text-amber-300">
                   Workshop Details
@@ -211,22 +216,22 @@ export default function WorkshopSubscriptionPage() {
             </Card>
 
             {/* Image Gallery */}
-            <Card className="mt-6 shadow-lg">
+            <Card className="mt-6 shadow-xl border-2 border-amber-200 bg-gradient-to-br from-white to-amber-50/50 dark:from-stone-900 dark:to-stone-800">
               <CardHeader>
-                <CardTitle className="text-xl text-amber-800 dark:text-amber-300">
-                  Gallery
+                <CardTitle className="text-xl text-transparent bg-clip-text bg-gradient-to-r from-orange-600 to-amber-600">
+                  Your Future Creations ✨
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 gap-3">
                   {galleryImages.map((image, index) => (
-                    <div key={index} className="relative overflow-hidden rounded-lg border-2 border-amber-200 dark:border-amber-800 h-32">
+                    <div key={index} className={`relative overflow-hidden rounded-lg border-3 border-amber-300 hover:border-orange-400 h-32 transform hover:scale-105 transition-all duration-300 shadow-md hover:shadow-xl ${index === 4 ? 'col-span-2' : ''}`}>
                       <Image
                         src={image.src}
                         alt={image.alt}
                         width={500}
                         height={300}
-                        className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
+                        className="w-full h-full object-cover"
                       />
                     </div>
                   ))}
@@ -237,16 +242,19 @@ export default function WorkshopSubscriptionPage() {
 
           {/* Subscription Options */}
           <div className="lg:col-span-2">
-            <h2 className="text-3xl font-bold text-amber-900 dark:text-amber-200 mb-6">
-              Book Your Workshop
+            <h2 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-600 to-amber-600 mb-2 text-center">
+              Reserve Your Spot Now!
             </h2>
+            <p className="text-center text-gray-600 dark:text-gray-300 mb-6 text-lg">
+              Join us for an unforgettable creative experience 🌟
+            </p>
             <div className="max-w-md mx-auto">
               {packages.map((pkg) => (
                 <Card
                   key={pkg.id}
-                  className="relative shadow-lg hover:shadow-2xl transition-all duration-300"
+                  className="relative shadow-2xl hover:shadow-3xl transition-all duration-300 border-4 border-amber-300 hover:border-orange-400 transform hover:-translate-y-1"
                 >
-                  <CardHeader className="bg-gradient-to-br from-stone-700 to-stone-800 text-white rounded-t-xl">\n                    <CardTitle className="text-xl">{pkg.name}</CardTitle>
+                  <CardHeader className="bg-gradient-to-br from-orange-600 via-amber-600 to-yellow-500 text-white rounded-t-xl">\n                    <CardTitle className="text-xl">{pkg.name}</CardTitle>
                     <div className="text-4xl font-bold my-3">
                       ${pkg.price}
                       <span className="text-base font-normal opacity-90">{pkg.period}</span>
@@ -272,10 +280,10 @@ export default function WorkshopSubscriptionPage() {
                     </ul>
                     <Button
                       onClick={() => handleBooking(pkg)}
-                      className="w-full bg-amber-700 hover:bg-amber-800 text-white"
+                      className="w-full bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
                       size="lg"
                     >
-                      Book Now
+                      🎨 Book Your Spot Now!
                     </Button>
                   </CardContent>
                 </Card>
