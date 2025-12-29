@@ -165,7 +165,7 @@ export default function WorkshopSubscriptionPage() {
     <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50">
       <div className="container mx-auto px-4 py-8 max-w-6xl">
         
-        {/* Hero Section with Left Card and Right Gallery */}
+        {/* Hero Section with Left Card and Right Gallery - PDF Design */}
         <div className="grid lg:grid-cols-5 gap-6 mb-12">
           {/* Left: Hero Card (2 columns) */}
           <div className="lg:col-span-2">
