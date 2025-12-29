@@ -147,8 +147,16 @@ export default function WorkshopSubscriptionPage() {
                 Our workshop is specifically designed for those new to cement crafting. Step-by-step guidance ensures 
                 you leave with a beautiful finished piece and newfound skills.
               </p>
+              <div className="bg-[#20b2aa]/10 border-l-4 border-[#20b2aa] p-6 rounded-r-lg mb-4">
+                <p className="text-[#20b2aa] text-lg font-bold mb-2">
+                  🎁 Exclusive Workshop Bonus!
+                </p>
+                <p className="text-white text-lg">
+                  Every participant receives a comprehensive PDF take-home guide with detailed instructions, tips, and techniques to download at the end of the workshop. Keep creating masterpieces long after you leave!
+                </p>
+              </div>
               <p className="text-[#20b2aa] text-lg font-semibold">
-                Bonus: Every participant receives a digital guide to continue creating at home!
+                Plus: Get instant access to our digital resource library for ongoing inspiration!
               </p>
             </div>
             <div className="bg-white/10 rounded-lg p-8 backdrop-blur-sm">
