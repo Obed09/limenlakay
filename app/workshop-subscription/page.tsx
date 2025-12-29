@@ -66,7 +66,7 @@ export default function WorkshopSubscriptionPage() {
       <section className="relative min-h-[600px] flex items-center">
         <div className="absolute inset-0">
           <Image
-            src="/images/vessel-100.png"
+            src="/images/workshop scene.png"
             alt="Concrete vessels"
             fill
             className="object-cover opacity-30"
@@ -145,7 +145,7 @@ export default function WorkshopSubscriptionPage() {
             <div className="bg-white/10 rounded-lg p-8 backdrop-blur-sm">
               <div className="aspect-square relative">
                 <Image
-                  src="/images/vessel-101.png"
+                  src="/images/workshop image.png"
                   alt="Workshop participant"
                   fill
                   className="object-contain"
@@ -217,8 +217,8 @@ export default function WorkshopSubscriptionPage() {
             {[
               "/images/vessel-100.png",
               "/images/vessel-101.png",
-              "/images/vessel-102.png",
-              "/images/vessel-103.png",
+              "/images/IMG-20251015-WA0008.jpg",
+              "/images/new vessel 6.jpeg",
             ].map((src, index) => (
               <div key={index} className="aspect-square relative bg-white rounded-lg overflow-hidden">
                 <Image
@@ -243,7 +243,7 @@ export default function WorkshopSubscriptionPage() {
             <div className="bg-white/10 rounded-lg p-8 backdrop-blur-sm">
               <div className="aspect-video relative">
                 <Image
-                  src="/images/vessel-104.png"
+                  src="/images/IMG-20251015-WA0011.jpg"
                   alt="Workshop studio"
                   fill
                   className="object-contain"
