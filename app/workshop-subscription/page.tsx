@@ -387,8 +387,8 @@ export default function WorkshopSubscriptionPage() {
           </p>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-6xl mx-auto">
             {[
-              "/images/empty vessel 1.jpeg",
-              "/images/empty vessel 2.jpeg",
+              "/images/empty vessel 1.jpg",
+              "/images/empty vessel 2.png",
               "/images/IMG-20251015-WA0008.jpg",
               "/images/new vessel 6.jpeg",
             ].map((src, index) => (
