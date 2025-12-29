@@ -82,12 +82,12 @@ const faqs = [
 ];
 
 const galleryImages = [
-  { src: "https://images.unsplash.com/photo-1589939705384-5185137a7f0f?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80", alt: "Cement vessels" },
-  { src: "https://images.unsplash.com/photo-1590736966893-4e81daef4e57?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80", alt: "Workshop in progress" },
-  { src: "https://images.unsplash.com/photo-1563241527-3004b7be0ffd?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80", alt: "Finished candles" },
-  { src: "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80", alt: "Concrete texture" },
-  // TODO: Save your teal/gold concrete bowl image to: public/images/concrete-bowl.jpg
-  { src: "/images/concrete-bowl.jpg", alt: "Beautiful handcrafted concrete vessel with teal and gold accents" },
+  // Your actual workshop creations - save these images to public/images/
+  { src: "/images/teal-gold-bowl.jpg", alt: "Stunning teal and gold concrete bowl - workshop creation" },
+  { src: "/images/white-gold-vessel.jpg", alt: "Elegant white and gold textured vessel with lid" },
+  { src: "/images/burgundy-vessel.jpg", alt: "Beautiful burgundy ribbed concrete vessel" },
+  { src: "/images/teal-vessel-flowers.jpg", alt: "Teal vessel displayed with sunflower arrangement" },
+  { src: "/images/burgundy-vessel-flowers.jpg", alt: "Burgundy vessel with beautiful floral display" },
 ];
 
 export default function WorkshopSubscriptionPage() {
@@ -219,13 +219,16 @@ export default function WorkshopSubscriptionPage() {
             <Card className="mt-6 shadow-xl border-2 border-amber-200 bg-gradient-to-br from-white to-amber-50/50 dark:from-stone-900 dark:to-stone-800">
               <CardHeader>
                 <CardTitle className="text-xl text-transparent bg-clip-text bg-gradient-to-r from-orange-600 to-amber-600">
-                  Your Future Creations ✨
+                  Real Creations from Our Workshop! 🎨
                 </CardTitle>
+                <p className="text-sm text-gray-600 dark:text-gray-300 mt-2">
+                  These beautiful vessels were handcrafted by participants just like you!
+                </p>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 gap-3">
                   {galleryImages.map((image, index) => (
-                    <div key={index} className={`relative overflow-hidden rounded-lg border-3 border-amber-300 hover:border-orange-400 h-32 transform hover:scale-105 transition-all duration-300 shadow-md hover:shadow-xl ${index === 4 ? 'col-span-2' : ''}`}>
+                    <div key={index} className={`relative overflow-hidden rounded-lg border-3 border-amber-300 hover:border-orange-400 transform hover:scale-105 transition-all duration-300 shadow-md hover:shadow-xl ${index >= 3 ? 'h-40' : 'h-32'} ${index === 4 ? 'col-span-2' : ''}`}>
                       <Image
                         src={image.src}
                         alt={image.alt}
