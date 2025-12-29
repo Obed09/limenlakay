@@ -151,8 +151,6 @@ export default function WorkshopSubscriptionPage() {
     setShowPaymentModal(true);
   };
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
