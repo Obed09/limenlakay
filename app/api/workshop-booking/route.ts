@@ -55,8 +55,36 @@ export async function POST(request: Request) {
       );
     }
 
-    // TODO: Send confirmation email
-    // You can use your existing email notification system here
+    // Fetch workshop session details for the selected date
+    const { data: session } = await supabase
+      .from("workshop_sessions")
+      .select("*")
+      .eq("session_date", workshopDate)
+      .single();
+
+    // Send confirmation email
+    try {
+      const emailResponse = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/workshop-booking/send-email`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          to: email,
+          name,
+          date: workshopDate,
+          time: session?.session_time || 'TBD',
+          meetingLink: session?.meeting_link || 'Link will be sent closer to the date',
+        }),
+      });
+
+      if (!emailResponse.ok) {
+        console.error("Failed to send confirmation email");
+      }
+    } catch (emailError) {
+      console.error("Error sending confirmation email:", emailError);
+      // Don't fail the booking if email fails
+    }
 
     return NextResponse.json(
       {
