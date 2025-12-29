@@ -1,5 +1,5 @@
 "use client";
-// Created from design slides - December 29, 2025
+// Updated with inline booking form - December 29, 2025 - Version 2.0
 
 import { useState } from "react";
 import Image from "next/image";
