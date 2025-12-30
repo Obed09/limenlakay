@@ -387,10 +387,10 @@ export default function WorkshopSubscriptionPage() {
           </p>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-6xl mx-auto">
             {[
-              "/images/empty vessel 1.jpg",
-              "/images/empty vessel 2.png",
-              "/images/IMG-20251015-WA0008.jpg",
-              "/images/new vessel 6.jpeg",
+              "/images/new vessel 4.jpeg",
+              "/images/new vessel 9.jpeg",
+              "/images/new vessels 10.png",
+              "/images/blue empty vessel .jpeg",
             ].map((src, index) => (
               <div key={index} className="aspect-square relative bg-white rounded-lg overflow-hidden p-4">
                 <Image
