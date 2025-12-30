@@ -505,8 +505,172 @@ export default function WorkshopSubscriptionPage() {
         </div>
       </section>
 
-      {/* How to Book */}
+      {/* Recommended Materials */}
       <section className="py-16 bg-[#233d4d]">
+        <div className="container mx-auto px-4">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="text-4xl font-bold text-white mb-4">
+                Recommended Materials
+              </h2>
+              <p className="text-gray-300 text-lg">
+                While we provide all essential supplies, these optional items can enhance your creative experience
+              </p>
+            </div>
+
+            {/* Product Links */}
+            <div className="grid md:grid-cols-3 gap-6 mb-12">
+              <Card className="bg-[#1e3a47] border-[#20b2aa]">
+                <CardContent className="p-6 space-y-4">
+                  <div className="h-48 bg-white/10 rounded-lg flex items-center justify-center">
+                    <span className="text-6xl">😷</span>
+                  </div>
+                  <h3 className="text-xl font-bold text-white">
+                    Safety First: Respirator Mask
+                  </h3>
+                  <p className="text-gray-300 text-sm">
+                    Dual-filtration respirator mask from AirGearPro provides reliable protection while working with concrete materials.
+                  </p>
+                  <a
+                    href="https://a.co/d/hDJm06I"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block"
+                  >
+                    <Button className="w-full bg-[#20b2aa] hover:bg-[#1a9e96]">
+                      View on Amazon
+                    </Button>
+                  </a>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-[#1e3a47] border-[#20b2aa]">
+                <CardContent className="p-6 space-y-4">
+                  <div className="h-48 bg-white/10 rounded-lg flex items-center justify-center">
+                    <span className="text-6xl">🥣</span>
+                  </div>
+                  <h3 className="text-xl font-bold text-white">
+                    Norpro Silicone Bowl Set
+                  </h3>
+                  <p className="text-gray-300 text-sm">
+                    Perfect for mixing and preparing your concrete materials. Flexible, easy to clean, and durable for all your crafting needs.
+                  </p>
+                  <a
+                    href="https://a.co/d/hMk4j9a"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block"
+                  >
+                    <Button className="w-full bg-[#20b2aa] hover:bg-[#1a9e96]">
+                      View on Amazon
+                    </Button>
+                  </a>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-[#1e3a47] border-[#20b2aa]">
+                <CardContent className="p-6 space-y-4">
+                  <div className="h-48 bg-white/10 rounded-lg flex items-center justify-center">
+                    <span className="text-6xl">🧤</span>
+                  </div>
+                  <h3 className="text-xl font-bold text-white">
+                    Protective Vinyl Gloves
+                  </h3>
+                  <p className="text-gray-300 text-sm">
+                    Powder-free, latex-free synthetic vinyl exam gloves provide affordable yet reliable hand protection for your creative process.
+                  </p>
+                  <a
+                    href="https://a.co/d/9EawD9T"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block"
+                  >
+                    <Button className="w-full bg-[#20b2aa] hover:bg-[#1a9e96]">
+                      View on Amazon
+                    </Button>
+                  </a>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Mold Options */}
+            <div className="bg-[#1e3a47] rounded-lg p-8 border-2 border-[#20b2aa]">
+              <h3 className="text-2xl font-bold text-white mb-6 text-center">
+                Creative Mold Options
+              </h3>
+              <p className="text-gray-300 text-center mb-8">
+                Explore these versatile silicone molds to expand your concrete crafting possibilities
+              </p>
+              <div className="grid md:grid-cols-3 gap-6">
+                <div className="space-y-3">
+                  <div className="aspect-square relative bg-white rounded-lg overflow-hidden">
+                    <Image
+                      src="/images/silicone cooking spoons.png"
+                      alt="Silicone cooking spoons molds"
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                  <h4 className="text-lg font-semibold text-white text-center">
+                    Cooking Spoon Molds
+                  </h4>
+                  <p className="text-sm text-gray-300 text-center">
+                    Create decorative concrete spoons
+                  </p>
+                </div>
+
+                <div className="space-y-3">
+                  <div className="aspect-square relative bg-white rounded-lg overflow-hidden">
+                    <Image
+                      src="/images/silicone creative pot molds.png"
+                      alt="Silicone creative pot molds"
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                  <h4 className="text-lg font-semibold text-white text-center">
+                    Creative Pot Molds
+                  </h4>
+                  <p className="text-sm text-gray-300 text-center">
+                    Design unique planters and vessels
+                  </p>
+                </div>
+
+                <div className="space-y-3">
+                  <div className="aspect-square relative bg-white rounded-lg overflow-hidden">
+                    <Image
+                      src="/images/silicone storage jar molds.png"
+                      alt="Silicone storage jar molds"
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                  <h4 className="text-lg font-semibold text-white text-center">
+                    Storage Jar Molds
+                  </h4>
+                  <p className="text-sm text-gray-300 text-center">
+                    Craft beautiful storage containers
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Color Tip */}
+            <div className="mt-8 text-center p-6 bg-[#20b2aa]/10 rounded-lg border-2 border-[#20b2aa]">
+              <h4 className="text-xl font-bold text-white mb-3">
+                ✨ Pro Tip: Add Your Personal Touch
+              </h4>
+              <p className="text-gray-300 text-lg">
+                Want to customize your creation with vibrant colors? Pick up concrete pigments or acrylic paints at your local craft store! 
+                We&apos;ll show you how to incorporate them beautifully into your designs.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* How to Book */}
+      <section className="py-16 bg-[#1e3a47]">
         <div className="container mx-auto px-4">
           <h2 className="text-4xl font-bold text-white mb-12 text-center">
             How to Book
