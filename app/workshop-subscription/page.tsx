@@ -43,7 +43,7 @@ export default function WorkshopSubscriptionPage() {
         body: JSON.stringify({
           ...formData,
           packageType: "single",
-          packagePrice: 100,
+          packagePrice: 120,
         }),
       });
 
@@ -189,7 +189,7 @@ export default function WorkshopSubscriptionPage() {
                   Single Workshop
                 </h3>
                 <div className="text-5xl font-bold text-white mb-6">
-                  $100 <span className="text-xl font-normal">one-time</span>
+                  $120 <span className="text-xl font-normal">one-time</span>
                 </div>
                 <ul className="space-y-3 mb-8">
                   <li className="flex items-start gap-3 text-white">
@@ -367,7 +367,7 @@ export default function WorkshopSubscriptionPage() {
                     disabled={isSubmitting}
                     className="w-full bg-[#20b2aa] hover:bg-[#1a9988] text-white text-lg py-6 font-bold"
                   >
-                    {isSubmitting ? "Processing..." : "Complete Booking - $100"}
+                    {isSubmitting ? "Processing..." : "Complete Booking - $120"}
                   </Button>
                 </form>
               </CardContent>
