@@ -116,16 +116,7 @@ export default function WorkshopSubscriptionPage() {
                 2.5 Hours of Creating
               </h3>
               <p className="text-gray-300 leading-relaxed">
-                Immerse yourself in a relaxed, guided session where you&apos;ll learn techniques from start to finish.
-              </p>
-            </div>
-            <div className="text-center">
-              <Users className="w-16 h-16 text-[#20b2aa] mx-auto mb-4" />
-              <h3 className="text-2xl font-bold text-white mb-4">
-                Small Group Setting
-              </h3>
-              <p className="text-gray-300 leading-relaxed">
-                Enjoy personalized attention with intimate class sizes designed for hands-on learning.
+                Immerse yourself in a relaxed, guided Zoom session where you&apos;ll learn techniques from start to finish.
               </p>
             </div>
           </div>
@@ -179,9 +170,6 @@ export default function WorkshopSubscriptionPage() {
           <h2 className="text-4xl font-bold text-white mb-4 text-center">
             Workshop Pricing
           </h2>
-          <p className="text-gray-300 text-center mb-12">
-            Simple, transparent pricing with everything included.
-          </p>
           <div className="max-w-xl mx-auto">
             <Card className="bg-[#20b2aa] border-0">
               <CardContent className="p-8">
@@ -194,15 +182,11 @@ export default function WorkshopSubscriptionPage() {
                 <ul className="space-y-3 mb-8">
                   <li className="flex items-start gap-3 text-white">
                     <CheckCircle2 className="w-5 h-5 mt-1 flex-shrink-0" />
-                    <span>2.5-hour hands-on session</span>
+                    <span>2.5-hour live Zoom session</span>
                   </li>
                   <li className="flex items-start gap-3 text-white">
                     <CheckCircle2 className="w-5 h-5 mt-1 flex-shrink-0" />
-                    <span>All materials provided</span>
-                  </li>
-                  <li className="flex items-start gap-3 text-white">
-                    <CheckCircle2 className="w-5 h-5 mt-1 flex-shrink-0" />
-                    <span>Take home your creation</span>
+                    <span>Step-by-step guidance</span>
                   </li>
                   <li className="flex items-start gap-3 text-white">
                     <CheckCircle2 className="w-5 h-5 mt-1 flex-shrink-0" />
@@ -478,16 +462,6 @@ export default function WorkshopSubscriptionPage() {
                 </h3>
                 <p className="text-gray-300">
                   Wear comfortable clothes you don&apos;t mind getting a little dusty. Aprons are provided.
-                </p>
-              </CardContent>
-            </Card>
-            <Card className="bg-transparent border-2 border-[#20b2aa]">
-              <CardContent className="p-6">
-                <h3 className="text-xl font-bold text-white mb-3">
-                  Can I take my vessel home?
-                </h3>
-                <p className="text-gray-300">
-                  Yes! Your finished creation is yours to keep. We&apos;ll package it safely for transport.
                 </p>
               </CardContent>
             </Card>
