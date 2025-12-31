@@ -104,19 +104,23 @@ export default function WorkshopSubscriptionPage() {
       </section>
 
       {/* What You'll Experience */}
-      <section className="py-16 bg-[#233d4d]">
+      <section className="py-20 bg-[#233d4d]">
         <div className="container mx-auto px-4">
-          <h2 className="text-4xl font-bold text-white mb-12 text-center">
+          <h2 className="text-4xl md:text-5xl font-bold text-white mb-4 text-center">
             What You&apos;ll Experience
           </h2>
-          <div className="grid md:grid-cols-2 gap-12 max-w-4xl mx-auto">
-            <div className="text-center">
-              <Clock className="w-16 h-16 text-[#20b2aa] mx-auto mb-4" />
-              <h3 className="text-2xl font-bold text-white mb-4">
+          <p className="text-gray-300 text-center text-lg mb-16 max-w-2xl mx-auto">
+            Join our interactive live Zoom workshop and learn professional techniques
+          </p>
+          <div className="max-w-2xl mx-auto">
+            <div className="text-center bg-[#20b2aa]/10 border-2 border-[#20b2aa] rounded-2xl p-12">
+              <Clock className="w-20 h-20 text-[#20b2aa] mx-auto mb-6" />
+              <h3 className="text-3xl font-bold text-white mb-6">
                 2.5 Hours of Creating
               </h3>
-              <p className="text-gray-300 leading-relaxed">
-                Immerse yourself in a relaxed, guided Zoom session where you&apos;ll learn techniques from start to finish.
+              <p className="text-gray-300 text-lg leading-relaxed">
+                Immerse yourself in a relaxed, guided Zoom session where you&apos;ll learn techniques from start to finish. 
+                Perfect for beginners and creative enthusiasts alike.
               </p>
             </div>
           </div>
@@ -124,30 +128,31 @@ export default function WorkshopSubscriptionPage() {
       </section>
 
       {/* Perfect for Beginners */}
-      <section className="py-16 bg-[#1e3a47]">
+      <section className="py-20 bg-[#1e3a47]">
         <div className="container mx-auto px-4">
-          <h2 className="text-4xl font-bold text-white mb-12 text-center">
+          <h2 className="text-4xl md:text-5xl font-bold text-white mb-16 text-center">
             Perfect for Beginners
           </h2>
           <div className="grid md:grid-cols-2 gap-12 items-center max-w-6xl mx-auto">
-            <div>
-              <h3 className="text-3xl font-bold text-white mb-6">
+            <div className="space-y-6">
+              <h3 className="text-3xl font-bold text-white">
                 No Experience Needed
               </h3>
-              <p className="text-gray-300 text-lg mb-6 leading-relaxed">
+              <p className="text-gray-300 text-lg leading-relaxed">
                 Our workshop is specifically designed for those new to cement crafting. Step-by-step guidance ensures 
                 you leave with a beautiful finished piece and newfound skills.
               </p>
-              <div className="bg-[#20b2aa]/10 border-l-4 border-[#20b2aa] p-6 rounded-r-lg mb-4">
-                <p className="text-[#20b2aa] text-lg font-bold mb-2">
+              <div className="bg-[#20b2aa]/10 border-l-4 border-[#20b2aa] p-6 rounded-r-lg">
+                <p className="text-[#20b2aa] text-xl font-bold mb-3">
                   🎁 Exclusive Workshop Bonus!
                 </p>
-                <p className="text-white text-lg">
+                <p className="text-white text-lg leading-relaxed">
                   Every participant receives a comprehensive PDF take-home guide with detailed instructions, tips, and techniques to download at the end of the workshop. Keep creating masterpieces long after you leave!
                 </p>
               </div>
               <p className="text-[#20b2aa] text-lg font-semibold">
                 Plus: Get instant access to our digital resource library for ongoing inspiration!
+              </p>
               </p>
             </div>
             <div className="bg-white/10 rounded-lg p-8 backdrop-blur-sm">
@@ -165,14 +170,17 @@ export default function WorkshopSubscriptionPage() {
       </section>
 
       {/* Workshop Pricing */}
-      <section className="py-16 bg-[#233d4d]">
+      <section className="py-20 bg-[#233d4d]">
         <div className="container mx-auto px-4">
-          <h2 className="text-4xl font-bold text-white mb-4 text-center">
+          <h2 className="text-4xl md:text-5xl font-bold text-white mb-4 text-center">
             Workshop Pricing
           </h2>
+          <p className="text-gray-300 text-center text-lg mb-16 max-w-2xl mx-auto">
+            Affordable, all-inclusive pricing for your creative journey
+          </p>
           <div className="max-w-xl mx-auto">
-            <Card className="bg-[#20b2aa] border-0">
-              <CardContent className="p-8">
+            <Card className="bg-[#20b2aa] border-0 shadow-2xl">
+              <CardContent className="p-10">
                 <h3 className="text-3xl font-bold text-white mb-4">
                   Single Workshop
                 </h3>
@@ -206,17 +214,17 @@ export default function WorkshopSubscriptionPage() {
       </section>
 
       {/* Book Now Form */}
-      <section id="book-now" className="py-16 bg-[#1e3a47]">
+      <section id="book-now" className="py-20 bg-[#1e3a47]">
         <div className="container mx-auto px-4">
-          <h2 className="text-4xl font-bold text-white mb-4 text-center">
+          <h2 className="text-4xl md:text-5xl font-bold text-white mb-4 text-center">
             Book Your Workshop
           </h2>
-          <p className="text-gray-300 text-center mb-12">
+          <p className="text-gray-300 text-center text-lg mb-16">
             Complete the form below to reserve your spot
           </p>
           <div className="max-w-2xl mx-auto">
-            <Card className="bg-[#233d4d] border-0">
-              <CardContent className="p-8">
+            <Card className="bg-[#233d4d] border-0 shadow-2xl">
+              <CardContent className="p-10">
                 <form onSubmit={handleSubmit} className="space-y-6">
                   {/* Personal Information */}
                   <div>
@@ -361,15 +369,15 @@ export default function WorkshopSubscriptionPage() {
       </section>
 
       {/* Our Creations Gallery */}
-      <section className="py-16 bg-[#1e3a47]">
+      <section className="py-20 bg-[#1e3a47]">
         <div className="container mx-auto px-4">
-          <h2 className="text-4xl font-bold text-white mb-4 text-center">
+          <h2 className="text-4xl md:text-5xl font-bold text-white mb-4 text-center">
             Our Creations
           </h2>
-          <p className="text-gray-300 text-center mb-12">
-            Explore the beautiful vessels crafted in our workshops.
+          <p className="text-gray-300 text-center text-lg mb-16 max-w-2xl mx-auto">
+            Explore the beautiful vessels crafted in our workshops
           </p>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-6xl mx-auto">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-6xl mx-auto">
             {[
               "/images/new vessel 4.jpeg",
               "/images/new vessel 9.jpeg",
@@ -390,11 +398,14 @@ export default function WorkshopSubscriptionPage() {
       </section>
 
       {/* Workshop Location */}
-      <section className="py-16 bg-[#233d4d]">
+      <section className="py-20 bg-[#233d4d]">
         <div className="container mx-auto px-4">
-          <h2 className="text-4xl font-bold text-white mb-12 text-center">
+          <h2 className="text-4xl md:text-5xl font-bold text-white mb-4 text-center">
             Workshop Location
           </h2>
+          <p className="text-gray-300 text-center text-lg mb-16 max-w-2xl mx-auto">
+            Join from the comfort of your home
+          </p>
           <div className="grid md:grid-cols-2 gap-12 items-center max-w-5xl mx-auto">
             <div className="bg-white/10 rounded-lg p-8 backdrop-blur-sm">
               <div className="aspect-video relative">
@@ -439,11 +450,14 @@ export default function WorkshopSubscriptionPage() {
       </section>
 
       {/* FAQ */}
-      <section className="py-16 bg-[#1e3a47]">
+      <section className="py-20 bg-[#1e3a47]">
         <div className="container mx-auto px-4">
-          <h2 className="text-4xl font-bold text-white mb-12 text-center">
+          <h2 className="text-4xl md:text-5xl font-bold text-white mb-4 text-center">
             Frequently Asked Questions
           </h2>
+          <p className="text-gray-300 text-center text-lg mb-16 max-w-2xl mx-auto">
+            Everything you need to know about our workshop
+          </p>
           <div className="grid md:grid-cols-2 gap-6 max-w-5xl mx-auto">
             <Card className="bg-transparent border-2 border-[#20b2aa]">
               <CardContent className="p-6">
@@ -480,20 +494,20 @@ export default function WorkshopSubscriptionPage() {
       </section>
 
       {/* Recommended Materials */}
-      <section className="py-16 bg-[#233d4d]">
+      <section className="py-20 bg-[#233d4d]">
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
-            <div className="text-center mb-12">
-              <h2 className="text-4xl font-bold text-white mb-4">
+            <div className="text-center mb-16">
+              <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
                 Recommended Materials
               </h2>
-              <p className="text-gray-300 text-lg">
+              <p className="text-gray-300 text-lg max-w-3xl mx-auto">
                 While we provide all essential supplies, these optional items can enhance your creative experience
               </p>
             </div>
 
             {/* Product Links */}
-            <div className="grid md:grid-cols-3 gap-6 mb-12">
+            <div className="grid md:grid-cols-3 gap-8 mb-12">
               <Card className="bg-[#1e3a47] border-[#20b2aa]">
                 <CardContent className="p-6 space-y-4">
                   <div className="h-48 bg-white/10 rounded-lg flex items-center justify-center">
