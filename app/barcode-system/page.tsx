@@ -28,16 +28,26 @@ export default function BarcodeSystemPage() {
     id: string;
     name: string;
     sku: string;
+    trackingCode: string;
   }>>([]);
 
   const labelRef = useRef<HTMLDivElement>(null);
 
+  // Generate unique tracking code
+  const generateTrackingCode = (sku: string) => {
+    const timestamp = Date.now().toString(36);
+    const random = Math.random().toString(36).substring(2, 7);
+    return `TRK-${sku}-${timestamp}-${random}`.toUpperCase();
+  };
+
   const handleAddProduct = () => {
     if (productName && sku) {
+      const trackingCode = generateTrackingCode(sku);
       const newProduct = {
         id: Date.now().toString(),
         name: productName,
         sku: sku,
+        trackingCode: trackingCode,
       };
       setProducts([...products, newProduct]);
     }
@@ -75,7 +85,10 @@ export default function BarcodeSystemPage() {
         }, 250);
       }
     }
-  };
+  // Generate tracking URL for QR code
+  const trackingCode = generateTrackingCode(sku);
+  const trackingUrl = `https://www.limenlakay.com/track/${trackingCode}`;
+  const qrCodeData = trackingUrl
 
   const qrCodeData = `Product: ${productName}\nSKU: ${sku}\nPhone: ${phone}\nEmail: ${email}\nWebsite: ${website}`;
 
@@ -332,9 +345,19 @@ export default function BarcodeSystemPage() {
                   </div>
                 </div>
 
+                {/* Product Name - Eye-catching */}
+                <div className="text-center mb-4">
+                  <div className="bg-gradient-to-r from-purple-600 via-pink-500 to-yellow-500 p-[2px] rounded-lg">
+                    <div className="bg-white px-4 py-3 rounded-[6px]">
+                      <h3 className="text-xl font-bold bg-gradient-to-r from-purple-600 via-pink-500 to-yellow-500 bg-clip-text text-transparent">
+                        {productName}
+                      </h3>
+                    </div>
+                  </div>
+                </div>
+
                 {/* Contact Info */}
                 <div className="text-center text-xs space-y-1 bg-gray-50 p-3 rounded">
-                  <p className="font-semibold">{productName}</p>
                   <p>📞 {phone}</p>
                   <p>✉️ {email}</p>
                   <p>🌐 {website}</p>
@@ -360,8 +383,11 @@ export default function BarcodeSystemPage() {
                     <h4 className="font-semibold text-gray-900 mb-2">
                       {product.name}
                     </h4>
-                    <p className="text-sm text-gray-600 mb-3">
+                    <p className="text-sm text-gray-600 mb-1">
                       SKU: {product.sku}
+                    </p>
+                    <p className="text-xs text-purple-600 mb-3 font-mono break-all">
+                      Track: {product.trackingCode}
                     </p>
                     <div className="flex justify-center mb-2">
                       <Barcode
@@ -371,12 +397,15 @@ export default function BarcodeSystemPage() {
                         fontSize={10}
                       />
                     </div>
-                    <div className="flex justify-center">
+                    <div className="flex justify-center mb-2">
                       <QRCodeCanvas
-                        value={`Product: ${product.name}\nSKU: ${product.sku}\nPhone: ${phone}\nEmail: ${email}\nWebsite: ${website}`}
+                        value={`https://www.limenlakay.com/track/${product.trackingCode}`}
                         size={80}
                       />
                     </div>
+                    <p className="text-xs text-center text-gray-500 mt-2">
+                      Scan to track
+                    </p>
                   </div>
                 ))}
               </div>
