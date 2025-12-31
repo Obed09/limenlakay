@@ -5,125 +5,69 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { product, retailer, actionType, quantity, salePrice, notes } = body;
 
-    // Email configuration
-    const adminEmail = "info@limenlakay.com";
+    // Telegram configuration
+    const telegramBotToken = process.env.TELEGRAM_BOT_TOKEN;
+    const telegramChatId = process.env.TELEGRAM_CHAT_ID;
+    
     const subject = `🔔 ${getActionEmoji(actionType)} ${getActionTitle(actionType)} - ${product.product_name}`;
     
-    const emailBody = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center;">
-          <h1 style="color: white; margin: 0; font-size: 28px;">Limen Lakay Inventory Alert</h1>
-        </div>
-        
-        <div style="padding: 30px; background: #f9fafb;">
-          <h2 style="color: #1f2937; margin-bottom: 20px;">${getActionTitle(actionType)}</h2>
-          
-          <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-            <h3 style="color: #6366f1; margin-top: 0;">Product Information</h3>
-            <table style="width: 100%; border-collapse: collapse;">
-              <tr>
-                <td style="padding: 8px 0; color: #6b7280; border-bottom: 1px solid #e5e7eb;">Product:</td>
-                <td style="padding: 8px 0; font-weight: bold; text-align: right; border-bottom: 1px solid #e5e7eb;">${product.product_name}</td>
-              </tr>
-              <tr>
-                <td style="padding: 8px 0; color: #6b7280; border-bottom: 1px solid #e5e7eb;">SKU:</td>
-                <td style="padding: 8px 0; font-weight: bold; text-align: right; border-bottom: 1px solid #e5e7eb;">${product.sku}</td>
-              </tr>
-              <tr>
-                <td style="padding: 8px 0; color: #6b7280; border-bottom: 1px solid #e5e7eb;">Tracking Code:</td>
-                <td style="padding: 8px 0; font-family: monospace; text-align: right; border-bottom: 1px solid #e5e7eb;">${product.tracking_code}</td>
-              </tr>
-              ${quantity ? `
-              <tr>
-                <td style="padding: 8px 0; color: #6b7280; border-bottom: 1px solid #e5e7eb;">Quantity:</td>
-                <td style="padding: 8px 0; font-weight: bold; text-align: right; border-bottom: 1px solid #e5e7eb;">${quantity} units</td>
-              </tr>
-              ` : ''}
-              ${salePrice ? `
-              <tr>
-                <td style="padding: 8px 0; color: #6b7280; border-bottom: 1px solid #e5e7eb;">Sale Price:</td>
-                <td style="padding: 8px 0; font-weight: bold; color: #10b981; text-align: right; border-bottom: 1px solid #e5e7eb;">$${parseFloat(salePrice).toFixed(2)}</td>
-              </tr>
-              ` : ''}
-              <tr>
-                <td style="padding: 8px 0; color: #6b7280;">Remaining Stock:</td>
-                <td style="padding: 8px 0; font-weight: bold; text-align: right;">${product.remaining_quantity || 'N/A'} units</td>
-              </tr>
-            </table>
-          </div>
-          
-          <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-            <h3 style="color: #6366f1; margin-top: 0;">Store Information</h3>
-            <table style="width: 100%; border-collapse: collapse;">
-              <tr>
-                <td style="padding: 8px 0; color: #6b7280; border-bottom: 1px solid #e5e7eb;">Store Name:</td>
-                <td style="padding: 8px 0; font-weight: bold; text-align: right; border-bottom: 1px solid #e5e7eb;">${retailer.name}</td>
-              </tr>
-              ${retailer.email ? `
-              <tr>
-                <td style="padding: 8px 0; color: #6b7280; border-bottom: 1px solid #e5e7eb;">Email:</td>
-                <td style="padding: 8px 0; text-align: right; border-bottom: 1px solid #e5e7eb;">${retailer.email}</td>
-              </tr>
-              ` : ''}
-              ${retailer.phone ? `
-              <tr>
-                <td style="padding: 8px 0; color: #6b7280; border-bottom: 1px solid #e5e7eb;">Phone:</td>
-                <td style="padding: 8px 0; text-align: right; border-bottom: 1px solid #e5e7eb;">${retailer.phone}</td>
-              </tr>
-              ` : ''}
-              <tr>
-                <td style="padding: 8px 0; color: #6b7280;">Access Code:</td>
-                <td style="padding: 8px 0; font-family: monospace; font-weight: bold; text-align: right;">${retailer.access_code}</td>
-              </tr>
-            </table>
-          </div>
-          
-          ${notes ? `
-          <div style="background: #fef3c7; padding: 15px; border-radius: 8px; border-left: 4px solid #f59e0b; margin-bottom: 20px;">
-            <strong style="color: #92400e;">Note:</strong>
-            <p style="margin: 5px 0 0 0; color: #78350f;">${notes}</p>
-          </div>
-          ` : ''}
-          
-          <div style="text-align: center; margin-top: 30px;">
-            <a href="https://www.limenlakay.com/inventory-dashboard" 
-               style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 40px; text-decoration: none; border-radius: 8px; font-weight: bold;">
-              View Dashboard
-            </a>
-          </div>
-        </div>
-        
-        <div style="padding: 20px; text-align: center; color: #6b7280; font-size: 12px; background: #f3f4f6;">
-          <p style="margin: 5px 0;">Limen Lakay - Handcrafted Candles</p>
-          <p style="margin: 5px 0;">📞 561 593 0238 | ✉️ info@limenlakay.com | 🌐 www.limenlakay.com</p>
-          <p style="margin: 5px 0; color: #9ca3af;">This is an automated notification from your inventory tracking system.</p>
-        </div>
-      </div>
-    `;
+    // Create Telegram message
+    const telegramMessage = `
+🔔 *${getActionTitle(actionType)}*
 
-    // Send email using your email service
-    // For now, we'll use the workshop email service if available
-    // Or you can integrate with SendGrid, SMTP2GO, etc.
-    
-    console.log("Notification email prepared:", {
-      to: adminEmail,
-      subject,
-      body: emailBody,
-    });
+📦 *Product Information*
+━━━━━━━━━━━━━━━━
+🏷️ Product: ${product.product_name}
+📋 SKU: \`${product.sku}\`
+🔗 Tracking: \`${product.tracking_code}\`${quantity ? `
+📊 Quantity: ${quantity} units` : ''}${salePrice ? `
+💵 Sale Price: $${parseFloat(salePrice).toFixed(2)}` : ''}
+📦 Remaining: ${product.remaining_quantity || 'N/A'} units
 
-    // TODO: Integrate with your email service
-    // Example with fetch to an email API:
-    /*
-    await fetch("YOUR_EMAIL_SERVICE_API", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        to: adminEmail,
-        subject: subject,
-        html: emailBody,
-      }),
-    });
-    */
+🏪 *Store Information*
+━━━━━━━━━━━━━━━━
+🏬 Store: ${retailer.name}${retailer.email ? `
+📧 Email: ${retailer.email}` : ''}${retailer.phone ? `
+📞 Phone: ${retailer.phone}` : ''}
+🔑 Code: \`${retailer.access_code}\`${notes ? `
+
+📝 *Note:*
+${notes}` : ''}
+
+🔗 [View Dashboard](https://www.limenlakay.com/inventory-dashboard)
+
+━━━━━━━━━━━━━━━━
+🕯️ Limen Lakay | 561 593 0238
+`;
+
+    // Send Telegram notification
+    if (telegramBotToken && telegramChatId) {
+      try {
+        const telegramResponse = await fetch(
+          `https://api.telegram.org/bot${telegramBotToken}/sendMessage`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              chat_id: telegramChatId,
+              text: telegramMessage,
+              parse_mode: "Markdown",
+              disable_web_page_preview: false,
+            }),
+          }
+        );
+
+        const telegramData = await telegramResponse.json();
+        
+        if (!telegramData.ok) {
+          console.error("Telegram API error:", telegramData);
+        }
+      } catch (error) {
+        console.error("Error sending Telegram notification:", error);
+      }
+    } else {
+      console.log("Telegram not configured. Message prepared:", telegramMessage);
+    }
 
     return NextResponse.json({ 
       success: true,
