@@ -64,7 +64,7 @@ export async function POST(request: Request) {
 
     // Send confirmation email
     try {
-      const emailResponse = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/workshop-booking/send-email`, {
+      const emailResponse = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.limenlakay.com'}/api/workshop-booking/send-email`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
