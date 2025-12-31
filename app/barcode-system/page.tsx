@@ -85,12 +85,12 @@ export default function BarcodeSystemPage() {
         }, 250);
       }
     }
+  };
+
   // Generate tracking URL for QR code
   const trackingCode = generateTrackingCode(sku);
   const trackingUrl = `https://www.limenlakay.com/track/${trackingCode}`;
-  const qrCodeData = trackingUrl
-
-  const qrCodeData = `Product: ${productName}\nSKU: ${sku}\nPhone: ${phone}\nEmail: ${email}\nWebsite: ${website}`;
+  const qrCodeData = trackingUrl;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 p-6">
