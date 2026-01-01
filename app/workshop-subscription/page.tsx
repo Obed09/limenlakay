@@ -153,7 +153,6 @@ export default function WorkshopSubscriptionPage() {
               <p className="text-[#20b2aa] text-lg font-semibold">
                 Plus: Get instant access to our digital resource library for ongoing inspiration!
               </p>
-              </p>
             </div>
             <div className="bg-white/10 rounded-lg p-8 backdrop-blur-sm">
               <div className="aspect-square relative">
