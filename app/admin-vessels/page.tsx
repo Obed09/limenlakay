@@ -650,18 +650,18 @@ export default function AdminVesselsPage() {
       }
 
       const vesselsToCreate = successful.map((result, index) => ({
-        name: `${result.analysis.color} Vessel`,
-        color: result.analysis.color,
+        name: `${result.analysis?.color || 'Unknown'} Vessel`,
+        color: result.analysis?.color || 'Unknown',
         size: result.suggestedMold ? `${result.suggestedMold.capacity_oz}oz` : '105',
         price: 39.00,
         image_url: result.imageUrl,
         stock_quantity: 0,
         is_available: false,
-        description: result.analysis.description,
+        description: result.analysis?.description || '',
         sku: `LL-${skuNumber + index}`,
         mold_id: result.suggestedMold?.id || null,
-        diameter_inches: result.analysis.diameter,
-        height_inches: result.analysis.height,
+        diameter_inches: result.analysis?.diameter || null,
+        height_inches: result.analysis?.height || null,
         capacity_oz: result.suggestedMold?.capacity_oz || null
       }));
 
@@ -1449,8 +1449,8 @@ export default function AdminVesselsPage() {
                       <p className="text-xs font-mono mb-2 truncate">{result.fileName}</p>
                       {result.success ? (
                         <>
-                          <p className="text-sm font-semibold mb-1">{result.analysis.color} Vessel</p>
-                          <p className="text-xs text-muted-foreground mb-2">{result.analysis.description}</p>
+                          <p className="text-sm font-semibold mb-1">{result.analysis?.color || 'Unknown'} Vessel</p>
+                          <p className="text-xs text-muted-foreground mb-2">{result.analysis?.description || 'No description'}</p>
                           {result.suggestedMold && (
                             <div className="bg-white dark:bg-gray-900 rounded p-2 mb-2">
                               <p className="text-xs font-medium">{result.suggestedMold.name}</p>
@@ -1830,7 +1830,7 @@ export default function AdminVesselsPage() {
                       <span className="text-sm font-medium">Available for Sale</span>
                       <Switch
                         checked={candle.is_available}
-                        onCheckedChange={() => toggleCandleAvailability(candle.id, candle.is_available)}
+                        onCheckedChange={() => toggleCandleAvailability(candle)}
                       />
                     </div>
                     <div className="flex gap-2">
