@@ -1,5 +1,5 @@
 "use client";
-// Updated with inline booking form - December 29, 2025 - Version 2.0
+// Updated with Stripe payment integration
 
 import { useState } from "react";
 import Image from "next/image";
@@ -15,7 +15,8 @@ import {
   UserCheck,
   CheckCircle2,
   Phone,
-  Mail
+  Mail,
+  Loader2
 } from "lucide-react";
 
 export default function WorkshopSubscriptionPage() {
@@ -25,9 +26,6 @@ export default function WorkshopSubscriptionPage() {
     email: "",
     phone: "",
     workshopDate: "",
-    cardNumber: "",
-    expiry: "",
-    cvv: "",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -35,7 +33,8 @@ export default function WorkshopSubscriptionPage() {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch("/api/workshop-booking", {
+      // Create Stripe checkout session
+      const response = await fetch("/api/create-checkout-session", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -43,28 +42,23 @@ export default function WorkshopSubscriptionPage() {
         body: JSON.stringify({
           ...formData,
           packageType: "single",
-          packagePrice: 120,
+          packagePrice: 90,
         }),
       });
 
       if (!response.ok) {
-        throw new Error("Failed to create booking");
+        throw new Error("Failed to create checkout session");
       }
 
-      alert("Booking confirmed! Check your email for details.");
-      setFormData({ 
-        name: "", 
-        email: "", 
-        phone: "", 
-        workshopDate: "",
-        cardNumber: "",
-        expiry: "",
-        cvv: "",
-      });
+      const { url } = await response.json();
+      
+      // Redirect to Stripe Checkout
+      if (url) {
+        window.location.href = url;
+      }
     } catch (error) {
-      console.error("Booking error:", error);
-      alert("Failed to complete booking. Please try again.");
-    } finally {
+      console.error("Checkout error:", error);
+      alert("Failed to start checkout. Please try again.");
       setIsSubmitting(false);
     }
   };
@@ -84,7 +78,7 @@ export default function WorkshopSubscriptionPage() {
         <div className="container mx-auto px-4 py-20 relative z-10">
           <div className="max-w-3xl">
             <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
-              Concrete Creations Workshop
+              Concrete Pouring Class
             </h1>
             <p className="text-xl text-gray-200 mb-6 leading-relaxed">
               Learn the art of crafting beautiful cement candle vessels in our hands-on beginner workshop. 
@@ -110,20 +104,8 @@ export default function WorkshopSubscriptionPage() {
             What You&apos;ll Experience
           </h2>
           <p className="text-gray-300 text-center text-lg mb-16 max-w-2xl mx-auto">
-            Join our interactive live Zoom workshop and learn professional techniques
+            Join our interactive live Zoom class and learn professional cement vessel pouring techniques from start to finish. Perfect for beginners and creative enthusiasts alike.
           </p>
-          <div className="max-w-2xl mx-auto">
-            <div className="text-center bg-[#20b2aa]/10 border-2 border-[#20b2aa] rounded-2xl p-12">
-              <Clock className="w-20 h-20 text-[#20b2aa] mx-auto mb-6" />
-              <h3 className="text-3xl font-bold text-white mb-6">
-                2.5 Hours of Creating
-              </h3>
-              <p className="text-gray-300 text-lg leading-relaxed">
-                Immerse yourself in a relaxed, guided Zoom session where you&apos;ll learn techniques from start to finish. 
-                Perfect for beginners and creative enthusiasts alike.
-              </p>
-            </div>
-          </div>
         </div>
       </section>
 
@@ -184,7 +166,7 @@ export default function WorkshopSubscriptionPage() {
                   Single Workshop
                 </h3>
                 <div className="text-5xl font-bold text-white mb-6">
-                  $120 <span className="text-xl font-normal">one-time</span>
+                  $90 <span className="text-xl font-normal">one-time</span>
                 </div>
                 <ul className="space-y-3 mb-8">
                   <li className="flex items-start gap-3 text-white">
@@ -285,10 +267,10 @@ export default function WorkshopSubscriptionPage() {
                           required
                         >
                           <option value="" className="text-gray-900">Select a date</option>
-                          <option value="2025-01-10" className="text-gray-900">January 10, 2025</option>
-                          <option value="2025-01-17" className="text-gray-900">January 17, 2025</option>
-                          <option value="2025-01-24" className="text-gray-900">January 24, 2025</option>
-                          <option value="2025-01-31" className="text-gray-900">January 31, 2025</option>
+                          <option value="2026-01-23" className="text-gray-900">January 23, 2026</option>
+                          <option value="2026-02-06" className="text-gray-900">February 6, 2026</option>
+                          <option value="2026-02-20" className="text-gray-900">February 20, 2026</option>
+                          <option value="2026-03-06" className="text-gray-900">March 6, 2026</option>
                         </select>
                       </div>
                     </div>
@@ -299,55 +281,20 @@ export default function WorkshopSubscriptionPage() {
                     <h3 className="text-2xl font-bold text-white mb-4">
                       Payment Information
                     </h3>
-                    <div className="flex gap-2 mb-6">
-                      <div className="px-3 py-1 bg-white/20 rounded text-white text-sm font-semibold">VISA</div>
-                      <div className="px-3 py-1 bg-white/20 rounded text-white text-sm font-semibold">MC</div>
-                      <div className="px-3 py-1 bg-white/20 rounded text-white text-sm font-semibold">AMEX</div>
-                      <div className="px-3 py-1 bg-white/20 rounded text-white text-sm font-semibold">PayPal</div>
-                    </div>
-                    <div className="space-y-4">
-                      <div>
-                        <Label htmlFor="cardNumber" className="text-white mb-2 block">
-                          Card Number
-                        </Label>
-                        <Input
-                          id="cardNumber"
-                          type="text"
-                          value={formData.cardNumber}
-                          onChange={(e) => setFormData({ ...formData, cardNumber: e.target.value })}
-                          className="bg-white/20 border-white/30 text-white placeholder:text-white/60"
-                          placeholder="1234 5678 9012 3456"
-                          required
-                        />
-                      </div>
-                      <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-[#20b2aa]/20 border border-[#20b2aa]/50 rounded-lg p-4">
+                      <div className="flex items-start gap-3">
+                        <CreditCard className="w-6 w-6 text-[#20b2aa] mt-1 flex-shrink-0" />
                         <div>
-                          <Label htmlFor="expiry" className="text-white mb-2 block">
-                            Expiry Date
-                          </Label>
-                          <Input
-                            id="expiry"
-                            type="text"
-                            value={formData.expiry}
-                            onChange={(e) => setFormData({ ...formData, expiry: e.target.value })}
-                            className="bg-white/20 border-white/30 text-white placeholder:text-white/60"
-                            placeholder="MM/YY"
-                            required
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="cvv" className="text-white mb-2 block">
-                            CVV
-                          </Label>
-                          <Input
-                            id="cvv"
-                            type="text"
-                            value={formData.cvv}
-                            onChange={(e) => setFormData({ ...formData, cvv: e.target.value })}
-                            className="bg-white/20 border-white/30 text-white placeholder:text-white/60"
-                            placeholder="123"
-                            required
-                          />
+                          <h4 className="text-white font-semibold mb-1">Secure Payment with Stripe</h4>
+                          <p className="text-sm text-gray-300 mb-2">
+                            You'll be redirected to Stripe's secure checkout to complete your payment. 
+                          </p>
+                          <div className="flex gap-2 flex-wrap">
+                            <div className="px-2 py-1 bg-white/20 rounded text-white text-xs font-semibold">VISA</div>
+                            <div className="px-2 py-1 bg-white/20 rounded text-white text-xs font-semibold">Mastercard</div>
+                            <div className="px-2 py-1 bg-white/20 rounded text-white text-xs font-semibold">AMEX</div>
+                            <div className="px-2 py-1 bg-white/20 rounded text-white text-xs font-semibold">Discover</div>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -358,7 +305,17 @@ export default function WorkshopSubscriptionPage() {
                     disabled={isSubmitting}
                     className="w-full bg-[#20b2aa] hover:bg-[#1a9988] text-white text-lg py-6 font-bold"
                   >
-                    {isSubmitting ? "Processing..." : "Complete Booking - $120"}
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                        Processing...
+                      </>
+                    ) : (
+                      <>
+                        <CreditCard className="h-5 w-5 mr-2" />
+                        Proceed to Secure Checkout - $90
+                      </>
+                    )}
                   </Button>
                 </form>
               </CardContent>
@@ -740,7 +697,7 @@ export default function WorkshopSubscriptionPage() {
             Ready to Create?
           </h2>
           <p className="text-gray-300 text-lg mb-8">
-            Join our next Concrete Creations Workshop and discover the satisfaction of handcrafted artistry. 
+            Join our next Concrete Pouring Class and discover the satisfaction of handcrafted artistry. 
             Limited spots ensure personalized attention for every participant.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
