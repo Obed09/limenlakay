@@ -16,16 +16,16 @@ export function Hero() {
         </p>
         <div className="flex flex-col sm:flex-row gap-4 mt-8">
           <Link 
-            href="#products" 
+            href="/custom-order" 
             className="bg-amber-600 hover:bg-amber-700 text-white px-8 py-3 rounded-lg text-lg font-medium transition-colors"
           >
-            Shop Candles
+            Create Your Custom Candle
           </Link>
           <Link 
-            href="#about" 
+            href="#products" 
             className="border-2 border-amber-600 text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/20 px-8 py-3 rounded-lg text-lg font-medium transition-colors"
           >
-            Our Story
+            Browse Collection
           </Link>
         </div>
       </div>
