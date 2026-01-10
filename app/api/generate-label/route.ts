@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import QRCode from 'qrcode';
 
 export async function POST(request: NextRequest) {
   try {
@@ -12,8 +11,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generate QR code as data URL
-    const qrCodeUrl = await QRCode.toDataURL(url || `https://limenlakay.com/vessel/${sku}`, {
+    // Generate QR code as data URL using dynamic import
+    const QRCode = await import('qrcode');
+    const qrCodeUrl = await QRCode.default.toDataURL(url || `https://limenlakay.com/vessel/${sku}`, {
       width: 200,
       margin: 1,
       color: {
