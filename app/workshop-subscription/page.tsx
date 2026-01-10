@@ -42,7 +42,7 @@ export default function WorkshopSubscriptionPage() {
         body: JSON.stringify({
           ...formData,
           packageType: "single",
-          packagePrice: 90,
+          packagePrice: 120,
         }),
       });
 
@@ -166,7 +166,7 @@ export default function WorkshopSubscriptionPage() {
                   Single Workshop
                 </h3>
                 <div className="text-5xl font-bold text-white mb-6">
-                  $90 <span className="text-xl font-normal">one-time</span>
+                  $120 <span className="text-xl font-normal">one-time</span>
                 </div>
                 <ul className="space-y-3 mb-8">
                   <li className="flex items-start gap-3 text-white">
@@ -313,7 +313,7 @@ export default function WorkshopSubscriptionPage() {
                     ) : (
                       <>
                         <CreditCard className="h-5 w-5 mr-2" />
-                        Proceed to Secure Checkout - $90
+                        Proceed to Secure Checkout - $120
                       </>
                     )}
                   </Button>
