@@ -19,11 +19,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Dynamic import to prevent build-time errors
-    const OpenAI = (await import('openai')).default;
-    const openai = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY,
-    });
+    try {
+      // Dynamic import to prevent build-time errors
+      const OpenAI = (await import('openai')).default;
+      const openai = new OpenAI({
+        apiKey: process.env.OPENAI_API_KEY,
+      });
 
     // Call OpenAI GPT-4 Vision API
     const response = await openai.chat.completions.create({
@@ -95,6 +96,13 @@ Format your response as JSON:
       success: true,
       analysis: analysisData
     });
+    } catch (openaiError: any) {
+      console.error('OpenAI initialization error:', openaiError);
+      return NextResponse.json(
+        { error: 'AI service temporarily unavailable' },
+        { status: 503 }
+      );
+    }
 
   } catch (error) {
     console.error('AI Analysis Error:', error);
