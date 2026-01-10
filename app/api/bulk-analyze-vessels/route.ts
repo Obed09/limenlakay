@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import OpenAI from 'openai';
 
 export async function POST(request: NextRequest) {
   try {
@@ -27,6 +26,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Dynamic import to prevent build-time errors
+    const OpenAI = (await import('openai')).default;
     const openai = new OpenAI({
       apiKey: process.env.OPENAI_API_KEY,
     });
