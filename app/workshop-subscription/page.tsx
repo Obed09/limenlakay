@@ -171,10 +171,6 @@ export default function WorkshopSubscriptionPage() {
                 <ul className="space-y-3 mb-8">
                   <li className="flex items-start gap-3 text-white">
                     <CheckCircle2 className="w-5 h-5 mt-1 flex-shrink-0" />
-                    <span>2.5-hour live Zoom session</span>
-                  </li>
-                  <li className="flex items-start gap-3 text-white">
-                    <CheckCircle2 className="w-5 h-5 mt-1 flex-shrink-0" />
                     <span>Step-by-step guidance</span>
                   </li>
                   <li className="flex items-start gap-3 text-white">
