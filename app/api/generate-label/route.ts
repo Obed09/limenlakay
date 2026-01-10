@@ -12,6 +12,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Generate QR code as data URL using dynamic import
+    // @ts-ignore
     const QRCode = await import('qrcode');
     const qrCodeUrl = await QRCode.default.toDataURL(url || `https://limenlakay.com/vessel/${sku}`, {
       width: 200,
