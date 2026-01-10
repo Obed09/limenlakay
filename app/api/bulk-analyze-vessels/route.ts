@@ -26,11 +26,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Dynamic import to prevent build-time errors
-    const OpenAI = (await import('openai')).default;
-    const openai = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY,
-    });
+    try {
+      // Dynamic import to prevent build-time errors
+      const OpenAI = (await import('openai')).default;
+      const openai = new OpenAI({
+        apiKey: process.env.OPENAI_API_KEY,
+      });
 
     // Process each image with AI
     const results = await Promise.all(
@@ -132,6 +133,13 @@ Respond ONLY with valid JSON in this exact format:
         failed: failed.length
       }
     });
+    } catch (openaiError: any) {
+      console.error('OpenAI initialization error:', openaiError);
+      return NextResponse.json(
+        { success: false, error: 'AI service temporarily unavailable' },
+        { status: 503 }
+      );
+    }
 
   } catch (error) {
     console.error('Bulk analysis error:', error);
