@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CheckCircle2, Calendar, Mail } from 'lucide-react';
 import Link from 'next/link';
 
-export default function WorkshopSuccessPage() {
+function SuccessContent() {
   const searchParams = useSearchParams();
   const sessionId = searchParams.get('session_id');
   const [loading, setLoading] = useState(true);
@@ -90,5 +90,17 @@ export default function WorkshopSuccessPage() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function WorkshopSuccessPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-[#1e3a47] flex items-center justify-center">
+        <div className="text-white text-xl">Loading...</div>
+      </div>
+    }>
+      <SuccessContent />
+    </Suspense>
   );
 }
