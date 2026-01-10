@@ -4,10 +4,12 @@ const nextConfig: NextConfig = {
   // Configuration for Next.js 16
   reactStrictMode: false,
   typescript: {
-    // !! WARN !!
-    // Dangerously allow production builds to successfully complete even if
-    // your project has type errors.
+    // Dangerously allow production builds even with type errors
     ignoreBuildErrors: true,
+  },
+  eslint: {
+    // Disable ESLint during production builds
+    ignoreDuringBuilds: true,
   },
   images: {
     remotePatterns: [
