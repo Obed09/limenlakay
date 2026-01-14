@@ -103,16 +103,6 @@ export default function WorkshopSubscriptionPage() {
 
   return (
     <div className="min-h-screen bg-[#1e3a47]">
-      {/* Back Button */}
-      <div className="container mx-auto px-4 pt-6">
-        <Button asChild variant="outline" className="font-semibold text-base hover:bg-amber-50 dark:hover:bg-amber-950 bg-white/10 text-white border-white/20 hover:bg-white/20 hover:text-white">
-          <Link href="/" className="flex items-center gap-2">
-            <ArrowLeft className="w-5 h-5" />
-            Back to Home
-          </Link>
-        </Button>
-      </div>
-      
       {/* Hero Section */}
       <section className="relative min-h-[600px] flex items-center">
         <div className="absolute inset-0">
