@@ -27,6 +27,8 @@ interface Vessel {
   diameter_inches: number | null;
   height_inches: number | null;
   capacity_oz: number | null;
+  allow_custom_candle: boolean;
+  allow_empty_vessel: boolean;
 }
 
 interface Mold {
@@ -127,7 +129,9 @@ export default function AdminVesselsPage() {
     mold_id: '',
     diameter_inches: 0,
     height_inches: 0,
-    capacity_oz: 0
+    capacity_oz: 0,
+    allow_custom_candle: true,
+    allow_empty_vessel: false
   });
 
   const [candleFormData, setCandleFormData] = useState({
@@ -523,7 +527,9 @@ export default function AdminVesselsPage() {
       mold_id: vessel.mold_id || '',
       diameter_inches: vessel.diameter_inches || 0,
       height_inches: vessel.height_inches || 0,
-      capacity_oz: vessel.capacity_oz || 0
+      capacity_oz: vessel.capacity_oz || 0,
+      allow_custom_candle: vessel.allow_custom_candle ?? true,
+      allow_empty_vessel: vessel.allow_empty_vessel ?? false
     });
     setShowForm(true);
   };
@@ -1397,6 +1403,39 @@ export default function AdminVesselsPage() {
                   onCheckedChange={(checked) => setFormData(prev => ({ ...prev, is_available: checked }))}
                 />
                 <Label htmlFor="available">Available for customers to order</Label>
+              </div>
+
+              <div className="border-t pt-4 space-y-3">
+                <Label className="text-base font-semibold">Availability Options</Label>
+                <p className="text-sm text-muted-foreground">Control where this vessel appears for customers</p>
+                
+                <div className="flex items-center justify-between p-3 rounded-lg bg-blue-50 dark:bg-blue-950">
+                  <div className="flex-1">
+                    <Label htmlFor="allow-custom" className="font-medium">Allow Custom Candle Creation</Label>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Show in "Create Your Custom Candle" page where customers can pick a scent
+                    </p>
+                  </div>
+                  <Switch
+                    id="allow-custom"
+                    checked={formData.allow_custom_candle}
+                    onCheckedChange={(checked) => setFormData(prev => ({ ...prev, allow_custom_candle: checked }))}
+                  />
+                </div>
+
+                <div className="flex items-center justify-between p-3 rounded-lg bg-green-50 dark:bg-green-950">
+                  <div className="flex-1">
+                    <Label htmlFor="allow-empty" className="font-medium">Available as Empty Vessel</Label>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Customers can purchase this vessel empty (without candle/scent)
+                    </p>
+                  </div>
+                  <Switch
+                    id="allow-empty"
+                    checked={formData.allow_empty_vessel}
+                    onCheckedChange={(checked) => setFormData(prev => ({ ...prev, allow_empty_vessel: checked }))}
+                  />
+                </div>
               </div>
 
               <div className="flex gap-2">
