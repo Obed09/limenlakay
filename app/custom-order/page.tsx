@@ -8,8 +8,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Check, ShoppingCart, ArrowRight, ArrowLeft, Package } from 'lucide-react';
+import { Check, ShoppingCart, ArrowRight, ArrowLeft, Package, X, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import Link from 'next/link';
 
 interface Vessel {
   id: string;
@@ -44,6 +45,7 @@ export default function CustomOrderPage() {
   const [selectedScent, setSelectedScent] = useState<Scent | null>(null);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showNotice, setShowNotice] = useState(true);
   
   // Customer info
   const [customerInfo, setCustomerInfo] = useState({
@@ -67,6 +69,7 @@ export default function CustomOrderPage() {
             .from('candle_vessels')
             .select('*')
             .eq('is_available', true)
+            .eq('allow_custom_candle', true)
             .order('name'),
           supabase
             .from('candle_scents')
@@ -231,10 +234,51 @@ export default function CustomOrderPage() {
 
   return (
     <div className="container mx-auto p-6 max-w-7xl">
+      {/* Back Button */}
+      <div className="mb-6">
+        <Button asChild variant="outline" className="font-semibold text-base hover:bg-amber-50 dark:hover:bg-amber-950">
+          <Link href="/" className="flex items-center gap-2">
+            <ArrowLeft className="w-5 h-5" />
+            Back to Home
+          </Link>
+        </Button>
+      </div>
+
+      {/* Handmade Variation Notice Banner */}
+      {showNotice && (
+        <div className="mb-8 relative">
+          <Card className="border-2 border-amber-500 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950 dark:to-orange-950 shadow-lg">
+            <CardContent className="p-6">
+              <button
+                onClick={() => setShowNotice(false)}
+                className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+              >
+                <X className="w-5 h-5" />
+              </button>
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0">
+                  <Sparkles className="w-8 h-8 text-amber-600 dark:text-amber-400" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-extrabold text-gray-900 dark:text-gray-100 mb-2">
+                    ✨ Handmade Variation Notice
+                  </h3>
+                  <p className="text-base font-medium text-gray-700 dark:text-gray-300 leading-relaxed">
+                    Due to the artistic pouring technique, patterns will vary between vessels, even in the same color. 
+                    We celebrate these natural differences as part of each piece's character, ensuring your vessel is truly 
+                    <span className="font-bold text-amber-700 dark:text-amber-400"> one-of-a-kind</span>.
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
       {/* Header */}
       <div className="text-center mb-8">
-        <h1 className="text-4xl font-bold mb-2">Create Your Custom Candle</h1>
-        <p className="text-muted-foreground text-lg">
+        <h1 className="text-5xl font-extrabold mb-3 tracking-tight">Create Your Custom Candle</h1>
+        <p className="text-muted-foreground text-xl font-medium">
           Choose your vessel, pick your scent, and we'll create your perfect candle
         </p>
       </div>
