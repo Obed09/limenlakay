@@ -614,7 +614,7 @@ export default function WorkshopSubscriptionPage() {
                     />
                   </div>
                   <h4 className="text-lg font-semibold text-white text-center">
-                    Cooking Spoon Molds
+                    Silicone Cooking Spoon
                   </h4>
                   <p className="text-sm text-gray-300 text-center">
                     Create decorative concrete spoons
