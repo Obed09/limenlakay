@@ -57,17 +57,32 @@ When creating/editing a vessel, you'll see two toggle switches:
 
 ## Frontend Integration
 
-### Custom Candle Page (e.g., `/candle`)
-Filters vessels where `allow_custom_candle = true`:
+### Custom Candle Page (`/custom-order`)
+**✅ UPDATED** - Now filters vessels where `allow_custom_candle = true`:
 ```tsx
-const customVessels = vessels.filter(v => v.allow_custom_candle && v.is_available);
+supabase
+  .from('candle_vessels')
+  .select('*')
+  .eq('is_available', true)
+  .eq('allow_custom_candle', true)  // ← New filter added!
+  .order('name')
 ```
 
-### Empty Vessels Page (e.g., `/vessels` or `/shop`)
-Filters vessels where `allow_empty_vessel = true`:
+### Empty Vessels Page (Future - when created)
+Should filter vessels where `allow_empty_vessel = true`:
 ```tsx
-const emptyVessels = vessels.filter(v => v.allow_empty_vessel && v.is_available);
+const emptyVessels = await supabase
+  .from('candle_vessels')
+  .select('*')
+  .eq('is_available', true)
+  .eq('allow_empty_vessel', true)  // ← Filter for empty vessel shop
+  .order('name');
 ```
+
+### How It Works:
+1. **Admin toggles vessel settings** → Changes saved to database
+2. **Customer visits order page** → Query automatically filters based on toggles
+3. **Real-time updates** → Changes appear immediately (no caching)
 
 ## Step-by-Step: Setting Up Vessel Availability
 
