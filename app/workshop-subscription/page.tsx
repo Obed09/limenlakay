@@ -1,8 +1,9 @@
 "use client";
 // Updated with Stripe payment integration
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,17 +17,54 @@ import {
   CheckCircle2,
   Phone,
   Mail,
-  Loader2
+  Loader2,
+  ArrowLeft
 } from "lucide-react";
+
+interface WorkshopSession {
+  id: string;
+  session_date: string;
+  session_time: string;
+  meeting_link: string;
+  max_participants: number;
+  current_participants: number;
+  status: string;
+}
 
 export default function WorkshopSubscriptionPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [sessions, setSessions] = useState<WorkshopSession[]>([]);
+  const [loadingSessions, setLoadingSessions] = useState(true);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     phone: "",
     workshopDate: "",
   });
+
+  useEffect(() => {
+    fetchSessions();
+  }, []);
+
+  const fetchSessions = async () => {
+    try {
+      const response = await fetch("/api/workshop-booking/sessions");
+      const data = await response.json();
+      
+      // Filter for open sessions only and sort by date
+      const openSessions = (data.sessions || [])
+        .filter((s: WorkshopSession) => s.status === "open")
+        .sort((a: WorkshopSession, b: WorkshopSession) => 
+          new Date(a.session_date).getTime() - new Date(b.session_date).getTime()
+        );
+      
+      setSessions(openSessions);
+    } catch (error) {
+      console.error("Failed to fetch sessions:", error);
+    } finally {
+      setLoadingSessions(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,6 +103,16 @@ export default function WorkshopSubscriptionPage() {
 
   return (
     <div className="min-h-screen bg-[#1e3a47]">
+      {/* Back Button */}
+      <div className="container mx-auto px-4 pt-6">
+        <Button asChild variant="outline" className="font-semibold text-base hover:bg-amber-50 dark:hover:bg-amber-950 bg-white/10 text-white border-white/20 hover:bg-white/20 hover:text-white">
+          <Link href="/" className="flex items-center gap-2">
+            <ArrowLeft className="w-5 h-5" />
+            Back to Home
+          </Link>
+        </Button>
+      </div>
+      
       {/* Hero Section */}
       <section className="relative min-h-[600px] flex items-center">
         <div className="absolute inset-0">
@@ -253,7 +301,7 @@ export default function WorkshopSubscriptionPage() {
                       </div>
                       <div>
                         <Label htmlFor="workshopDate" className="text-white mb-2 block">
-                          Workshop Date
+                          Workshop Date & Time
                         </Label>
                         <select
                           id="workshopDate"
@@ -261,13 +309,37 @@ export default function WorkshopSubscriptionPage() {
                           onChange={(e) => setFormData({ ...formData, workshopDate: e.target.value })}
                           className="w-full bg-white/20 border border-white/30 text-white rounded-md px-3 py-2"
                           required
+                          disabled={loadingSessions}
                         >
-                          <option value="" className="text-gray-900">Select a date</option>
-                          <option value="2026-01-23" className="text-gray-900">January 23, 2026</option>
-                          <option value="2026-02-06" className="text-gray-900">February 6, 2026</option>
-                          <option value="2026-02-20" className="text-gray-900">February 20, 2026</option>
-                          <option value="2026-03-06" className="text-gray-900">March 6, 2026</option>
+                          <option value="" className="text-gray-900">
+                            {loadingSessions ? "Loading sessions..." : "Select a date & time"}
+                          </option>
+                          {sessions.map((session) => {
+                            const date = new Date(session.session_date);
+                            const formattedDate = date.toLocaleDateString('en-US', {
+                              weekday: 'long',
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric'
+                            });
+                            const spotsLeft = session.max_participants - session.current_participants;
+                            
+                            return (
+                              <option 
+                                key={session.id} 
+                                value={session.id} 
+                                className="text-gray-900"
+                              >
+                                {formattedDate} at {session.session_time} - {spotsLeft} spots left
+                              </option>
+                            );
+                          })}
                         </select>
+                        {sessions.length === 0 && !loadingSessions && (
+                          <p className="text-sm text-yellow-300 mt-2">
+                            No sessions available at the moment. Please check back later.
+                          </p>
+                        )}
                       </div>
                     </div>
                   </div>

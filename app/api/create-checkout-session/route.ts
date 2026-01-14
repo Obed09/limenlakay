@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
+import { createClient } from '@/lib/supabase/server';
 
 export async function POST(request: NextRequest) {
   try {
@@ -12,6 +13,32 @@ export async function POST(request: NextRequest) {
         { status: 500 }
       );
     }
+
+    // Fetch session details from database (workshopDate is actually the session ID now)
+    const supabase = await createClient();
+    const { data: sessionData, error: sessionError } = await supabase
+      .from('workshop_sessions')
+      .select('*')
+      .eq('id', workshopDate)
+      .single();
+
+    if (sessionError || !sessionData) {
+      console.error('Session fetch error:', sessionError);
+      return NextResponse.json(
+        { error: 'Invalid workshop session selected' },
+        { status: 400 }
+      );
+    }
+
+    // Format the session date and time for display
+    const sessionDate = new Date(sessionData.session_date);
+    const formattedDate = sessionDate.toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+    const sessionDescription = `${formattedDate} at ${sessionData.session_time}`;
 
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
       apiVersion: '2025-12-15.clover',
@@ -26,7 +53,7 @@ export async function POST(request: NextRequest) {
             currency: 'usd',
             product_data: {
               name: packageType === 'single' ? 'Single Workshop Session' : 'Monthly Workshop Subscription',
-              description: `Workshop Date: ${workshopDate}`,
+              description: `Workshop: ${sessionDescription}`,
               images: ['https://www.limenlakay.com/images/workshop-cement-vessel.jpeg'],
             },
             unit_amount: packagePrice * 100, // Stripe uses cents
@@ -41,7 +68,9 @@ export async function POST(request: NextRequest) {
       metadata: {
         name,
         phone,
-        workshopDate,
+        workshopDate: workshopDate, // This is the session ID
+        workshopSessionId: workshopDate, // Explicitly store as session ID
+        sessionDescription,
         packageType,
       },
     });
