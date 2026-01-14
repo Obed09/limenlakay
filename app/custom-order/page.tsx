@@ -49,6 +49,7 @@ export default function CustomOrderPage() {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [showNotice, setShowNotice] = useState(true);
+  const [purchaseType, setPurchaseType] = useState<'custom' | 'empty' | null>(null);
   
   // Customer info
   const [customerInfo, setCustomerInfo] = useState({
@@ -376,16 +377,19 @@ export default function CustomOrderPage() {
                             <h3 className="font-semibold text-lg">
                               {vessel.name}
                             </h3>
-                            {vessel.allow_empty_vessel && !vessel.allow_custom_candle && (
+                            {vessel.allow_custom_candle && vessel.allow_empty_vessel ? (
+                              <span className="text-xs px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full font-medium whitespace-nowrap">
+                                Both Options ✨
+                              </span>
+                            ) : vessel.allow_empty_vessel && !vessel.allow_custom_candle ? (
                               <span className="text-xs px-2 py-0.5 bg-green-100 text-green-700 rounded-full font-medium whitespace-nowrap">
                                 Empty Vessel
                               </span>
-                            )}
-                            {vessel.allow_custom_candle && (
+                            ) : vessel.allow_custom_candle ? (
                               <span className="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full font-medium whitespace-nowrap">
                                 Customizable
                               </span>
-                            )}
+                            ) : null}
                           </div>
                           <p className="text-sm text-muted-foreground mb-1">
                             {vessel.color} • {vessel.size}
@@ -438,7 +442,8 @@ export default function CustomOrderPage() {
                             description: 'Empty vessel added to cart!'
                           });
                         } else {
-                          // Go to scent selection
+                          // Go to step 2 (will show choice if both options available)
+                          setPurchaseType(null); // Reset purchase type
                           setStep(2);
                         }
                       }
@@ -453,7 +458,7 @@ export default function CustomOrderPage() {
                       </>
                     ) : (
                       <>
-                        Next: Choose Scent
+                        Next: Choose Options
                         <ArrowRight className="h-4 w-4" />
                       </>
                     )}
@@ -463,78 +468,168 @@ export default function CustomOrderPage() {
             </Card>
           )}
 
-          {/* Step 2: Choose Scent */}
-          {step === 2 && (
+          {/* Step 2: Choose Purchase Type or Scent */}
+          {step === 2 && selectedVessel && (
             <Card>
               <CardHeader>
-                <CardTitle>Step 2: Select Your Scent</CardTitle>
+                <CardTitle>
+                  {selectedVessel.allow_custom_candle && selectedVessel.allow_empty_vessel
+                    ? 'Step 2: How would you like this vessel?'
+                    : 'Step 2: Select Your Scent'}
+                </CardTitle>
                 <CardDescription>
-                  Choose from our handcrafted Haitian-inspired fragrances
+                  {selectedVessel.allow_custom_candle && selectedVessel.allow_empty_vessel
+                    ? 'Choose whether to customize with a scent or purchase as an empty vessel'
+                    : 'Choose from our handcrafted Haitian-inspired fragrances'}
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <RadioGroup
-                  value={selectedScent?.id}
-                  onValueChange={(value) => {
-                    const scent = scents.find((s) => s.id === value);
-                    setSelectedScent(scent || null);
-                  }}
-                >
-                  <div className="space-y-3">
-                    {scents.map((scent) => (
-                      <div
-                        key={scent.id}
-                        className={`relative border rounded-lg p-4 cursor-pointer transition-all hover:shadow-md ${
-                          selectedScent?.id === scent.id
-                            ? 'ring-2 ring-orange-500 shadow-md border-orange-500 bg-orange-50'
-                            : 'hover:border-orange-300'
-                        }`}
-                        onClick={() => setSelectedScent(scent)}
-                      >
-                        <RadioGroupItem
-                          value={scent.id}
-                          id={scent.id}
-                          className="absolute top-4 right-4"
-                        />
-                        <div className="pr-8">
-                          <div className="flex items-center gap-2 mb-2">
-                            <h3 className="font-bold text-lg">
-                              {scent.name}
-                            </h3>
-                            <span className="text-xs px-2 py-0.5 bg-orange-100 text-orange-700 rounded-full font-medium">
-                              {scent.name_english}
-                            </span>
-                          </div>
-                          <p className="text-sm font-medium text-orange-600 mb-2">
-                            {scent.notes}
+                {/* If both options available, show choice first */}
+                {selectedVessel.allow_custom_candle && selectedVessel.allow_empty_vessel && !purchaseType && (
+                  <div className="space-y-4">
+                    <div
+                      className="border-2 rounded-lg p-6 cursor-pointer transition-all hover:shadow-lg hover:border-blue-500"
+                      onClick={() => setPurchaseType('custom')}
+                    >
+                      <div className="flex items-start gap-4">
+                        <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                          <Sparkles className="h-6 w-6 text-blue-600" />
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="text-xl font-bold mb-2">Custom Candle</h3>
+                          <p className="text-muted-foreground mb-3">
+                            Fill this beautiful vessel with your choice of our handcrafted Haitian-inspired scents
                           </p>
-                          <p className="text-sm text-muted-foreground">
-                            {scent.description}
-                          </p>
+                          <span className="inline-block text-sm px-3 py-1 bg-blue-100 text-blue-700 rounded-full font-medium">
+                            Choose Scent Next →
+                          </span>
                         </div>
                       </div>
-                    ))}
-                  </div>
-                </RadioGroup>
+                    </div>
 
-                <div className="flex justify-between mt-6">
-                  <Button
-                    variant="outline"
-                    onClick={() => setStep(1)}
-                    className="flex items-center gap-2"
-                  >
-                    <ArrowLeft className="h-4 w-4" />
-                    Back
-                  </Button>
-                  <Button
-                    onClick={addToCart}
-                    disabled={!selectedScent}
-                    className="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white"
-                  >
-                    <ShoppingCart className="h-4 w-4" />
-                    Add to Cart
-                  </Button>
-                </div>
+                    <div
+                      className="border-2 rounded-lg p-6 cursor-pointer transition-all hover:shadow-lg hover:border-green-500"
+                      onClick={() => {
+                        setPurchaseType('empty');
+                        setCart([...cart, { 
+                          vessel: selectedVessel, 
+                          scent: null,
+                          isEmptyVessel: true 
+                        }]);
+                        setSelectedVessel(null);
+                        setStep(1);
+                        toast({
+                          title: 'Added to Cart',
+                          description: 'Empty vessel added to cart!'
+                        });
+                      }}
+                    >
+                      <div className="flex items-start gap-4">
+                        <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                          <Package className="h-6 w-6 text-green-600" />
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="text-xl font-bold mb-2">Empty Vessel</h3>
+                          <p className="text-muted-foreground mb-3">
+                            Purchase this vessel empty - perfect if you want to use it for your own candle or as décor
+                          </p>
+                          <span className="inline-block text-sm px-3 py-1 bg-green-100 text-green-700 rounded-full font-medium">
+                            Add to Cart →
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex justify-start mt-6">
+                      <Button
+                        variant="outline"
+                        onClick={() => setStep(1)}
+                        className="flex items-center gap-2"
+                      >
+                        <ArrowLeft className="h-4 w-4" />
+                        Back
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
+                {/* If custom selected or only custom available, show scent selection */}
+                {((selectedVessel.allow_custom_candle && selectedVessel.allow_empty_vessel && purchaseType === 'custom') ||
+                  (selectedVessel.allow_custom_candle && !selectedVessel.allow_empty_vessel)) && (
+                  <>
+                    <RadioGroup
+                      value={selectedScent?.id}
+                      onValueChange={(value) => {
+                        const scent = scents.find((s) => s.id === value);
+                        setSelectedScent(scent || null);
+                      }}
+                    >
+                      <div className="space-y-3">
+                        {scents.map((scent) => (
+                          <div
+                            key={scent.id}
+                            className={`relative border rounded-lg p-4 cursor-pointer transition-all hover:shadow-md ${
+                              selectedScent?.id === scent.id
+                                ? 'ring-2 ring-orange-500 shadow-md border-orange-500 bg-orange-50'
+                                : 'hover:border-orange-300'
+                            }`}
+                            onClick={() => setSelectedScent(scent)}
+                          >
+                            <RadioGroupItem
+                              value={scent.id}
+                              id={scent.id}
+                              className="absolute top-4 right-4"
+                            />
+                            <div className="pr-8">
+                              <div className="flex items-center gap-2 mb-2">
+                                <h3 className="font-bold text-lg">
+                                  {scent.name}
+                                </h3>
+                                <span className="text-xs px-2 py-0.5 bg-orange-100 text-orange-700 rounded-full font-medium">
+                                  {scent.name_english}
+                                </span>
+                              </div>
+                              <p className="text-sm font-medium text-orange-600 mb-2">
+                                {scent.notes}
+                              </p>
+                              <p className="text-sm text-muted-foreground">
+                                {scent.description}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </RadioGroup>
+
+                    <div className="flex justify-between mt-6">
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          if (selectedVessel.allow_custom_candle && selectedVessel.allow_empty_vessel && purchaseType === 'custom') {
+                            // Go back to choice screen
+                            setPurchaseType(null);
+                            setSelectedScent(null);
+                          } else {
+                            // Go back to vessel selection
+                            setStep(1);
+                          }
+                        }}
+                        className="flex items-center gap-2"
+                      >
+                        <ArrowLeft className="h-4 w-4" />
+                        Back
+                      </Button>
+                      <Button
+                        onClick={addToCart}
+                        disabled={!selectedScent}
+                        className="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white"
+                      >
+                        <ShoppingCart className="h-4 w-4" />
+                        Add to Cart
+                      </Button>
+                    </div>
+                  </>
+                )}
               </CardContent>
             </Card>
           )}
