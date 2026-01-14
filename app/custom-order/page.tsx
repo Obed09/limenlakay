@@ -21,6 +21,8 @@ interface Vessel {
   image_url: string;
   stock_quantity: number;
   description: string | null;
+  allow_custom_candle: boolean;
+  allow_empty_vessel: boolean;
 }
 
 interface Scent {
@@ -34,7 +36,8 @@ interface Scent {
 
 interface CartItem {
   vessel: Vessel;
-  scent: Scent;
+  scent: Scent | null; // null for empty vessels
+  isEmptyVessel?: boolean;
 }
 
 export default function CustomOrderPage() {
@@ -69,7 +72,7 @@ export default function CustomOrderPage() {
             .from('candle_vessels')
             .select('*')
             .eq('is_available', true)
-            .eq('allow_custom_candle', true)
+            .or('allow_custom_candle.eq.true,allow_empty_vessel.eq.true')
             .order('name'),
           supabase
             .from('candle_scents')
@@ -102,16 +105,24 @@ export default function CustomOrderPage() {
   }, [supabase, toast]);
 
   const addToCart = () => {
-    if (!selectedVessel || !selectedScent) return;
+    if (!selectedVessel) return;
+    
+    // For empty vessels, scent is not required
+    const isEmptyVessel = selectedVessel.allow_empty_vessel && !selectedVessel.allow_custom_candle;
+    if (!isEmptyVessel && !selectedScent) return;
 
-    setCart([...cart, { vessel: selectedVessel, scent: selectedScent }]);
+    setCart([...cart, { 
+      vessel: selectedVessel, 
+      scent: selectedScent,
+      isEmptyVessel 
+    }]);
     setSelectedVessel(null);
     setSelectedScent(null);
     setStep(1);
 
     toast({
       title: 'Added to Cart',
-      description: 'Candle added successfully!'
+      description: isEmptyVessel ? 'Empty vessel added!' : 'Candle added successfully!'
     });
   };
 
@@ -183,7 +194,7 @@ export default function CustomOrderPage() {
       const orderItems = cart.map((item) => ({
         order_id: order.id,
         vessel_id: item.vessel.id,
-        scent_id: item.scent.id,
+        scent_id: item.scent?.id || null, // null for empty vessels
         quantity: 1,
         unit_price: item.vessel.price,
         subtotal: item.vessel.price
@@ -361,9 +372,21 @@ export default function CustomOrderPage() {
 
                         {/* Content */}
                         <div className="p-4">
-                          <h3 className="font-semibold text-lg mb-1">
-                            {vessel.name}
-                          </h3>
+                          <div className="flex items-start justify-between gap-2 mb-1">
+                            <h3 className="font-semibold text-lg">
+                              {vessel.name}
+                            </h3>
+                            {vessel.allow_empty_vessel && !vessel.allow_custom_candle && (
+                              <span className="text-xs px-2 py-0.5 bg-green-100 text-green-700 rounded-full font-medium whitespace-nowrap">
+                                Empty Vessel
+                              </span>
+                            )}
+                            {vessel.allow_custom_candle && (
+                              <span className="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full font-medium whitespace-nowrap">
+                                Customizable
+                              </span>
+                            )}
+                          </div>
                           <p className="text-sm text-muted-foreground mb-1">
                             {vessel.color} • {vessel.size}
                           </p>
@@ -400,12 +423,40 @@ export default function CustomOrderPage() {
 
                 <div className="flex justify-end mt-6">
                   <Button
-                    onClick={() => setStep(2)}
+                    onClick={() => {
+                      if (selectedVessel) {
+                        // If vessel is empty-only (no custom candle option), add directly to cart
+                        if (selectedVessel.allow_empty_vessel && !selectedVessel.allow_custom_candle) {
+                          setCart([...cart, { 
+                            vessel: selectedVessel, 
+                            scent: null,
+                            isEmptyVessel: true 
+                          }]);
+                          setSelectedVessel(null);
+                          toast({
+                            title: 'Added to Cart',
+                            description: 'Empty vessel added to cart!'
+                          });
+                        } else {
+                          // Go to scent selection
+                          setStep(2);
+                        }
+                      }
+                    }}
                     disabled={!selectedVessel}
                     className="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white"
                   >
-                    Next: Choose Scent
-                    <ArrowRight className="h-4 w-4" />
+                    {selectedVessel?.allow_empty_vessel && !selectedVessel?.allow_custom_candle ? (
+                      <>
+                        <ShoppingCart className="h-4 w-4" />
+                        Add Empty Vessel to Cart
+                      </>
+                    ) : (
+                      <>
+                        Next: Choose Scent
+                        <ArrowRight className="h-4 w-4" />
+                      </>
+                    )}
                   </Button>
                 </div>
               </CardContent>
@@ -633,7 +684,9 @@ export default function CustomOrderPage() {
                               {item.vessel.name}
                             </p>
                             <p className="text-xs text-muted-foreground">
-                              {item.scent.name}
+                              {item.scent ? item.scent.name : (
+                                <span className="text-green-600 font-medium">Empty Vessel (No Scent)</span>
+                              )}
                             </p>
                           </div>
                           <Button
