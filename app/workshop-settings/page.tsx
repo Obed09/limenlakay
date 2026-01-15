@@ -94,6 +94,19 @@ export default function WorkshopSettingsPage() {
     }
   };
 
+  // Helper function to safely format dates
+  const formatDate = (dateString: string) => {
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) {
+        return 'Invalid Date';
+      }
+      return date.toLocaleDateString();
+    } catch {
+      return 'Invalid Date';
+    }
+  };
+
   // Calculate stats
   const totalBookings = bookings.length;
   const confirmedBookings = bookings.filter(b => b.status === 'confirmed').length;
@@ -388,7 +401,7 @@ export default function WorkshopSettingsPage() {
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                       <div>
                         <span className="text-gray-500">Workshop Date:</span>
-                        <p className="font-medium">{new Date(booking.workshop_date).toLocaleDateString()}</p>
+                        <p className="font-medium">{formatDate(booking.workshop_date)}</p>
                       </div>
                       <div>
                         <span className="text-gray-500">Package:</span>
@@ -400,7 +413,7 @@ export default function WorkshopSettingsPage() {
                       </div>
                       <div>
                         <span className="text-gray-500">Booked:</span>
-                        <p className="font-medium">{new Date(booking.created_at).toLocaleDateString()}</p>
+                        <p className="font-medium">{formatDate(booking.created_at)}</p>
                       </div>
                     </div>
                   </div>
