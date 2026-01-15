@@ -32,3 +32,24 @@ export async function createClient() {
     },
   );
 }
+
+/**
+ * Creates a Supabase client with service role privileges
+ * This bypasses Row Level Security (RLS) - use only for admin operations
+ */
+export function createServiceClient() {
+  return createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return [];
+        },
+        setAll() {
+          // No-op for service role client
+        },
+      },
+    },
+  );
+}
