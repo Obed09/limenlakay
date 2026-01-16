@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -41,7 +41,7 @@ interface CartItem {
   isEmptyVessel?: boolean;
 }
 
-export default function CustomOrderPage() {
+function CustomOrderContent() {
   const [step, setStep] = useState(1);
   const [vessels, setVessels] = useState<Vessel[]>([]);
   const [scents, setScents] = useState<Scent[]>([]);
@@ -955,5 +955,13 @@ export default function CustomOrderPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function CustomOrderPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center min-h-screen">Loading...</div>}>
+      <CustomOrderContent />
+    </Suspense>
   );
 }
