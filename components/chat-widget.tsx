@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import Image from 'next/image';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -212,11 +213,20 @@ export function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
       <Card className="shadow-2xl border-amber-200 dark:border-amber-800">
         <CardHeader className="bg-amber-600 text-white rounded-t-lg">
           <div className="flex justify-between items-center">
-            <div>
-              <CardTitle className="text-lg">Limen Lakay Support</CardTitle>
-              <CardDescription className="text-amber-100">
-                We're here to help! 🕯️
-              </CardDescription>
+            <div className="flex items-center gap-3">
+              <Image 
+                src="/images/limen-lakay-logo.png" 
+                alt="Limen Lakay" 
+                width={40} 
+                height={40}
+                className="object-contain bg-white rounded-lg p-1"
+              />
+              <div>
+                <CardTitle className="text-lg">Limen Lakay Support</CardTitle>
+                <CardDescription className="text-amber-100">
+                  We're here to help! 🕯️
+                </CardDescription>
+              </div>
             </div>
             <Button
               variant="ghost"
