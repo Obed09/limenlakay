@@ -146,7 +146,7 @@ export default function Home() {
                   height={40}
                   className="object-contain opacity-80"
                 />
-                <h3 className="text-base font-semibold text-gray-600 dark:text-gray-400">Limen Lakay</h3>
+                <h3 className="text-base font-semibold text-amber-600 dark:text-amber-400">Limen Lakay</h3>
               </div>
               <p className="text-xs text-gray-500 dark:text-gray-500 mb-3">
                 Handcrafted candles that bring light, warmth, and beautiful fragrances to your home since 2024.
