@@ -17,7 +17,12 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'wevgwiuodiknxgzjderd.supabase.co',
       },
+      {
+        protocol: 'https',
+        hostname: 'via.placeholder.com',
+      },
     ],
+    unoptimized: true, // For placeholder images during development
   },
 };
 

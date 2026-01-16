@@ -1,0 +1,8 @@
+{
+    "chat.tools.terminal.autoApprove": {
+        "/^supabase link --project-ref wevgwiuodiknxgzjderd$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
+    }
+}
