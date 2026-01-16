@@ -7,10 +7,6 @@ const nextConfig: NextConfig = {
     // Dangerously allow production builds even with type errors
     ignoreBuildErrors: true,
   },
-  eslint: {
-    // Disable ESLint during production builds
-    ignoreDuringBuilds: true,
-  },
   images: {
     remotePatterns: [
       {
