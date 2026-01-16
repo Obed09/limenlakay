@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
 
-const anthropic = new Anthropic({
+// Check if API key exists, otherwise use fallback responses
+const hasApiKey = !!process.env.ANTHROPIC_API_KEY;
+const anthropic = hasApiKey ? new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
-});
+}) : null;
 
 const BUSINESS_CONTEXT = `You are a helpful customer service representative for Limen Lakay, a premium handcrafted concrete candle vessel company based in Palm Beach, Florida.
 
@@ -113,17 +115,31 @@ export async function POST(request: NextRequest) {
       }
     ];
 
-    // Call Claude API
-    const response = await anthropic.messages.create({
-      model: 'claude-3-5-sonnet-20241022',
-      max_tokens: 1024,
-      system: BUSINESS_CONTEXT,
-      messages: messages
-    });
+    // Use AI if available, otherwise use smart fallback
+    let assistantMessage = '';
+    
+    if (anthropic && hasApiKey) {
+      try {
+        // Call Claude API
+        const response = await anthropic.messages.create({
+          model: 'claude-3-5-sonnet-20241022',
+          max_tokens: 1024,
+          system: BUSINESS_CONTEXT,
+          messages: messages
+        });
 
-    const assistantMessage = response.content[0].type === 'text' 
-      ? response.content[0].text 
-      : 'I apologize, but I encountered an error. Please try again or contact us at info@limenlakay.com';
+        assistantMessage = response.content[0].type === 'text' 
+          ? response.content[0].text 
+          : 'I apologize, but I encountered an error. Please try again or contact us at info@limenlakay.com';
+      } catch (aiError) {
+        console.error('AI API error:', aiError);
+        // Fall back to smart responses
+        assistantMessage = getSmartFallbackResponse(message);
+      }
+    } else {
+      // No API key, use smart fallback
+      assistantMessage = getSmartFallbackResponse(message);
+    }
 
     return NextResponse.json({
       success: true,
@@ -139,10 +155,49 @@ export async function POST(request: NextRequest) {
     console.error('Chat API error:', error);
     return NextResponse.json(
       { 
+        success: false,
         error: 'Failed to process message',
-        message: 'I apologize, but I\'m having trouble connecting right now. Please try again in a moment or contact us directly at info@limenlakay.com or (561) 593-0238.'
+        message: 'Thank you for your message! Our team will respond within 24 hours. Contact us at info@limenlakay.com or (561) 593-0238.'
       },
-      { status: 500 }
+      { status: 200 }
     );
   }
+}
+
+// Smart fallback responses when AI is not available
+function getSmartFallbackResponse(message: string): string {
+  const lowerMessage = message.toLowerCase();
+  
+  // Product inquiries
+  if (lowerMessage.includes('candle') || lowerMessage.includes('product') || lowerMessage.includes('have')) {
+    return `We offer premium handcrafted concrete candle vessels! Our collection includes:\n\n🕯️ **Finished Candles**:\n- Bèl Flè Candle: $39.99\n- Chimen Lakay Candle: $35.99\n\n🏺 **Empty Vessels**: $16.99 - $49.99\n- Multiple shapes & colors available\n\n✨ **Custom Orders**: Choose your vessel & fragrance!\n\nWhat interests you most? Our team at info@limenlakay.com can help with specific details!`;
+  }
+  
+  // Pricing
+  if (lowerMessage.includes('price') || lowerMessage.includes('cost') || lowerMessage.includes('how much')) {
+    return `Our pricing:\n\n💰 **Finished Candles**: $35.99 - $39.99\n💰 **Empty Vessels**: $16.99 - $49.99\n💰 **Custom Candles**: Starting at $35\n\n**Bulk Orders**: Volume discounts for 10+ units!\n\nEmail info@limenlakay.com for exact quotes.`;
+  }
+  
+  // Shipping/delivery
+  if (lowerMessage.includes('ship') || lowerMessage.includes('deliver') || lowerMessage.includes('how long')) {
+    return `📦 **Shipping Timeline**:\n- Standard collections: 2-3 business days\n- Custom orders: 5-7 business days\n- Local delivery available in Palm Beach County\n- Nationwide shipping\n\nNeed rush delivery? Contact us at (561) 593-0238!`;
+  }
+  
+  // Fragrances
+  if (lowerMessage.includes('scent') || lowerMessage.includes('fragrance') || lowerMessage.includes('smell')) {
+    return `🌸 We offer 20+ premium fragrances:\n\n**Holiday**: Bèl Flè, Krismay Lakay\n**Autumn**: Tranble, Tonbe Fey\n**Florals**: Jaden Flè, Roses & Mimosa\n**Fresh**: Sea Salt & Sage, Citron & Lavender\n**Fruits**: Raspberry Coconut, Berry Mix\n**Gourmet**: Chocolate Vanilla, Cinnamon\n\nBrowse all fragrances on our custom order page!`;
+  }
+  
+  // Workshops
+  if (lowerMessage.includes('workshop') || lowerMessage.includes('class') || lowerMessage.includes('learn')) {
+    return `🎨 **Candle Making Workshops**:\n- Learn to craft concrete vessel candles\n- Hands-on artisan techniques\n- Group & private sessions\n- Perfect for team building, parties, dates\n\nBook your workshop at limenlakay.com/workshop-subscription or call (561) 593-0238!`;
+  }
+  
+  // Contact/help
+  if (lowerMessage.includes('contact') || lowerMessage.includes('email') || lowerMessage.includes('phone')) {
+    return `📞 **Contact Limen Lakay**:\n\n📧 Email: info@limenlakay.com\n📱 Phone: +1 (561) 593-0238\n🌐 Website: limenlakay.com\n\n⏱️ We respond within 24 hours!\n\nHow else can we help you today?`;
+  }
+  
+  // Default response
+  return `Thank you for contacting Limen Lakay! 🕯️\n\nI'd be happy to help you with:\n- Product information\n- Custom orders\n- Pricing & shipping\n- Workshops\n- Bulk orders\n\nOr contact us directly:\n📧 info@limenlakay.com\n📱 (561) 593-0238\n\nWhat would you like to know?`;
 }

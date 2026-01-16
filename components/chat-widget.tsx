@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -43,6 +43,12 @@ export function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
 
   // Generate a session ID for this chat
   const [sessionId] = useState(() => `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to bottom when messages change
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages, isAiTyping]);
 
   const handleSendMessage = async () => {
     if (message.trim()) {
@@ -72,8 +78,9 @@ export function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
         });
 
         const data = await response.json();
+        console.log('Chat response:', data);
 
-        if (data.success) {
+        if (data.success && data.message) {
           const aiReply = {
             id: messages.length + 2,
             sender: 'support',
@@ -81,7 +88,9 @@ export function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
             time: new Date().toLocaleTimeString()
           };
           setMessages(prev => [...prev, aiReply]);
-          setConversationHistory(data.conversationHistory);
+          if (data.conversationHistory) {
+            setConversationHistory(data.conversationHistory);
+          }
         } else {
           // Fallback response
           const fallbackReply = {
@@ -254,11 +263,11 @@ export function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
           </button>
         </div>
 
-        <CardContent className="p-4 h-80 overflow-hidden flex flex-col">
+        <CardContent className="p-4 h-96 overflow-hidden flex flex-col">
           {/* Chat Tab */}
           {activeTab === 'chat' && (
             <div className="flex flex-col h-full">
-              <div className="flex-1 overflow-y-auto mb-4 space-y-2">
+              <div className="flex-1 overflow-y-auto mb-4 space-y-2 scroll-smooth">
                 {messages.map((msg) => (
                   <div
                     key={msg.id}
@@ -287,6 +296,7 @@ export function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
                     </div>
                   </div>
                 )}
+                <div ref={messagesEndRef} />
               </div>
               <div className="flex gap-2">
                 <Input
