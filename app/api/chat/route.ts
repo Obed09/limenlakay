@@ -168,36 +168,66 @@ export async function POST(request: NextRequest) {
 function getSmartFallbackResponse(message: string): string {
   const lowerMessage = message.toLowerCase();
   
-  // Product inquiries
-  if (lowerMessage.includes('candle') || lowerMessage.includes('product') || lowerMessage.includes('have')) {
-    return `We offer premium handcrafted concrete candle vessels! Our collection includes:\n\n🕯️ **Finished Candles**:\n- Bèl Flè Candle: $39.99\n- Chimen Lakay Candle: $35.99\n\n🏺 **Empty Vessels**: $16.99 - $49.99\n- Multiple shapes & colors available\n\n✨ **Custom Orders**: Choose your vessel & fragrance!\n\nWhat interests you most? Our team at info@limenlakay.com can help with specific details!`;
+  // Greetings - keep it brief and welcoming
+  if (lowerMessage.match(/^(hi|hello|hey|good morning|good afternoon|good evening|greetings)[\s!.]*$/i)) {
+    return `Hello! Thanks for reaching out to Limen Lakay. 🕯️\n\nI'm here to help with:\n• Product information\n• Custom orders & pricing\n• Shipping & delivery\n• Workshops\n\nWhat can I assist you with today?`;
   }
   
-  // Pricing
-  if (lowerMessage.includes('price') || lowerMessage.includes('cost') || lowerMessage.includes('how much')) {
-    return `Our pricing:\n\n💰 **Finished Candles**: $35.99 - $39.99\n💰 **Empty Vessels**: $16.99 - $49.99\n💰 **Custom Candles**: Starting at $35\n\n**Bulk Orders**: Volume discounts for 10+ units!\n\nEmail info@limenlakay.com for exact quotes.`;
+  // Simple acknowledgments
+  if (lowerMessage.match(/^(thanks|thank you|ok|okay|got it|great)[\s!.]*$/i)) {
+    return `You're welcome! Is there anything else you'd like to know about our handcrafted concrete candle vessels?`;
   }
   
-  // Shipping/delivery
-  if (lowerMessage.includes('ship') || lowerMessage.includes('deliver') || lowerMessage.includes('how long')) {
-    return `📦 **Shipping Timeline**:\n- Standard collections: 2-3 business days\n- Custom orders: 5-7 business days\n- Local delivery available in Palm Beach County\n- Nationwide shipping\n\nNeed rush delivery? Contact us at (561) 593-0238!`;
+  // Product inquiries - specific
+  if (lowerMessage.includes('candle') && (lowerMessage.includes('how many') || lowerMessage.includes('which') || lowerMessage.includes('what'))) {
+    return `We currently have 2 signature finished candles:\n\n**Bèl Flè Candle** - $39.99\nGold & blue metallic rounded vessel\n\n**Chimen Lakay Candle** - $35.99\nTurquoise cylindrical vessel\n\nPlus custom candles where you choose the vessel & fragrance!\n\nInterested in any of these?`;
   }
   
-  // Fragrances
-  if (lowerMessage.includes('scent') || lowerMessage.includes('fragrance') || lowerMessage.includes('smell')) {
-    return `🌸 We offer 20+ premium fragrances:\n\n**Holiday**: Bèl Flè, Krismay Lakay\n**Autumn**: Tranble, Tonbe Fey\n**Florals**: Jaden Flè, Roses & Mimosa\n**Fresh**: Sea Salt & Sage, Citron & Lavender\n**Fruits**: Raspberry Coconut, Berry Mix\n**Gourmet**: Chocolate Vanilla, Cinnamon\n\nBrowse all fragrances on our custom order page!`;
+  // General product inquiry
+  if (lowerMessage.includes('candle') || lowerMessage.includes('product') || lowerMessage.includes('sell') || lowerMessage.includes('offer')) {
+    return `We specialize in handcrafted concrete candle vessels:\n\n**Finished Candles**: $35.99-$39.99\nReady to enjoy with premium soy wax\n\n**Empty Vessels**: $16.99-$49.99\nFor decor, plants, or DIY candles\n\n**Custom Orders**: Choose your vessel + fragrance\n\nWhat interests you?`;
   }
   
-  // Workshops
-  if (lowerMessage.includes('workshop') || lowerMessage.includes('class') || lowerMessage.includes('learn')) {
-    return `🎨 **Candle Making Workshops**:\n- Learn to craft concrete vessel candles\n- Hands-on artisan techniques\n- Group & private sessions\n- Perfect for team building, parties, dates\n\nBook your workshop at limenlakay.com/workshop-subscription or call (561) 593-0238!`;
+  // Pricing - direct and clear
+  if (lowerMessage.includes('price') || lowerMessage.includes('cost') || lowerMessage.includes('how much') || lowerMessage.includes('$')) {
+    return `Our pricing:\n\n• Finished candles: $35.99-$39.99\n• Empty vessels: $16.99-$49.99\n• Custom candles: Starting at $35\n\n*Bulk orders (10+): Volume discounts available*\n\nNeed a specific quote? Email info@limenlakay.com`;
   }
   
-  // Contact/help
-  if (lowerMessage.includes('contact') || lowerMessage.includes('email') || lowerMessage.includes('phone')) {
-    return `📞 **Contact Limen Lakay**:\n\n📧 Email: info@limenlakay.com\n📱 Phone: +1 (561) 593-0238\n🌐 Website: limenlakay.com\n\n⏱️ We respond within 24 hours!\n\nHow else can we help you today?`;
+  // Shipping/delivery - concise
+  if (lowerMessage.includes('ship') || lowerMessage.includes('deliver') || lowerMessage.includes('how long') || lowerMessage.includes('when')) {
+    return `**Delivery Timeline:**\n\n• In-stock items: 2-3 business days\n• Custom orders: 5-7 business days\n• Local delivery: Available in Palm Beach County\n\nNeed rush shipping? Call us at (561) 593-0238`;
   }
   
-  // Default response
-  return `Thank you for contacting Limen Lakay! 🕯️\n\nI'd be happy to help you with:\n- Product information\n- Custom orders\n- Pricing & shipping\n- Workshops\n- Bulk orders\n\nOr contact us directly:\n📧 info@limenlakay.com\n📱 (561) 593-0238\n\nWhat would you like to know?`;
+  // Fragrances - organized list
+  if (lowerMessage.includes('scent') || lowerMessage.includes('fragrance') || lowerMessage.includes('smell') || lowerMessage.includes('aroma')) {
+    return `We offer 20+ premium fragrances:\n\n**Popular Collections:**\n• Holiday: Bèl Flè, Krismay Lakay\n• Fresh: Sea Salt & Sage, Lavender\n• Gourmet: Vanilla, Cinnamon\n• Floral: Roses, Mimosa\n\nBrowse all scents on our Custom Order page or ask for recommendations!`;
+  }
+  
+  // Workshops - clear call to action
+  if (lowerMessage.includes('workshop') || lowerMessage.includes('class') || lowerMessage.includes('learn') || lowerMessage.includes('make')) {
+    return `**Candle Making Workshops** 🎨\n\nLearn to craft your own concrete vessel candles!\n\n• Hands-on instruction\n• All materials included\n• Group & private sessions\n• Perfect for events, team building\n\nBook at limenlakay.com/workshop-subscription or call (561) 593-0238`;
+  }
+  
+  // Custom orders
+  if (lowerMessage.includes('custom') || lowerMessage.includes('personalize') || lowerMessage.includes('design')) {
+    return `**Custom Candle Orders:**\n\n1. Choose your concrete vessel (shape, color, size)\n2. Select from 20+ premium fragrances\n3. Ready in 5-7 business days\n\nStart your custom order at limenlakay.com/custom-order or contact us for guidance!`;
+  }
+  
+  // Bulk orders
+  if (lowerMessage.includes('bulk') || lowerMessage.includes('wholesale') || lowerMessage.includes('wedding') || lowerMessage.includes('event') || lowerMessage.includes('corporate')) {
+    return `**Bulk & Wholesale Orders:**\n\n• Volume discounts for 10+ units\n• Custom branding available\n• Perfect for weddings, corporate gifts, events\n\nEmail info@limenlakay.com with your requirements for a personalized quote.`;
+  }
+  
+  // Contact/help - direct
+  if (lowerMessage.includes('contact') || lowerMessage.includes('email') || lowerMessage.includes('phone') || lowerMessage.includes('call')) {
+    return `**Contact Us:**\n\n📧 info@limenlakay.com\n📱 (561) 593-0238\n🌐 limenlakay.com\n\n*We respond within 24 hours*\n\nPrefer to chat? Just ask your question here!`;
+  }
+  
+  // Vessels only
+  if (lowerMessage.includes('vessel') || lowerMessage.includes('empty') || lowerMessage.includes('container') || lowerMessage.includes('pot')) {
+    return `**Empty Concrete Vessels:** $16.99-$49.99\n\n• Multiple shapes: Rounded, Cylindrical, Shallow, Scalloped\n• Colors: Gold, Blue, Turquoise, Cream, Metallic\n• Sizes: Small (8oz) to Large (16oz)\n\nUse as planters, decor, or make your own candles!\n\nView all at limenlakay.com/custom-order`;
+  }
+  
+  // Default response - helpful and brief
+  return `Thanks for contacting Limen Lakay! 🕯️\n\nI can help you with:\n• Products & pricing\n• Custom orders\n• Shipping info\n• Workshops & bulk orders\n\n**Quick contact:**\n📧 info@limenlakay.com | 📱 (561) 593-0238\n\nWhat would you like to know?`;
 }
