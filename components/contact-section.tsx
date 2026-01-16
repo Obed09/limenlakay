@@ -104,7 +104,8 @@ export function ContactSection() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Bulk Order Questionnaire - Prominent CTA */}
-          <div className="lg:col-span-1">\n            <Card className="h-full border-4 border-amber-500 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 hover:shadow-2xl transition-all duration-300 hover:scale-105">
+          <div className="lg:col-span-1">
+            <Card className="h-full border-4 border-amber-500 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 hover:shadow-2xl transition-all duration-300 hover:scale-105">
               <CardHeader className="text-center pb-4">
                 <div className="mx-auto mb-4 w-20 h-20 bg-amber-600 rounded-full flex items-center justify-center">
                   <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
