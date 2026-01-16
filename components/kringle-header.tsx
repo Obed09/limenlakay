@@ -121,7 +121,7 @@ export function KringleHeader() {
               height={50}
               className="object-contain"
             />
-            <span className="text-xl font-bold text-orange-600 hidden sm:block">
+            <span className="text-xl font-bold text-amber-600 dark:text-amber-400 hidden sm:block">
               Limen Lakay
             </span>
           </Link>
