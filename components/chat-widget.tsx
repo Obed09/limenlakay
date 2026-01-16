@@ -30,6 +30,8 @@ export function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
   });
   const [isSubmittingFeedback, setIsSubmittingFeedback] = useState(false);
   const [feedbackMessage, setFeedbackMessage] = useState('');
+  const [conversationHistory, setConversationHistory] = useState<Array<{role: string, content: string}>>([]);
+  const [isAiTyping, setIsAiTyping] = useState(false);
   const [messages, setMessages] = useState([
     {
       id: 1,
@@ -44,41 +46,72 @@ export function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
 
   const handleSendMessage = async () => {
     if (message.trim()) {
-      const newMessage = {
+      const userMessage = {
         id: messages.length + 1,
         sender: 'user',
         text: message,
         time: new Date().toLocaleTimeString()
       };
-      setMessages([...messages, newMessage]);
+      setMessages([...messages, userMessage]);
       
-      // Send email notification to business
-      await notifyNewChatMessage({
-        session_id: sessionId,
-        sender_name: 'Customer',
-        message_text: message,
-      });
-      
+      const currentMessage = message;
       setMessage('');
+      setIsAiTyping(true);
       
-      // Auto-reply after 2 seconds
-      setTimeout(() => {
-        const replies = [
-          'Thank you for your message! Our artisan team will get back to you within 24 hours.',
-          'We appreciate you reaching out! Someone from our candle crafting team will respond soon.',
-          'Your message is important to us! We will respond within one business day.',
-          'Thanks for contacting Limen Lakay! Our team will be in touch shortly.'
-        ];
-        const randomReply = replies[Math.floor(Math.random() * replies.length)];
+      try {
+        // Call AI chat API
+        const response = await fetch('/api/chat', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            message: currentMessage,
+            conversationHistory: conversationHistory
+          })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          const aiReply = {
+            id: messages.length + 2,
+            sender: 'support',
+            text: data.message,
+            time: new Date().toLocaleTimeString()
+          };
+          setMessages(prev => [...prev, aiReply]);
+          setConversationHistory(data.conversationHistory);
+        } else {
+          // Fallback response
+          const fallbackReply = {
+            id: messages.length + 2,
+            sender: 'support',
+            text: data.message || 'Thank you for your message! Our team will get back to you within 24 hours at info@limenlakay.com',
+            time: new Date().toLocaleTimeString()
+          };
+          setMessages(prev => [...prev, fallbackReply]);
+        }
+
+        // Send email notification to business
+        await notifyNewChatMessage({
+          session_id: sessionId,
+          sender_name: 'Customer',
+          message_text: currentMessage,
+        });
         
-        const reply = {
+      } catch (error) {
+        console.error('Chat error:', error);
+        const errorReply = {
           id: messages.length + 2,
           sender: 'support',
-          text: randomReply,
+          text: 'I apologize, but I\'m having trouble connecting right now. Please contact us directly at info@limenlakay.com or (561) 593-0238. We respond within 24 hours!',
           time: new Date().toLocaleTimeString()
         };
-        setMessages(prev => [...prev, reply]);
-      }, 2000);
+        setMessages(prev => [...prev, errorReply]);
+      } finally {
+        setIsAiTyping(false);
+      }
     }
   };
 
@@ -238,21 +271,37 @@ export function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
                           : 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100'
                       }`}
                     >
-                      <p className="text-sm">{msg.text}</p>
+                      <p className="text-sm whitespace-pre-wrap">{msg.text}</p>
                       <p className="text-xs opacity-70 mt-1">{msg.time}</p>
                     </div>
                   </div>
                 ))}
+                {isAiTyping && (
+                  <div className="flex justify-start">
+                    <div className="max-w-[80%] p-2 rounded-lg bg-gray-100 dark:bg-gray-800">
+                      <div className="flex gap-1">
+                        <div className="w-2 h-2 bg-amber-600 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                        <div className="w-2 h-2 bg-amber-600 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                        <div className="w-2 h-2 bg-amber-600 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
               <div className="flex gap-2">
                 <Input
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                   placeholder="Type your message..."
-                  onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                  onKeyPress={(e) => e.key === 'Enter' && !isAiTyping && handleSendMessage()}
+                  disabled={isAiTyping}
                   className="flex-1"
                 />
-                <Button onClick={handleSendMessage} className="bg-amber-600 hover:bg-amber-700">
+                <Button 
+                  onClick={handleSendMessage} 
+                  className="bg-amber-600 hover:bg-amber-700"
+                  disabled={isAiTyping || !message.trim()}
+                >
                   Send
                 </Button>
               </div>
