@@ -16,7 +16,9 @@ export function SiteHeader() {
               height={50}
               className="object-contain"
             />
-            <span className="text-xl font-bold">Limen Lakay</span>
+            <span className="text-xl font-bold text-orange-600">
+              Limen Lakay
+            </span>
           </Link>
         </div>
       </div>

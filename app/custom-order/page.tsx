@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -62,8 +63,18 @@ export default function CustomOrderPage() {
     zip: ''
   });
 
+  // Payment info
+  const [paymentInfo, setPaymentInfo] = useState({
+    cardNumber: '',
+    cardName: '',
+    expiryDate: '',
+    cvv: ''
+  });
+
   const { toast } = useToast();
   const supabase = useMemo(() => createClient(), []);
+  const searchParams = useSearchParams();
+  const vesselIdFromUrl = searchParams.get('vessel');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -90,6 +101,37 @@ export default function CustomOrderPage() {
 
         setVessels(vesselsResult.data || []);
         setScents(scentsResult.data || []);
+
+        // Auto-select vessel if ID is in URL
+        if (vesselIdFromUrl && vesselsResult.data) {
+          const preSelectedVessel = vesselsResult.data.find((v: Vessel) => v.id === vesselIdFromUrl);
+          if (preSelectedVessel) {
+            // Check if this is an empty vessel ONLY (not customizable)
+            const isEmptyVesselOnly = preSelectedVessel.allow_empty_vessel && !preSelectedVessel.allow_custom_candle;
+            
+            if (isEmptyVesselOnly) {
+              // Empty vessel only - add directly to cart and go to checkout
+              setCart([{ 
+                vessel: preSelectedVessel, 
+                scent: null,
+                isEmptyVessel: true 
+              }]);
+              setStep(3); // Go to checkout
+              toast({
+                title: 'Empty Vessel Added!',
+                description: `${preSelectedVessel.name} added to cart. Ready to checkout.`,
+              });
+            } else {
+              // Customizable vessel - go to scent selection
+              setSelectedVessel(preSelectedVessel);
+              setStep(2);
+              toast({
+                title: 'Vessel Selected!',
+                description: `${preSelectedVessel.name} has been pre-selected. Now choose your scent.`,
+              });
+            }
+          }
+        }
       } catch (error) {
         console.error('Error fetching data:', error);
         toast({
@@ -103,7 +145,7 @@ export default function CustomOrderPage() {
     };
     
     fetchData();
-  }, [supabase, toast]);
+  }, [supabase, toast, vesselIdFromUrl]);
 
   const addToCart = () => {
     if (!selectedVessel) return;
@@ -724,6 +766,90 @@ export default function CustomOrderPage() {
                           setCustomerInfo({ ...customerInfo, zip: e.target.value })
                         }
                       />
+                    </div>
+                  </div>
+
+                  {/* Payment Information Section */}
+                  <div className="border-t pt-6 mt-6">
+                    <h3 className="text-lg font-semibold mb-4">Payment Information</h3>
+                    
+                    <div className="space-y-4">
+                      <div>
+                        <Label htmlFor="cardName">Cardholder Name *</Label>
+                        <Input
+                          id="cardName"
+                          placeholder="John Doe"
+                          value={paymentInfo.cardName}
+                          onChange={(e) =>
+                            setPaymentInfo({ ...paymentInfo, cardName: e.target.value })
+                          }
+                          required
+                        />
+                      </div>
+
+                      <div>
+                        <Label htmlFor="cardNumber">Card Number *</Label>
+                        <Input
+                          id="cardNumber"
+                          placeholder="1234 5678 9012 3456"
+                          value={paymentInfo.cardNumber}
+                          onChange={(e) => {
+                            // Format card number with spaces
+                            const value = e.target.value.replace(/\s/g, '').replace(/(\d{4})/g, '$1 ').trim();
+                            setPaymentInfo({ ...paymentInfo, cardNumber: value });
+                          }}
+                          maxLength={19}
+                          required
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <Label htmlFor="expiryDate">Expiry Date *</Label>
+                          <Input
+                            id="expiryDate"
+                            placeholder="MM/YY"
+                            value={paymentInfo.expiryDate}
+                            onChange={(e) => {
+                              // Format expiry date as MM/YY
+                              let value = e.target.value.replace(/\D/g, '');
+                              if (value.length >= 2) {
+                                value = value.slice(0, 2) + '/' + value.slice(2, 4);
+                              }
+                              setPaymentInfo({ ...paymentInfo, expiryDate: value });
+                            }}
+                            maxLength={5}
+                            required
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="cvv">CVV *</Label>
+                          <Input
+                            id="cvv"
+                            placeholder="123"
+                            type="password"
+                            value={paymentInfo.cvv}
+                            onChange={(e) => {
+                              const value = e.target.value.replace(/\D/g, '');
+                              setPaymentInfo({ ...paymentInfo, cvv: value });
+                            }}
+                            maxLength={4}
+                            required
+                          />
+                        </div>
+                      </div>
+
+                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
+                        <div className="flex items-start gap-3">
+                          <svg className="w-5 h-5 text-blue-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                          </svg>
+                          <div className="flex-1">
+                            <p className="text-sm font-medium text-blue-900">Secure Payment</p>
+                            <p className="text-xs text-blue-700 mt-1">Your payment information is encrypted and secure</p>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
 

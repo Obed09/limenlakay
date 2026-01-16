@@ -46,6 +46,15 @@ export default function AdminPage() {
           
           <div className="flex items-center space-x-3">
             <a 
+              href="/admin-products"
+              rel="noopener noreferrer"
+            >
+              <Button className="flex items-center space-x-2 bg-amber-600 hover:bg-amber-700">
+                <Package className="h-4 w-4" />
+                <span>Manage Storefront Products</span>
+              </Button>
+            </a>
+            <a 
               href="/bulk-order"
               target="_blank"
               rel="noopener noreferrer"

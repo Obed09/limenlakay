@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import { ThemeProvider } from "next-themes";
-import { SiteHeader } from "@/components/site-header";
+import { WishlistProvider } from "@/lib/wishlist-context";
 import { Toaster } from "@/components/ui/toaster";
 import "./globals.css";
 
@@ -37,9 +37,10 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <SiteHeader />
-          {children}
-          <Toaster />
+          <WishlistProvider>
+            {children}
+            <Toaster />
+          </WishlistProvider>
         </ThemeProvider>
       </body>
     </html>

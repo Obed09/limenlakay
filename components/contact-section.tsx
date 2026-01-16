@@ -5,7 +5,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { notifyNewInquiry } from "@/lib/email-notifications";
 import { BulkOrderModal } from "@/components/bulk-order-modal";
 
 export function ContactSection() {
@@ -37,13 +36,42 @@ export function ContactSection() {
     setIsSubmitting(true);
     
     try {
-      // Here you would integrate with Supabase to save the inquiry
-      console.log('Form submission:', formData);
+      // Send email notification using Supabase Edge Function
+      const response = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/send-email`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`,
+        },
+        body: JSON.stringify({
+          to: 'info@limenlakay.com',
+          subject: `New Custom Order Inquiry from ${formData.name}`,
+          html: `
+            <h2>New Custom Order Inquiry</h2>
+            <p><strong>From:</strong> ${formData.name}</p>
+            <p><strong>Email:</strong> ${formData.email}</p>
+            <p><strong>Phone:</strong> ${formData.phone || 'Not provided'}</p>
+            <p><strong>Order Type:</strong> ${formData.orderType || 'Not specified'}</p>
+            <p><strong>Vessel Preference:</strong> ${formData.vesselPreference || 'Not specified'}</p>
+            <p><strong>Scent Preference:</strong> ${formData.scentPreference || 'Not specified'}</p>
+            <p><strong>Quantity:</strong> ${formData.quantity || 'Not specified'}</p>
+            <p><strong>Message:</strong></p>
+            <p>${formData.message || 'No message provided'}</p>
+            <hr>
+            <p><em>Respond within 24 hours to maintain excellent customer service!</em></p>
+          `,
+        }),
+      });
+
+      const data = await response.json();
       
-      // Send email notification to business
-      await notifyNewInquiry(formData);
+      if (!response.ok) {
+        console.error('Email error response:', data);
+        throw new Error(data.error || 'Failed to send email');
+      }
       
-      setSubmitMessage('Thank you for your inquiry! We will get back to you within 24 hours.');
+      console.log('Email sent successfully:', data);
+      setSubmitMessage('Thank you for your inquiry! We will get back to you within 24 hours at ' + formData.email);
       setFormData({
         name: '',
         email: '',
@@ -54,8 +82,9 @@ export function ContactSection() {
         quantity: '',
         message: ''
       });
-    } catch {
-      setSubmitMessage('Sorry, there was an error submitting your inquiry. Please try again.');
+    } catch (error) {
+      console.error('Error submitting inquiry:', error);
+      setSubmitMessage('Sorry, there was an error submitting your inquiry. Please email us directly at info@limenlakay.com');
     } finally {
       setIsSubmitting(false);
     }
@@ -73,73 +102,9 @@ export function ContactSection() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Contact Info */}
-          <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-xl">Contact Information</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <h4 className="font-semibold text-gray-900 dark:text-gray-100">Email</h4>
-                  <p className="text-gray-600 dark:text-gray-400">info@limenlakay.com</p>
-                </div>
-                <div>
-                  <h4 className="font-semibold text-gray-900 dark:text-gray-100">Phone</h4>
-                  <p className="text-gray-600 dark:text-gray-400">+1 561 593 0238</p>
-                </div>
-                <div>
-                  <h4 className="font-semibold text-gray-900 dark:text-gray-100">Response Time</h4>
-                  <p className="text-gray-600 dark:text-gray-400">Within 24 hours</p>
-                </div>
-                <div>
-                  <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Follow Us</h4>
-                  <div className="flex gap-4">
-                    <a 
-                      href="https://www.instagram.com/limenlakay" 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="text-gray-600 dark:text-gray-400 hover:text-amber-600 dark:hover:text-amber-400 transition-colors"
-                      aria-label="Instagram"
-                    >
-                      <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                        <path fillRule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.067.06 1.407.06 4.123v.08c0 2.643-.012 2.987-.06 4.043-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.067.048-1.407.06-4.123.06h-.08c-2.643 0-2.987-.012-4.043-.06-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.047-1.024-.06-1.379-.06-3.808v-.63c0-2.43.013-2.784.06-3.808.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.45 2.525c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.256 2 11.685 2h.63zm-.081 1.802h-.468c-2.456 0-2.784.011-3.807.058-.975.045-1.504.207-1.857.344-.467.182-.8.398-1.15.748-.35.35-.566.683-.748 1.15-.137.353-.3.882-.344 1.857-.047 1.023-.058 1.351-.058 3.807v.468c0 2.456.011 2.784.058 3.807.045.975.207 1.504.344 1.857.182.466.399.8.748 1.15.35.35.683.566 1.15.748.353.137.882.3 1.857.344 1.054.048 1.37.058 4.041.058h.08c2.597 0 2.917-.01 3.96-.058.976-.045 1.505-.207 1.858-.344.466-.182.8-.398 1.15-.748.35-.35.566-.683.748-1.15.137-.353.3-.882.344-1.857.048-1.055.058-1.37.058-4.041v-.08c0-2.597-.01-2.917-.058-3.96-.045-.976-.207-1.505-.344-1.858a3.097 3.097 0 00-.748-1.15 3.098 3.098 0 00-1.15-.748c-.353-.137-.882-.3-1.857-.344-1.023-.047-1.351-.058-3.807-.058zM12 6.865a5.135 5.135 0 110 10.27 5.135 5.135 0 010-10.27zm0 1.802a3.333 3.333 0 100 6.666 3.333 3.333 0 000-6.666zm5.338-3.205a1.2 1.2 0 110 2.4 1.2 1.2 0 010-2.4z" clipRule="evenodd" />
-                      </svg>
-                    </a>
-                    <a 
-                      href="https://www.tiktok.com/@limenlaky" 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="text-gray-600 dark:text-gray-400 hover:text-amber-600 dark:hover:text-amber-400 transition-colors"
-                      aria-label="TikTok"
-                    >
-                      <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-5.2 1.74 2.89 2.89 0 012.31-4.64 2.93 2.93 0 01.88.13V9.4a6.84 6.84 0 00-1-.05A6.33 6.33 0 005 20.1a6.34 6.34 0 0010.86-4.43v-7a8.16 8.16 0 004.77 1.52v-3.4a4.85 4.85 0 01-1-.1z" />
-                      </svg>
-                    </a>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-xl">Order Details</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3 text-sm">
-                <p className="text-gray-600 dark:text-gray-400">• Custom orders: 5-7 business days</p>
-                <p className="text-gray-600 dark:text-gray-400">• Standard collections: 2-3 business days</p>
-                <p className="text-gray-600 dark:text-gray-400">• Local delivery available</p>
-                <p className="text-gray-600 dark:text-gray-400">• Shipping nationwide</p>
-                <p className="text-gray-600 dark:text-gray-400">• Bulk orders welcome</p>
-              </CardContent>
-            </Card>
-          </div>
-
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Bulk Order Questionnaire - Prominent CTA */}
-          <div className="lg:col-span-1">
-            <Card className="h-full border-4 border-amber-500 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 hover:shadow-2xl transition-all duration-300 hover:scale-105">
+          <div className="lg:col-span-1">\n            <Card className="h-full border-4 border-amber-500 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 hover:shadow-2xl transition-all duration-300 hover:scale-105">
               <CardHeader className="text-center pb-4">
                 <div className="mx-auto mb-4 w-20 h-20 bg-amber-600 rounded-full flex items-center justify-center">
                   <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
