@@ -15,6 +15,9 @@ export const metadata: Metadata = {
   metadataBase: new URL(defaultUrl),
   title: "Limen Lakay - Handmade Candles & Concrete Vessels",
   description: "Discover beautifully crafted handmade candles in unique concrete vessels and artisanal materials. Each candle tells a story of craftsmanship and warmth for your home.",
+  icons: {
+    icon: '/images/favicon-32x32.png',
+  },
 };
 
 const geistSans = Geist({
