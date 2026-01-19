@@ -205,6 +205,12 @@ export function KringleProductGrid({
                 <Button
                   className="w-full bg-amber-600 hover:bg-amber-700 text-white"
                   size="sm"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    // Redirect to contact form with candle details
+                    window.location.href = `/#contact?product=${encodeURIComponent(candle.name)}&sku=${encodeURIComponent(candle.sku)}&price=${candle.price}`;
+                  }}
                 >
                   <ShoppingCart className="w-4 h-4 mr-2" />
                   Add To Cart
