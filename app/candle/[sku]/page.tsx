@@ -276,8 +276,8 @@ export default function CandlePage() {
                   className="w-full bg-amber-600 hover:bg-amber-700 text-white text-lg"
                   disabled={candle.stock_quantity === 0}
                   onClick={() => {
-                    // Redirect to contact form with candle details
-                    window.location.href = `/?product=${encodeURIComponent(candle.name)}&sku=${encodeURIComponent(candle.sku)}&price=${candle.price}#contact`;
+                    // Redirect to checkout page
+                    window.location.href = `/checkout?product=${encodeURIComponent(candle.name)}&sku=${encodeURIComponent(candle.sku)}&price=${candle.price}`;
                   }}
                 >
                   <ShoppingCart className="w-5 h-5 mr-2" />
