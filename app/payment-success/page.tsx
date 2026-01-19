@@ -1,29 +1,15 @@
 'use client';
 
-import { useEffect, useState, Suspense } from 'react';
+import { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { CheckCircle, Package, Mail, Home } from 'lucide-react';
 import Link from 'next/link';
-import confetti from 'canvas-confetti';
 
 function PaymentSuccessContent() {
   const searchParams = useSearchParams();
   const sessionId = searchParams.get('session_id');
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    // Trigger confetti animation
-    if (typeof window !== 'undefined') {
-      confetti({
-        particleCount: 100,
-        spread: 70,
-        origin: { y: 0.6 }
-      });
-    }
-    setLoading(false);
-  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-amber-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-950 flex items-center justify-center px-4">
