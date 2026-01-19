@@ -1,4 +1,7 @@
 import { Metadata } from "next";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "About Us | Limen Lakay - Handcrafted Concrete Candles",
@@ -8,6 +11,16 @@ export const metadata: Metadata = {
 export default function AboutPage() {
   return (
     <main className="min-h-screen bg-gradient-to-b from-white via-amber-50/30 to-white dark:from-gray-900 dark:via-amber-950/20 dark:to-gray-900">
+      {/* Back to Home Button */}
+      <div className="max-w-7xl mx-auto px-4 py-6">
+        <Button asChild variant="outline" className="font-semibold text-base hover:bg-amber-50 dark:hover:bg-amber-950">
+          <Link href="/" className="flex items-center gap-2">
+            <ArrowLeft className="w-5 h-5" />
+            Back to Home
+          </Link>
+        </Button>
+      </div>
+
       {/* Hero Section */}
       <section className="relative py-20 px-4 overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(251,191,36,0.1),transparent_50%)]"></div>
