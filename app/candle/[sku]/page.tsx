@@ -277,8 +277,7 @@ export default function CandlePage() {
                   disabled={candle.stock_quantity === 0}
                   onClick={() => {
                     // Redirect to contact form with candle details
-                    const message = `I'm interested in purchasing:\n\nCandle: ${candle.name}\nSKU: ${candle.sku}\nPrice: $${candle.price}\nVessel: ${candle.vessel?.name || 'N/A'}\nScent: ${candle.scent?.name || 'N/A'}\n\nPlease let me know how to proceed with the order.`;
-                    window.location.href = `/#contact?product=${encodeURIComponent(candle.name)}&sku=${encodeURIComponent(candle.sku)}`;
+                    window.location.href = `/?product=${encodeURIComponent(candle.name)}&sku=${encodeURIComponent(candle.sku)}&price=${candle.price}#contact`;
                   }}
                 >
                   <ShoppingCart className="w-5 h-5 mr-2" />
