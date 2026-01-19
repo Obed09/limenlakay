@@ -208,8 +208,8 @@ export function KringleProductGrid({
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    // Redirect to contact form with candle details
-                    window.location.href = `/?product=${encodeURIComponent(candle.name)}&sku=${encodeURIComponent(candle.sku)}&price=${candle.price}#contact`;
+                    // Redirect to checkout page
+                    window.location.href = `/checkout?product=${encodeURIComponent(candle.name)}&sku=${encodeURIComponent(candle.sku)}&price=${candle.price}`;
                   }}
                 >
                   <ShoppingCart className="w-4 h-4 mr-2" />
