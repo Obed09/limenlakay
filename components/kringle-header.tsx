@@ -264,10 +264,6 @@ export function KringleHeader() {
           <Link href="/about" className="hover:text-amber-600 dark:hover:text-amber-400 transition-colors font-semibold text-base">
             About Us
           </Link>
-
-          <Link href="/admin" className="hover:text-amber-600 dark:hover:text-amber-400 transition-colors font-semibold text-base">
-            Admin
-          </Link>
         </nav>
 
         {/* Mobile Menu */}
@@ -310,9 +306,6 @@ export function KringleHeader() {
               </Link>
               <Link href="/about" className="py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md font-medium">
                 About Us
-              </Link>
-              <Link href="/admin" className="py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md font-medium">
-                Admin
               </Link>
               <Link href="/auth/login" className="py-2 px-4 bg-amber-600 text-white rounded-md font-medium text-center hover:bg-amber-700">
                 Login
