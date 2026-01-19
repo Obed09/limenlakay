@@ -275,6 +275,11 @@ export default function CandlePage() {
                   size="lg" 
                   className="w-full bg-amber-600 hover:bg-amber-700 text-white text-lg"
                   disabled={candle.stock_quantity === 0}
+                  onClick={() => {
+                    // Redirect to contact form with candle details
+                    const message = `I'm interested in purchasing:\n\nCandle: ${candle.name}\nSKU: ${candle.sku}\nPrice: $${candle.price}\nVessel: ${candle.vessel?.name || 'N/A'}\nScent: ${candle.scent?.name || 'N/A'}\n\nPlease let me know how to proceed with the order.`;
+                    window.location.href = `/#contact?product=${encodeURIComponent(candle.name)}&sku=${encodeURIComponent(candle.sku)}`;
+                  }}
                 >
                   <ShoppingCart className="w-5 h-5 mr-2" />
                   Add to Cart
@@ -283,6 +288,10 @@ export default function CandlePage() {
                   size="lg" 
                   variant="outline" 
                   className="w-full border-amber-600 text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-950"
+                  onClick={() => {
+                    // Add to wishlist functionality (using existing wishlist context if available)
+                    alert('Wishlist feature coming soon! For now, please contact us to save this item.');
+                  }}
                 >
                   <Heart className="w-5 h-5 mr-2" />
                   Add to Wishlist
