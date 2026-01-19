@@ -241,10 +241,10 @@ export function ContactSection() {
                       >
                         <option value="">Select vessel type</option>
                         <option value="concrete">Concrete</option>
-                        <option value="wood">Wood</option>
-                        <option value="ceramic">Ceramic</option>
-                        <option value="glass">Glass</option>
-                        <option value="custom">Custom Material</option>
+                        <option value="wood" disabled className="text-gray-400">Wood (Coming Soon)</option>
+                        <option value="ceramic" disabled className="text-gray-400">Ceramic (Coming Soon)</option>
+                        <option value="glass" disabled className="text-gray-400">Glass (Coming Soon)</option>
+                        <option value="custom" disabled className="text-gray-400">Custom Material (Coming Soon)</option>
                       </select>
                     </div>
                     <div className="space-y-2">
