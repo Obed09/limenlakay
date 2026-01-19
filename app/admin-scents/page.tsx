@@ -23,6 +23,8 @@ interface Scent {
 export default function AdminScentsPage() {
   const [scents, setScents] = useState<Scent[]>([]);
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const [formData, setFormData] = useState({
@@ -52,12 +54,24 @@ export default function AdminScentsPage() {
   }
 
   const handleAdd = async () => {
-    const { error } = await supabase
-      .from('scents')
-      .insert([formData]);
+    setError('');
+    setSaving(true);
 
-    if (!error) {
-      fetchScents();
+    try {
+      const { data, error: insertError } = await supabase
+        .from('scents')
+        .insert([formData])
+        .select();
+
+      if (insertError) {
+        console.error('Insert error:', insertError);
+        setError(insertError.message || 'Failed to add scent');
+        setSaving(false);
+        return;
+      }
+
+      console.log('Scent added successfully:', data);
+      await fetchScents();
       setShowAddForm(false);
       setFormData({
         name: '',
@@ -66,6 +80,11 @@ export default function AdminScentsPage() {
         description: '',
         is_available: true
       });
+    } catch (err) {
+      console.error('Error adding scent:', err);
+      setError('Failed to add scent. Please try again.');
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -183,9 +202,24 @@ export default function AdminScentsPage() {
                 />
                 <Label>Available on website</Label>
               </div>
-              <Button onClick={handleAdd} className="w-full bg-amber-600 hover:bg-amber-700">
-                <Plus className="w-4 h-4 mr-2" />
-                Add Scent
+              {error && (
+                <div className="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-3 rounded text-sm">
+                  {error}
+                </div>
+              )}
+              <Button 
+                onClick={handleAdd} 
+                className="w-full bg-amber-600 hover:bg-amber-700"
+                disabled={saving || !formData.name}
+              >
+                {saving ? (
+                  <>Saving...</>
+                ) : (
+                  <>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add Scent
+                  </>
+                )}
               </Button>
             </CardContent>
           </Card>
