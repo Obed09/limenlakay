@@ -87,10 +87,10 @@ function CustomOrderContent() {
             .or('allow_custom_candle.eq.true,allow_empty_vessel.eq.true')
             .order('name'),
           supabase
-            .from('candle_scents')
+            .from('scents')
             .select('*')
             .eq('is_available', true)
-            .order('display_order')
+            .order('created_at')
         ]);
 
         if (vesselsResult.error) throw vesselsResult.error;
