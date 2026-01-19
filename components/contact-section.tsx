@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,30 +21,6 @@ export function ContactSection() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState('');
   const [showBulkModal, setShowBulkModal] = useState(false);
-
-  // Pre-fill form with product information from URL parameters
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search);
-      const product = params.get('product');
-      const sku = params.get('sku');
-      const price = params.get('price');
-      
-      if (product || sku) {
-        let message = 'I would like to purchase:\n\n';
-        if (product) message += `Product: ${product}\n`;
-        if (sku) message += `SKU: ${sku}\n`;
-        if (price) message += `Price: $${price}\n`;
-        message += '\nPlease let me know how to proceed with the order.';
-        
-        setFormData(prev => ({
-          ...prev,
-          message,
-          orderType: 'single'
-        }));
-      }
-    }
-  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
