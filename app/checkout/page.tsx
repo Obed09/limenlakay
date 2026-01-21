@@ -3,6 +3,7 @@
 import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
+import { SiteFooter } from '@/components/site-footer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -19,6 +20,8 @@ function CheckoutContent() {
   const productName = searchParams.get('product') || '';
   const sku = searchParams.get('sku') || '';
   const price = parseFloat(searchParams.get('price') || '0');
+  const SHIPPING_COST = 8.99; // Flat rate shipping
+  const total = price + SHIPPING_COST;
   
   const [formData, setFormData] = useState({
     name: '',
@@ -53,6 +56,7 @@ function CheckoutContent() {
           productName,
           sku,
           price,
+          shipping: SHIPPING_COST,
           quantity: 1,
           customerInfo: formData
         }),
@@ -132,11 +136,11 @@ function CheckoutContent() {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600 dark:text-gray-400">Shipping:</span>
-                    <span className="text-green-600">Free</span>
+                    <span>${SHIPPING_COST.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-lg font-bold pt-2 border-t">
                     <span>Total:</span>
-                    <span className="text-amber-600">${price.toFixed(2)}</span>
+                    <span className="text-amber-600">${total.toFixed(2)}</span>
                   </div>
                 </div>
 

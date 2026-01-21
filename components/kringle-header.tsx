@@ -33,8 +33,13 @@ export function KringleHeader() {
   const [finishedCandles, setFinishedCandles] = useState<FinishedCandle[]>([]);
   const [searchResults, setSearchResults] = useState<FinishedCandle[]>([]);
   const [showSearchResults, setShowSearchResults] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const { wishlist } = useWishlist();
   const router = useRouter();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     // Fetch both finished candles and empty vessels
@@ -221,6 +226,8 @@ export function KringleHeader() {
 
         {/* Navigation - Desktop */}
         <nav className="hidden lg:flex items-center justify-center gap-8 py-4 border-t border-gray-200 dark:border-gray-800">
+          {mounted && (
+            <>
           <DropdownMenu>
             <DropdownMenuTrigger className="flex items-center gap-1 hover:text-amber-600 dark:hover:text-amber-400 transition-colors font-semibold text-base">
               Candles <ChevronDown className="w-4 h-4" />
@@ -264,6 +271,8 @@ export function KringleHeader() {
           <Link href="/about" className="hover:text-amber-600 dark:hover:text-amber-400 transition-colors font-semibold text-base">
             About Us
           </Link>
+            </>
+          )}
         </nav>
 
         {/* Mobile Menu */}

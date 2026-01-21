@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
+import { SiteFooter } from "@/components/site-footer";
 
 export const metadata: Metadata = {
   title: "About Us | Limen Lakay - Handcrafted Concrete Candles",
@@ -29,7 +30,7 @@ export default function AboutPage() {
             The Art of <span className="text-amber-600 dark:text-amber-500">Limen Lakay</span>
           </h1>
           <p className="text-xl lg:text-2xl text-gray-700 dark:text-gray-300 leading-relaxed max-w-3xl mx-auto">
-            Limen Lakay means <span className="font-semibold text-amber-700 dark:text-amber-400">light of the home</span> in Haitian Creole, 
+            Limen Lakay means <span className="font-semibold text-amber-700 dark:text-amber-400">Light The home</span> in Haitian Creole, 
             and that is exactly what we create - candles that bring warmth, comfort, and beauty to your living space.
           </p>
         </div>
@@ -42,14 +43,24 @@ export default function AboutPage() {
             <div className="space-y-6">
               <h2 className="text-4xl font-bold text-gray-900 dark:text-gray-100">Our Story</h2>
               <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
-                Every candle begins as an idea, transforms through careful craftsmanship, and becomes a 
-                unique piece that tells its own story. We believe in the power of handmade objects to 
-                connect us to something deeper and more meaningful.
+                Limen Lakay was born from my own journey through darkness — mentally, emotionally, and physically. 
+                When life felt heavy, I turned to prayer, faith, and the smallest source of hope… light.
               </p>
               <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
-                Each vessel is carefully selected or handcrafted, each scent thoughtfully blended, 
-                and each candle poured with intention. This is more than just creating candles - 
-                it's about crafting moments of peace, warmth, and beauty for your home.
+                Growing up in Haiti, candles were part of everyday survival. When the power went out, 
+                that humble flame helped me study, dream, and believe there was more waiting for me. 
+                It lit the path toward the future I couldn&apos;t yet see.
+              </p>
+              <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
+                Today, Limen Lakay carries that same spirit of resilience. Each candle is crafted as a reminder that 
+                your light matters — even when shadows fall. It represents identity, love, endurance, 
+                and the strength to rise again and again.
+              </p>
+              <p className="text-lg font-medium text-amber-700 dark:text-amber-400 leading-relaxed">
+                Every flame tells a story: Of home. Of culture. Of finding yourself after being lost.
+              </p>
+              <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed italic">
+                Welcome to Limen Lakay — where light becomes legacy, and every burn guides you back home.
               </p>
             </div>
             
@@ -231,6 +242,7 @@ export default function AboutPage() {
           </div>
         </div>
       </section>
+      <SiteFooter />
     </main>
   );
 }
