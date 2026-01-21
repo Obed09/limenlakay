@@ -4,6 +4,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { SiteFooter } from '@/components/site-footer';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -782,6 +783,7 @@ export default function WorkshopSubscriptionPage() {
           </div>
         </div>
       </section>
+      <SiteFooter />
     </div>
   );
 }

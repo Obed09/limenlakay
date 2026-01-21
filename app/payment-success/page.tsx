@@ -3,6 +3,7 @@
 import { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
+import { SiteFooter } from '@/components/site-footer';
 import { Card, CardContent } from '@/components/ui/card';
 import { CheckCircle, Package, Mail, Home } from 'lucide-react';
 import Link from 'next/link';
@@ -85,6 +86,7 @@ function PaymentSuccessContent() {
           </p>
         </CardContent>
       </Card>
+      <SiteFooter />
     </div>
   );
 }
