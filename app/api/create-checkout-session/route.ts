@@ -21,23 +21,40 @@ export async function POST(request: NextRequest) {
     // Check if this is a product checkout or workshop checkout
     if (body.productName && body.sku) {
       // Product Checkout Flow
-      const { productName, sku, price, quantity, customerInfo } = body;
+      const { productName, sku, price, shipping, quantity, customerInfo } = body;
+
+      const lineItems = [
+        {
+          price_data: {
+            currency: 'usd',
+            product_data: {
+              name: productName,
+              description: `SKU: ${sku}`,
+            },
+            unit_amount: Math.round(price * 100), // Convert to cents
+          },
+          quantity: quantity || 1,
+        },
+      ];
+
+      // Add shipping as a separate line item if provided
+      if (shipping) {
+        lineItems.push({
+          price_data: {
+            currency: 'usd',
+            product_data: {
+              name: 'Standard Shipping',
+              description: 'UPS Ground Shipping',
+            },
+            unit_amount: Math.round(shipping * 100), // Convert to cents
+          },
+          quantity: 1,
+        });
+      }
 
       const session = await stripe.checkout.sessions.create({
         payment_method_types: ['card'],
-        line_items: [
-          {
-            price_data: {
-              currency: 'usd',
-              product_data: {
-                name: productName,
-                description: `SKU: ${sku}`,
-              },
-              unit_amount: Math.round(price * 100), // Convert to cents
-            },
-            quantity: quantity || 1,
-          },
-        ],
+        line_items: lineItems,
         mode: 'payment',
         success_url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://limenlakay.com'}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://limenlakay.com'}/checkout?product=${encodeURIComponent(productName)}&sku=${encodeURIComponent(sku)}&price=${price}`,
