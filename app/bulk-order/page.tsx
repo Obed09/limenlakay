@@ -2,6 +2,7 @@ import BulkOrderQuestionnaire from '@/components/bulk-order-questionnaire';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
+import { SiteFooter } from '@/components/site-footer';
 
 export default function BulkOrderPage() {
   return (
@@ -15,6 +16,7 @@ export default function BulkOrderPage() {
         </Button>
       </div>
       <BulkOrderQuestionnaire />
+      <SiteFooter />
     </div>
   );
 }

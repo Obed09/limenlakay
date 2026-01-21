@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { SiteFooter } from '@/components/site-footer'
 
 export default function TermsAndConditions() {
   return (
@@ -166,6 +167,7 @@ export default function TermsAndConditions() {
           </p>
         </div>
       </div>
+      <SiteFooter />
     </div>
   )
 }

@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { SiteFooter } from '@/components/site-footer'
 
 export default function PrivacyPolicy() {
   return (
@@ -111,6 +112,7 @@ export default function PrivacyPolicy() {
           </p>
         </div>
       </div>
+      <SiteFooter />
     </div>
   )
 }

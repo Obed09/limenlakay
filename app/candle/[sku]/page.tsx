@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { KringleHeader } from '@/components/kringle-header';
+import { SiteFooter } from '@/components/site-footer';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -300,6 +301,7 @@ export default function CandlePage() {
           </div>
         </div>
       </main>
+      <SiteFooter />
     </div>
   );
 }
