@@ -13,7 +13,7 @@ export function SiteFooter() {
               <span className="text-base font-bold text-amber-600 dark:text-amber-500">Limen Lakay</span>
             </Link>
             <p className="text-xs text-gray-500 dark:text-gray-500 leading-relaxed">
-              Handcrafted candles that bring light, warmth, and beautiful fragrances to your home since 2024.
+              Handcrafted candles that bring light, warmth, and beautiful fragrances to your home.
             </p>
           </div>
 
