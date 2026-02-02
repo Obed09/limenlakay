@@ -7,6 +7,7 @@ import { SiteFooter } from '@/components/site-footer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { AddressAutocomplete } from '@/components/address-autocomplete';
 import { ArrowLeft, CreditCard, Lock, ShoppingBag } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -259,54 +260,20 @@ function CheckoutContent() {
                     />
                   </div>
 
-                  <div>
-                    <Label htmlFor="address">Shipping Address *</Label>
-                    <Input
-                      id="address"
-                      name="address"
-                      value={formData.address}
-                      onChange={handleChange}
-                      required
-                      placeholder="123 Main St"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="city">City *</Label>
-                      <Input
-                        id="city"
-                        name="city"
-                        value={formData.city}
-                        onChange={handleChange}
-                        required
-                        placeholder="New York"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="state">State *</Label>
-                      <Input
-                        id="state"
-                        name="state"
-                        value={formData.state}
-                        onChange={handleChange}
-                        required
-                        placeholder="NY"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <Label htmlFor="zip">ZIP Code *</Label>
-                    <Input
-                      id="zip"
-                      name="zip"
-                      value={formData.zip}
-                      onChange={handleChange}
-                      required
-                      placeholder="10001"
-                    />
-                  </div>
+                  {/* Address Autocomplete Component */}
+                  <AddressAutocomplete
+                    value={{
+                      address: formData.address,
+                      city: formData.city,
+                      state: formData.state,
+                      zip: formData.zip,
+                    }}
+                    onChange={(addressData) =>
+                      setFormData({ ...formData, ...addressData })
+                    }
+                    onZipComplete={(zip, state) => calculateShipping(zip, state)}
+                    required={true}
+                  />
 
                   {error && (
                     <div className="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-3 rounded-lg text-sm">

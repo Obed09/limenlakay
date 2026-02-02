@@ -12,6 +12,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Check, ShoppingCart, ArrowRight, ArrowLeft, Package, X, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { AddressAutocomplete } from '@/components/address-autocomplete';
 import Link from 'next/link';
 
 interface Vessel {
@@ -760,53 +761,20 @@ function CustomOrderContent() {
                     />
                   </div>
 
-                  <div>
-                    <Label htmlFor="address">Street Address</Label>
-                    <Input
-                      id="address"
-                      value={customerInfo.address}
-                      onChange={(e) =>
-                        setCustomerInfo({ ...customerInfo, address: e.target.value })
-                      }
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                      <Label htmlFor="city">City</Label>
-                      <Input
-                        id="city"
-                        value={customerInfo.city}
-                        onChange={(e) =>
-                          setCustomerInfo({ ...customerInfo, city: e.target.value })
-                        }
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="state">State</Label>
-                      <Input
-                        id="state"
-                        value={customerInfo.state}
-                        onChange={(e) =>
-                          setCustomerInfo({ ...customerInfo, state: e.target.value })
-                        }
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="zip">ZIP Code</Label>
-                      <Input
-                        id="zip"
-                        value={customerInfo.zip}
-                        onChange={(e) => {
-                          setCustomerInfo({ ...customerInfo, zip: e.target.value });
-                          // Calculate shipping when zip is complete
-                          if (e.target.value.length === 5 && customerInfo.state) {
-                            calculateShipping(e.target.value, customerInfo.state);
-                          }
-                        }}
-                      />
-                    </div>
-                  </div>
+                  {/* Address Autocomplete Component */}
+                  <AddressAutocomplete
+                    value={{
+                      address: customerInfo.address,
+                      city: customerInfo.city,
+                      state: customerInfo.state,
+                      zip: customerInfo.zip,
+                    }}
+                    onChange={(addressData) =>
+                      setCustomerInfo({ ...customerInfo, ...addressData })
+                    }
+                    onZipComplete={(zip, state) => calculateShipping(zip, state)}
+                    required={false}
+                  />
 
                   {/* Payment Information Section */}
                   <div className="border-t pt-6 mt-6">
