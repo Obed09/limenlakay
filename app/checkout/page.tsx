@@ -16,12 +16,14 @@ function CheckoutContent() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [shippingCost, setShippingCost] = useState(8.99); // Default fallback
+  const [loadingShipping, setLoadingShipping] = useState(false);
+  const [shippingService, setShippingService] = useState('Standard Shipping');
   
   const productName = searchParams.get('product') || '';
   const sku = searchParams.get('sku') || '';
   const price = parseFloat(searchParams.get('price') || '0');
-  const SHIPPING_COST = 8.99; // Flat rate shipping
-  const total = price + SHIPPING_COST;
+  const total = price + shippingCost;
   
   const [formData, setFormData] = useState({
     name: '',
@@ -38,6 +40,47 @@ function CheckoutContent() {
       ...prev,
       [e.target.name]: e.target.value
     }));
+    
+    // Calculate shipping when zip code changes
+    if (e.target.name === 'zip' && e.target.value.length === 5) {
+      calculateShipping(e.target.value, formData.state);
+    }
+  };
+
+  const calculateShipping = async (zip: string, state: string) => {
+    if (!zip || !state) return;
+    
+    setLoadingShipping(true);
+    try {
+      const response = await fetch('/api/ups/shipping-rate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          toZip: zip,
+          toState: state,
+          toCity: formData.city,
+          weight: 2, // Assume 2 lbs for candles
+          service: "03" // UPS Ground
+        })
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        setShippingCost(data.cost);
+        setShippingService(data.service);
+      } else {
+        // Use fallback rate
+        setShippingCost(data.cost || 8.99);
+        setShippingService(data.service || 'Standard Shipping');
+      }
+    } catch (error) {
+      console.error('Shipping calculation error:', error);
+      setShippingCost(8.99); // Fallback
+      setShippingService('Standard Shipping');
+    } finally {
+      setLoadingShipping(false);
+    }
   };
 
   const handleCheckout = async (e: React.FormEvent) => {
@@ -56,7 +99,7 @@ function CheckoutContent() {
           productName,
           sku,
           price,
-          shipping: SHIPPING_COST,
+          shipping: shippingCost,
           quantity: 1,
           customerInfo: formData
         }),
@@ -136,7 +179,16 @@ function CheckoutContent() {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600 dark:text-gray-400">Shipping:</span>
-                    <span>${SHIPPING_COST.toFixed(2)}</span>
+                    <div className="text-right">
+                      {loadingShipping ? (
+                        <span className="text-sm text-gray-500">Calculating...</span>
+                      ) : (
+                        <>
+                          <span>${shippingCost.toFixed(2)}</span>
+                          <p className="text-xs text-gray-500">{shippingService}</p>
+                        </>
+                      )}
+                    </div>
                   </div>
                   <div className="flex justify-between text-lg font-bold pt-2 border-t">
                     <span>Total:</span>

@@ -52,6 +52,8 @@ function CustomOrderContent() {
   const [loading, setLoading] = useState(true);
   const [showNotice, setShowNotice] = useState(true);
   const [purchaseType, setPurchaseType] = useState<'custom' | 'empty' | null>(null);
+  const [shippingCost, setShippingCost] = useState(10); // Default
+  const [loadingShipping, setLoadingShipping] = useState(false);
   
   // Customer info
   const [customerInfo, setCustomerInfo] = useState({
@@ -180,8 +182,40 @@ function CustomOrderContent() {
 
   const calculateTotal = () => {
     const subtotal = cart.reduce((sum, item) => sum + item.vessel.price, 0);
-    const shipping = 10; // Fixed shipping for now
-    return { subtotal, shipping, total: subtotal + shipping };
+    return { subtotal, shipping: shippingCost, total: subtotal + shippingCost };
+  };
+
+  const calculateShipping = async (zip: string, state: string) => {
+    if (!zip || !state || cart.length === 0) return;
+    
+    setLoadingShipping(true);
+    try {
+      // Estimate weight based on cart items (assume 1.5 lbs per candle)
+      const weight = cart.length * 1.5;
+      
+      const response = await fetch('/api/ups/shipping-rate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          toZip: zip,
+          toState: state,
+          toCity: customerInfo.city,
+          weight: Math.max(weight, 2), // Minimum 2 lbs
+          service: "03" // UPS Ground
+        })
+      });
+      
+      const data = await response.json();
+      
+      if (data.success || data.fallback) {
+        setShippingCost(data.cost);
+      }
+    } catch (error) {
+      console.error('Shipping calculation error:', error);
+      setShippingCost(10); // Fallback
+    } finally {
+      setLoadingShipping(false);
+    }
   };
 
   const handleSubmitOrder = async () => {
@@ -763,9 +797,13 @@ function CustomOrderContent() {
                       <Input
                         id="zip"
                         value={customerInfo.zip}
-                        onChange={(e) =>
-                          setCustomerInfo({ ...customerInfo, zip: e.target.value })
-                        }
+                        onChange={(e) => {
+                          setCustomerInfo({ ...customerInfo, zip: e.target.value });
+                          // Calculate shipping when zip is complete
+                          if (e.target.value.length === 5 && customerInfo.state) {
+                            calculateShipping(e.target.value, customerInfo.state);
+                          }
+                        }}
                       />
                     </div>
                   </div>
@@ -933,8 +971,17 @@ function CustomOrderContent() {
                     </div>
                     <div className="flex justify-between text-sm">
                       <span>Shipping</span>
-                      <span>${shipping.toFixed(2)}</span>
+                      <span>
+                        {loadingShipping ? (
+                          <span className="text-xs text-gray-500">Calculating...</span>
+                        ) : (
+                          `$${shipping.toFixed(2)}`
+                        )}
+                      </span>
                     </div>
+                    {!loadingShipping && customerInfo.zip.length === 5 && (
+                      <div className="text-xs text-gray-500 text-right">UPS Ground</div>
+                    )}
                     <div className="flex justify-between font-bold text-lg border-t pt-2">
                       <span>Total</span>
                       <span>${total.toFixed(2)}</span>
