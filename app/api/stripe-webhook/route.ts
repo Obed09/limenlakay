@@ -64,17 +64,36 @@ export async function POST(request: NextRequest) {
 
       // Send confirmation email
       try {
-        await fetch(`${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/workshop-booking/send-email`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            to: email,
-            name,
-            date: workshopDate,
-            packageType,
-            price: amountPaid,
-          }),
-        });
+        // Check if this is a workshop booking or product order
+        if (packageType) {
+          // Workshop booking - use workshop email endpoint
+          await fetch(`${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/workshop-booking/send-email`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              to: email,
+              name,
+              date: workshopDate,
+              packageType,
+              price: amountPaid,
+            }),
+          });
+        } else {
+          // Product order - use order email endpoint
+          const { sku, productName } = session.metadata!;
+          await fetch(`${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/orders/send-email`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              to: email,
+              type: 'confirmation',
+              orderNumber: session.id.substring(0, 20),
+              customerName: name || 'Valued Customer',
+              total: amountPaid,
+              orderDetails: `<div class="item">${productName || sku} - $${amountPaid.toFixed(2)}</div>`,
+            }),
+          });
+        }
       } catch (emailError) {
         console.error('Email error:', emailError);
         // Don't fail the webhook if email fails

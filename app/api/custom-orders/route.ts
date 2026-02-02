@@ -132,6 +132,28 @@ export async function POST(request: Request) {
       );
     }
 
+    // Send order confirmation email to customer
+    try {
+      await fetch(`${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.limenlakay.com'}/api/orders/send-email`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          to: customer_email,
+          type: 'confirmation',
+          orderNumber: orderNumber,
+          customerName: customer_name,
+          total: total,
+          shippingAddress: `${shipping_address}, ${shipping_city}, ${shipping_state} ${shipping_zip}`,
+          orderDetails: items.map((item: any) => 
+            `<div class="item">${item.quantity}x ${item.vessel_name || 'Custom Candle'} - $${item.unit_price}</div>`
+          ).join(''),
+        }),
+      });
+    } catch (emailError) {
+      console.error('Failed to send order confirmation email:', emailError);
+      // Don't fail the order if email fails
+    }
+
     return NextResponse.json(
       {
         success: true,
@@ -189,6 +211,27 @@ export async function PATCH(request: Request) {
     if (error) {
       console.error('Error updating order:', error);
       return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    // Send shipping notification email if status changed to 'shipped' and tracking number exists
+    if (status === 'shipped' && data.tracking_number && data.customer_email) {
+      try {
+        await fetch(`${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.limenlakay.com'}/api/orders/send-email`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            to: data.customer_email,
+            type: 'shipped',
+            orderNumber: data.order_number,
+            customerName: data.customer_name,
+            trackingNumber: data.tracking_number,
+            shippingAddress: `${data.shipping_address}, ${data.shipping_city}, ${data.shipping_state} ${data.shipping_zip}`,
+          }),
+        });
+      } catch (emailError) {
+        console.error('Failed to send shipping notification email:', emailError);
+        // Don't fail the update if email fails
+      }
     }
 
     return NextResponse.json({ success: true, order: data });
