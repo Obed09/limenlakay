@@ -36,6 +36,8 @@ export default function WorkshopSubscriptionPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [sessions, setSessions] = useState<WorkshopSession[]>([]);
   const [loadingSessions, setLoadingSessions] = useState(true);
+  const [registrationEnabled, setRegistrationEnabled] = useState(true);
+  const [closedMessage, setClosedMessage] = useState("");
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -45,7 +47,23 @@ export default function WorkshopSubscriptionPage() {
 
   useEffect(() => {
     fetchSessions();
+    fetchRegistrationStatus();
   }, []);
+
+  const fetchRegistrationStatus = async () => {
+    try {
+      const response = await fetch("/api/workshop-booking/settings");
+      const data = await response.json();
+      if (data.settings) {
+        setRegistrationEnabled(data.settings.registration_enabled);
+        setClosedMessage(data.settings.closed_message || "Unfortunately, registration is closed at this time. Please check back for the next session.");
+      }
+    } catch (error) {
+      console.error("Failed to fetch registration status:", error);
+      // Default to open if there's an error
+      setRegistrationEnabled(true);
+    }
+  };
 
   const fetchSessions = async () => {
     try {
@@ -239,6 +257,32 @@ export default function WorkshopSubscriptionPage() {
             Complete the form below to reserve your spot
           </p>
           <div className="max-w-2xl mx-auto">
+            {!registrationEnabled ? (
+              <Card className="bg-[#233d4d] border-2 border-amber-500 shadow-2xl">
+                <CardContent className="p-10 text-center">
+                  <div className="mb-6">
+                    <div className="mx-auto w-20 h-20 bg-amber-500/20 rounded-full flex items-center justify-center mb-4">
+                      <UserCheck className="w-10 h-10 text-amber-400" />
+                    </div>
+                    <h3 className="text-2xl font-bold text-white mb-4">
+                      Registration Currently Closed
+                    </h3>
+                    <p className="text-gray-300 text-lg leading-relaxed">
+                      {closedMessage}
+                    </p>
+                  </div>
+                  <Button
+                    asChild
+                    className="bg-amber-600 hover:bg-amber-700 text-white px-8 py-6 rounded-lg font-semibold"
+                  >
+                    <Link href="/">
+                      <ArrowLeft className="mr-2 h-5 w-5" />
+                      Return to Homepage
+                    </Link>
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : (
             <Card className="bg-[#233d4d] border-0 shadow-2xl">
               <CardContent className="p-10">
                 <form onSubmit={handleSubmit} className="space-y-6">
@@ -379,6 +423,7 @@ export default function WorkshopSubscriptionPage() {
                 </form>
               </CardContent>
             </Card>
+          )}
           </div>
         </div>
       </section>

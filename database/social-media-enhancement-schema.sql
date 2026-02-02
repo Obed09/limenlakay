@@ -106,6 +106,12 @@ CREATE TABLE IF NOT EXISTS brand_voice_memory (
   linkedin_business_focus BOOLEAN DEFAULT true,
   email_cta_softness INTEGER DEFAULT 7 CHECK (email_cta_softness BETWEEN 1 AND 10), -- 1=hard sell, 10=soft
   
+  -- Voice Sample (Audio Upload)
+  voice_sample_url TEXT, -- URL to uploaded audio file in Supabase Storage
+  voice_sample_duration INTEGER, -- Duration in seconds
+  voice_analysis JSONB, -- AI analysis of speaking style, tone, patterns
+  voice_analyzed_at TIMESTAMPTZ,
+  
   -- Active Status
   is_active BOOLEAN DEFAULT true
 );

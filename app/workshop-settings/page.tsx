@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Calendar, Link as LinkIcon, Mail, Save, Plus, Users, DollarSign } from "lucide-react";
+import { Calendar, Link as LinkIcon, Mail, Save, Plus, Users, DollarSign, UserCheck, Loader2 } from "lucide-react";
 
 interface EmailTemplate {
   subject: string;
@@ -47,6 +47,8 @@ export default function WorkshopSettingsPage() {
     time: "",
     meetingLink: "",
   });
+  const [registrationEnabled, setRegistrationEnabled] = useState(true);
+  const [closedMessage, setClosedMessage] = useState("Unfortunately, registration is closed at this time. Please check back for the next session.");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState<'sessions' | 'bookings' | 'email' | 'payments'>('sessions');
@@ -55,6 +57,7 @@ export default function WorkshopSettingsPage() {
     fetchEmailTemplate();
     fetchSessions();
     fetchBookings();
+    fetchWorkshopSettings();
   }, []);
 
   const fetchEmailTemplate = async () => {
@@ -91,6 +94,46 @@ export default function WorkshopSettingsPage() {
       setBookings(data.bookings || []);
     } catch (error) {
       console.error("Failed to fetch bookings:", error);
+    }
+  };
+
+  const fetchWorkshopSettings = async () => {
+    try {
+      const response = await fetch("/api/workshop-booking/settings");
+      const data = await response.json();
+      if (data.settings) {
+        setRegistrationEnabled(data.settings.registration_enabled);
+        setClosedMessage(data.settings.closed_message || "Unfortunately, registration is closed at this time. Please check back for the next session.");
+      }
+    } catch (error) {
+      console.error("Failed to fetch workshop settings:", error);
+    }
+  };
+
+  const saveWorkshopSettings = async () => {
+    setSaving(true);
+    try {
+      const response = await fetch("/api/workshop-booking/settings", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          registration_enabled: registrationEnabled,
+          closed_message: closedMessage,
+        }),
+      });
+
+      if (response.ok) {
+        alert("Registration settings saved successfully!");
+      } else {
+        alert("Failed to save settings");
+      }
+    } catch (error) {
+      console.error("Failed to save settings:", error);
+      alert("Failed to save settings");
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -266,17 +309,97 @@ export default function WorkshopSettingsPage() {
 
       {/* Sessions Tab */}
       {activeTab === 'sessions' && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Calendar className="h-5 w-5" />
-              Workshop Sessions
-            </CardTitle>
-            <CardDescription>
-              Create available time slots that will automatically appear on the subscription page
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
+        <div className="space-y-6">
+          {/* Registration Toggle Card */}
+          <Card className="border-2 border-amber-200 dark:border-amber-800">
+            <CardHeader className="bg-amber-50 dark:bg-amber-900/20">
+              <CardTitle className="flex items-center gap-2 text-amber-900 dark:text-amber-100">
+                <UserCheck className="h-5 w-5" />
+                Registration Control
+              </CardTitle>
+              <CardDescription>
+                Toggle workshop registration on/off and customize the closed message
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="pt-6 space-y-6">
+              <div className="flex items-center justify-between p-4 bg-white dark:bg-gray-900 rounded-lg border">
+                <div className="space-y-1">
+                  <Label className="text-base font-semibold">
+                    {registrationEnabled ? 'Registration Open' : 'Registration Closed'}
+                  </Label>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    {registrationEnabled 
+                      ? 'Users can currently register for workshops' 
+                      : 'Registration is currently disabled - users will see your closed message'
+                    }
+                  </p>
+                </div>
+                <button
+                  onClick={() => setRegistrationEnabled(!registrationEnabled)}
+                  className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 ${
+                    registrationEnabled ? 'bg-green-600' : 'bg-gray-300'
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
+                      registrationEnabled ? 'translate-x-7' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
+              </div>
+
+              {!registrationEnabled && (
+                <div className="space-y-2">
+                  <Label htmlFor="closed-message">
+                    Closed Message
+                    <span className="text-sm text-gray-500 ml-2">(shown to users when registration is closed)</span>
+                  </Label>
+                  <Textarea
+                    id="closed-message"
+                    value={closedMessage}
+                    onChange={(e) => setClosedMessage(e.target.value)}
+                    rows={3}
+                    placeholder="Unfortunately, registration is closed at this time. Please check back for the next session."
+                    className="resize-none"
+                  />
+                  <p className="text-xs text-gray-500">
+                    Tip: Keep it friendly and let them know when to check back!
+                  </p>
+                </div>
+              )}
+
+              <Button
+                onClick={saveWorkshopSettings}
+                disabled={saving}
+                className="w-full bg-amber-600 hover:bg-amber-700"
+              >
+                {saving ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Save className="mr-2 h-4 w-4" />
+                    Save Registration Settings
+                  </>
+                )}
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* Existing Sessions Card */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Calendar className="h-5 w-5" />
+                Workshop Sessions
+              </CardTitle>
+              <CardDescription>
+                Create available time slots that will automatically appear on the subscription page
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
             {/* Add New Session */}
             <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg space-y-4">
               <h3 className="font-semibold">Add New Workshop Session</h3>
@@ -364,6 +487,7 @@ export default function WorkshopSettingsPage() {
             </div>
           </CardContent>
         </Card>
+        </div>
       )}
 
       {/* Bookings Tab */}

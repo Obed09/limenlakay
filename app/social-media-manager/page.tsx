@@ -230,9 +230,13 @@ export default function SocialMediaManagerPage() {
         body: JSON.stringify({ imageUrl: selectedMedia.file_url })
       })
 
-      if (!response.ok) throw new Error('AI analysis failed')
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'AI analysis failed')
+      }
 
-      const { analysis } = await response.json()
+      const result = await response.json()
+      const analysis = result.analysis || {}
 
       // Update media asset with AI suggestions
       const { error: updateError } = await supabase
@@ -240,10 +244,10 @@ export default function SocialMediaManagerPage() {
         .update({
           content_type: analysis.content_type || selectedMedia.content_type,
           product_type: analysis.product_type || selectedMedia.product_type,
-          mood: analysis.mood || selectedMedia.mood,
-          color_palette: analysis.color_palette || selectedMedia.color_palette,
-          materials_used: analysis.materials_used || selectedMedia.materials_used,
-          scent_profile: analysis.scent_profile || selectedMedia.scent_profile,
+          mood: Array.isArray(analysis.mood) ? analysis.mood : selectedMedia.mood,
+          color_palette: Array.isArray(analysis.color_palette) ? analysis.color_palette : selectedMedia.color_palette,
+          materials_used: Array.isArray(analysis.materials_used) ? analysis.materials_used : selectedMedia.materials_used,
+          scent_profile: Array.isArray(analysis.scent_profile) && analysis.scent_profile[0] !== 'unknown' ? analysis.scent_profile : selectedMedia.scent_profile,
           caption_notes: analysis.caption_hook || selectedMedia.caption_notes,
           story_context: analysis.story_context || selectedMedia.story_context
         })

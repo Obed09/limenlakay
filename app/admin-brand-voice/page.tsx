@@ -22,6 +22,10 @@ interface BrandVoice {
   instagram_line_break_style: string
   linkedin_business_focus: boolean
   email_cta_softness: number
+  voice_sample_url?: string | null
+  voice_sample_duration?: number | null
+  voice_analysis?: any
+  voice_analyzed_at?: string | null
 }
 
 export default function AdminBrandVoicePage() {
@@ -38,6 +42,11 @@ export default function AdminBrandVoicePage() {
   const [newEmoji, setNewEmoji] = useState('')
   const [newCoreValue, setNewCoreValue] = useState('')
   const [newNeverClaim, setNewNeverClaim] = useState('')
+
+  // Voice upload states
+  const [uploadingVoice, setUploadingVoice] = useState(false)
+  const [analyzingVoice, setAnalyzingVoice] = useState(false)
+  const [voiceFile, setVoiceFile] = useState<File | null>(null)
 
   useEffect(() => {
     fetchBrandVoice()
@@ -85,6 +94,99 @@ export default function AdminBrandVoicePage() {
       setError(err.message)
     } finally {
       setSaving(false)
+    }
+  }
+
+  const handleVoiceUpload = async () => {
+    if (!voiceFile) {
+      setError('Please select an audio file')
+      return
+    }
+
+    // Check file size (max 10MB)
+    if (voiceFile.size > 10 * 1024 * 1024) {
+      setError('Audio file must be less than 10MB')
+      return
+    }
+
+    setUploadingVoice(true)
+    setAnalyzingVoice(false)
+    setError('')
+    setSuccess('')
+
+    try {
+      // Upload to Supabase Storage
+      const fileExt = voiceFile.name.split('.').pop()
+      const fileName = `voice-samples/${Date.now()}.${fileExt}`
+      
+      const { data: uploadData, error: uploadError } = await supabase
+        .storage
+        .from('media')
+        .upload(fileName, voiceFile)
+
+      if (uploadError) throw uploadError
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase
+        .storage
+        .from('media')
+        .getPublicUrl(fileName)
+
+      setUploadingVoice(false)
+      setAnalyzingVoice(true)
+
+      // Call voice analysis API
+      const response = await fetch('/api/analyze-voice', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ audioUrl: publicUrl }),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to analyze voice')
+      }
+
+      const { transcription, analysis, duration } = await response.json()
+
+      // Update brand voice with voice analysis
+      const { error: updateError } = await supabase
+        .from('brand_voice_memory')
+        .update({
+          voice_sample_url: publicUrl,
+          voice_sample_duration: duration,
+          voice_analysis: analysis,
+          voice_analyzed_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', brandVoice.id)
+
+      if (updateError) throw updateError
+
+      // Update local state
+      setBrandVoice({
+        ...brandVoice,
+        voice_sample_url: publicUrl,
+        voice_sample_duration: duration,
+        voice_analysis: analysis,
+        voice_analyzed_at: new Date().toISOString()
+      })
+
+      setSuccess('Voice analyzed successfully! Your brand voice now includes speaking style.')
+      setVoiceFile(null)
+      
+      // Clear the file input
+      const fileInput = document.getElementById('voice-upload') as HTMLInputElement
+      if (fileInput) fileInput.value = ''
+
+    } catch (err: any) {
+      console.error('Error uploading/analyzing voice:', err)
+      setError(err.message || 'Failed to upload and analyze voice')
+    } finally {
+      setUploadingVoice(false)
+      setAnalyzingVoice(false)
     }
   }
 
@@ -155,6 +257,143 @@ export default function AdminBrandVoicePage() {
       )}
 
       <div className="space-y-8">
+        {/* Voice Sample Upload */}
+        <section className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-2 border-purple-200 dark:border-purple-700 rounded-xl p-6">
+          <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-gray-100 flex items-center gap-2">
+            🎙️ Voice Sample Analysis
+            <span className="text-sm font-normal text-purple-600 dark:text-purple-400">(NEW)</span>
+          </h2>
+          <p className="text-gray-600 dark:text-gray-300 mb-6">
+            Upload a short audio recording (5-30 seconds) of the owner speaking naturally. 
+            The AI will analyze speaking style, tone, vocabulary, and personality traits to make all generated content sound authentically like her.
+          </p>
+
+          {brandVoice.voice_sample_url && brandVoice.voice_analysis ? (
+            <div className="space-y-4">
+              {/* Current Voice Analysis Display */}
+              <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-purple-200 dark:border-purple-700">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="font-semibold text-gray-900 dark:text-gray-100">Current Voice Profile</h3>
+                  <span className="text-xs text-gray-500">
+                    Analyzed {new Date(brandVoice.voice_analyzed_at!).toLocaleDateString()}
+                  </span>
+                </div>
+                
+                {/* Audio Player */}
+                <div className="mb-4">
+                  <audio 
+                    controls 
+                    src={brandVoice.voice_sample_url} 
+                    className="w-full"
+                    style={{ maxHeight: '40px' }}
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Duration: {brandVoice.voice_sample_duration}s
+                  </p>
+                </div>
+
+                {/* Analysis Results */}
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="font-medium text-gray-700 dark:text-gray-300">Tone:</span>
+                    <p className="text-gray-600 dark:text-gray-400">{brandVoice.voice_analysis.tone}</p>
+                  </div>
+                  <div>
+                    <span className="font-medium text-gray-700 dark:text-gray-300">Formality:</span>
+                    <p className="text-gray-600 dark:text-gray-400">{brandVoice.voice_analysis.formality_level}/5</p>
+                  </div>
+                  <div>
+                    <span className="font-medium text-gray-700 dark:text-gray-300">Emotional Expression:</span>
+                    <p className="text-gray-600 dark:text-gray-400">{brandVoice.voice_analysis.emotional_expression}/5</p>
+                  </div>
+                  <div>
+                    <span className="font-medium text-gray-700 dark:text-gray-300">Pacing:</span>
+                    <p className="text-gray-600 dark:text-gray-400">{brandVoice.voice_analysis.pacing}</p>
+                  </div>
+                </div>
+
+                {brandVoice.voice_analysis.common_phrases && brandVoice.voice_analysis.common_phrases.length > 0 && (
+                  <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+                    <span className="font-medium text-gray-700 dark:text-gray-300">Common Phrases:</span>
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {brandVoice.voice_analysis.common_phrases.slice(0, 5).map((phrase: string, idx: number) => (
+                        <span key={idx} className="px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded text-xs">
+                          "{phrase}"
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Replace Voice Sample */}
+              <div className="border-t border-purple-200 dark:border-purple-700 pt-4">
+                <Label htmlFor="voice-upload" className="text-gray-700 dark:text-gray-300">
+                  Replace Voice Sample
+                </Label>
+                <div className="flex gap-3 mt-2">
+                  <Input
+                    id="voice-upload"
+                    type="file"
+                    accept=".mp3,.wav,.m4a,.ogg"
+                    onChange={(e) => setVoiceFile(e.target.files?.[0] || null)}
+                    disabled={uploadingVoice || analyzingVoice}
+                    className="flex-1"
+                  />
+                  <Button
+                    onClick={handleVoiceUpload}
+                    disabled={!voiceFile || uploadingVoice || analyzingVoice}
+                    className="bg-purple-600 hover:bg-purple-700 text-white"
+                  >
+                    {uploadingVoice ? '⏳ Uploading...' : analyzingVoice ? '🧠 Analyzing...' : '🔄 Replace'}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ) : (
+            /* Initial Upload */
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="voice-upload" className="text-gray-700 dark:text-gray-300">
+                  Upload Audio File (MP3, WAV, M4A, OGG)
+                </Label>
+                <Input
+                  id="voice-upload"
+                  type="file"
+                  accept=".mp3,.wav,.m4a,.ogg"
+                  onChange={(e) => setVoiceFile(e.target.files?.[0] || null)}
+                  disabled={uploadingVoice || analyzingVoice}
+                  className="mt-2"
+                />
+                {voiceFile && (
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
+                    Selected: {voiceFile.name} ({(voiceFile.size / 1024 / 1024).toFixed(2)}MB)
+                  </p>
+                )}
+              </div>
+
+              <Button
+                onClick={handleVoiceUpload}
+                disabled={!voiceFile || uploadingVoice || analyzingVoice}
+                className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold py-3"
+              >
+                {uploadingVoice ? '⏳ Uploading Voice Sample...' : analyzingVoice ? '🧠 Analyzing Speaking Style...' : '🎙️ Upload & Analyze Voice'}
+              </Button>
+
+              <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4 border border-purple-200 dark:border-purple-700">
+                <h4 className="font-semibold text-purple-900 dark:text-purple-100 mb-2">💡 Tips for Best Results:</h4>
+                <ul className="text-sm text-purple-800 dark:text-purple-200 space-y-1">
+                  <li>• Record 10-30 seconds of natural speech</li>
+                  <li>• Talk about your candles or business</li>
+                  <li>• Speak naturally, as if talking to a customer</li>
+                  <li>• Clear audio quality works best</li>
+                  <li>• No background music or noise</li>
+                </ul>
+              </div>
+            </div>
+          )}
+        </section>
+
         {/* Voice Characteristics */}
         <section className="bg-white dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-700 rounded-xl p-6">
           <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-gray-100 flex items-center">

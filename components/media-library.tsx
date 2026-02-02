@@ -38,6 +38,7 @@ export function MediaLibrary({ onSelectMedia, selectionMode = false }: MediaLibr
   const [uploading, setUploading] = useState(false)
   const [filterContentType, setFilterContentType] = useState<string>('all')
   const [filterMood, setFilterMood] = useState<string>('all')
+  const [autoTagging, setAutoTagging] = useState(false)
   
   // Upload form state
   const [uploadFile, setUploadFile] = useState<File | null>(null)
@@ -144,6 +145,79 @@ export function MediaLibrary({ onSelectMedia, selectionMode = false }: MediaLibr
       setUploadData({ ...uploadData, [field]: currentArray.filter(item => item !== value) })
     } else {
       setUploadData({ ...uploadData, [field]: [...currentArray, value] })
+    }
+  }
+
+  const handleAutoTag = async () => {
+    if (!uploadFile) {
+      alert('Please select a file first')
+      return
+    }
+
+    // Only works for images
+    if (!uploadFile.type.startsWith('image/')) {
+      alert('AI Auto-Tag only works for images')
+      return
+    }
+
+    setAutoTagging(true)
+    try {
+      // Create a temporary URL for the image
+      const imageUrl = URL.createObjectURL(uploadFile)
+      
+      // Convert to base64 for API
+      const reader = new FileReader()
+      reader.readAsDataURL(uploadFile)
+      
+      await new Promise((resolve) => {
+        reader.onload = async () => {
+          try {
+            const base64Image = reader.result as string
+            
+            const response = await fetch('/api/analyze-media', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ imageUrl: base64Image }),
+            })
+
+            if (!response.ok) {
+              const errorData = await response.json()
+              throw new Error(errorData.error || 'Failed to analyze image')
+            }
+
+            const result = await response.json()
+            const analysis = result.analysis || {}
+            
+            // Auto-fill the form with AI suggestions
+            setUploadData({
+              ...uploadData,
+              content_type: analysis.content_type || uploadData.content_type,
+              mood: Array.isArray(analysis.mood) ? analysis.mood : uploadData.mood,
+              color_palette: Array.isArray(analysis.color_palette) ? analysis.color_palette : uploadData.color_palette,
+              materials_used: Array.isArray(analysis.materials_used) ? analysis.materials_used : uploadData.materials_used,
+              scent_profile: Array.isArray(analysis.scent_profile) && analysis.scent_profile[0] !== 'unknown' ? analysis.scent_profile : uploadData.scent_profile,
+              caption_notes: analysis.caption_hook || uploadData.caption_notes,
+              story_context: analysis.story_context || uploadData.story_context
+            })
+
+            alert('✅ AI analysis complete! Tags and suggestions have been filled in.')
+            resolve(true)
+          } catch (err: any) {
+            console.error('Auto-tag error:', err)
+            alert(`AI analysis failed: ${err.message}`)
+            resolve(false)
+          }
+        }
+      })
+      
+      URL.revokeObjectURL(imageUrl)
+    } catch (err: any) {
+      console.error('Auto-tag error:', err)
+      alert(`Error: ${err.message}`)
+    } finally {
+      setAutoTagging(false)
     }
   }
 
@@ -281,9 +355,20 @@ export function MediaLibrary({ onSelectMedia, selectionMode = false }: MediaLibr
                   className="w-full mt-2 p-2 border rounded-lg"
                 />
                 {uploadFile && (
-                  <p className="text-sm text-green-600 mt-2">
-                    ✓ {uploadFile.name} ({(uploadFile.size / 1024 / 1024).toFixed(2)} MB)
-                  </p>
+                  <div className="mt-2 space-y-2">
+                    <p className="text-sm text-green-600">
+                      ✓ {uploadFile.name} ({(uploadFile.size / 1024 / 1024).toFixed(2)} MB)
+                    </p>
+                    {uploadFile.type.startsWith('image/') && (
+                      <Button
+                        onClick={handleAutoTag}
+                        disabled={autoTagging}
+                        className="w-full bg-purple-600 hover:bg-purple-700 text-white"
+                      >
+                        {autoTagging ? '🧠 Analyzing Image...' : '🤖 AI Auto-Tag (GPT-4 Vision)'}
+                      </Button>
+                    )}
+                  </div>
                 )}
               </div>
 
