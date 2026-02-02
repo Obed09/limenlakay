@@ -1,8 +1,19 @@
 -- Add registration_enabled column to workshop_sessions table
 -- This allows toggling registration on/off for individual sessions
 
-ALTER TABLE workshop_sessions 
-ADD COLUMN IF NOT EXISTS registration_enabled BOOLEAN DEFAULT true;
+-- Check if column exists before adding it
+DO $$ 
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 
+        FROM information_schema.columns 
+        WHERE table_name = 'workshop_sessions' 
+        AND column_name = 'registration_enabled'
+    ) THEN
+        ALTER TABLE workshop_sessions 
+        ADD COLUMN registration_enabled BOOLEAN DEFAULT true;
+    END IF;
+END $$;
 
 -- Update existing sessions to have registration enabled by default
 UPDATE workshop_sessions 
