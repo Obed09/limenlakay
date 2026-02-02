@@ -30,6 +30,7 @@ interface WorkshopSession {
   max_participants: number;
   current_participants: number;
   status: string;
+  registration_enabled?: boolean;
 }
 
 export default function WorkshopSubscriptionPage() {
@@ -70,9 +71,11 @@ export default function WorkshopSubscriptionPage() {
       const response = await fetch("/api/workshop-booking/sessions");
       const data = await response.json();
       
-      // Filter for open sessions only and sort by date
+      // Filter for open sessions with registration enabled and sort by date
       const openSessions = (data.sessions || [])
-        .filter((s: WorkshopSession) => s.status === "open")
+        .filter((s: WorkshopSession) => 
+          s.status === "open" && s.registration_enabled !== false
+        )
         .sort((a: WorkshopSession, b: WorkshopSession) => 
           new Date(a.session_date).getTime() - new Date(b.session_date).getTime()
         );
@@ -372,7 +375,7 @@ export default function WorkshopSubscriptionPage() {
                         </select>
                         {sessions.length === 0 && !loadingSessions && (
                           <p className="text-sm text-yellow-300 mt-2">
-                            No sessions available at the moment. Please check back later.
+                            No sessions with registration open at the moment. Please check back later.
                           </p>
                         )}
                       </div>

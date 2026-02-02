@@ -21,6 +21,7 @@ interface WorkshopSession {
   max_participants: number;
   current_participants: number;
   status: string;
+  registration_enabled?: boolean;
 }
 
 interface WorkshopBooking {
@@ -134,6 +135,35 @@ export default function WorkshopSettingsPage() {
       alert("Failed to save settings");
     } finally {
       setSaving(false);
+    }
+  };
+
+  const toggleSessionRegistration = async (sessionId: string, currentStatus: boolean) => {
+    try {
+      const response = await fetch("/api/workshop-booking/sessions", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          session_id: sessionId,
+          registration_enabled: !currentStatus,
+        }),
+      });
+
+      if (response.ok) {
+        // Update local state
+        setSessions(sessions.map(s => 
+          s.id === sessionId 
+            ? { ...s, registration_enabled: !currentStatus } 
+            : s
+        ));
+      } else {
+        alert("Failed to update session registration");
+      }
+    } catch (error) {
+      console.error("Failed to toggle session registration:", error);
+      alert("Failed to update session registration");
     }
   };
 
@@ -475,10 +505,31 @@ export default function WorkshopSettingsPage() {
                           {session.current_participants || 0}/{session.max_participants} participants
                         </div>
                       </div>
-                      <div className={`text-sm font-medium px-3 py-1 rounded-full ${
-                        session.status === 'open' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
-                      }`}>
-                        {session.status}
+                      <div className="flex items-center gap-4">
+                        <div className="flex flex-col items-end gap-2">
+                          <div className={`text-sm font-medium px-3 py-1 rounded-full ${
+                            session.status === 'open' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
+                          }`}>
+                            {session.status}
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs text-gray-600">
+                              {session.registration_enabled !== false ? 'Registration Open' : 'Registration Closed'}
+                            </span>
+                            <button
+                              onClick={() => toggleSessionRegistration(session.id, session.registration_enabled !== false)}
+                              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                                session.registration_enabled !== false ? 'bg-green-600' : 'bg-gray-300'
+                              }`}
+                            >
+                              <span
+                                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                                  session.registration_enabled !== false ? 'translate-x-6' : 'translate-x-1'
+                                }`}
+                              />
+                            </button>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   ))}

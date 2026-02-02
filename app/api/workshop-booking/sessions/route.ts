@@ -168,3 +168,46 @@ export async function DELETE(request: Request) {
     );
   }
 }
+
+// PATCH: Toggle session registration on/off
+export async function PATCH(request: Request) {
+  try {
+    const supabase = await createClient();
+    const body = await request.json();
+    
+    const { session_id, registration_enabled } = body;
+    
+    if (!session_id || registration_enabled === undefined) {
+      return NextResponse.json(
+        { error: "Session ID and registration_enabled are required" },
+        { status: 400 }
+      );
+    }
+    
+    const { data, error } = await supabase
+      .from("workshop_sessions")
+      .update({ registration_enabled })
+      .eq("id", session_id)
+      .select()
+      .single();
+    
+    if (error) {
+      console.error("Error updating session registration:", error);
+      return NextResponse.json(
+        { error: "Failed to update session registration" },
+        { status: 500 }
+      );
+    }
+    
+    return NextResponse.json(
+      { success: true, session: data },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Session registration update error:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}
