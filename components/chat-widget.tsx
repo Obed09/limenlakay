@@ -129,9 +129,41 @@ export function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
     if (trackingNumber.trim()) {
       setIsTracking(true);
       try {
+        // Check if it's a UPS tracking number (typically starts with 1Z or is all digits)
+        const isUPSFormat = /^1Z|^\d{18,}$/.test(trackingNumber.trim());
+        
+        if (isUPSFormat) {
+          // Try UPS tracking first
+          try {
+            const upsResponse = await fetch(`/api/ups/tracking?trackingNumber=${encodeURIComponent(trackingNumber.trim())}`);
+            const upsData = await upsResponse.json();
+            
+            if (upsData.found) {
+              // UPS tracking successful - format for display
+              setTrackingResult({
+                isUPS: true,
+                trackingNumber: upsData.trackingNumber,
+                status: upsData.status,
+                estimatedDelivery: upsData.estimatedDelivery,
+                carrier: upsData.carrier,
+                service: upsData.shipment.service,
+                events: upsData.events
+              });
+              setIsTracking(false);
+              return;
+            }
+          } catch (upsError) {
+            console.log('UPS tracking failed, trying internal tracking:', upsError);
+          }
+        }
+        
+        // Fall back to internal tracking system
         const result = await trackOrder(trackingNumber);
         if (result.success) {
-          setTrackingResult(result.data);
+          setTrackingResult({
+            ...result.data,
+            isUPS: false
+          });
           
           // Get status history
           const historyResult = await getOrderStatusHistory(trackingNumber);
@@ -347,7 +379,7 @@ export function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
                     id="tracking"
                     value={trackingNumber}
                     onChange={(e) => setTrackingNumber(e.target.value)}
-                    placeholder="e.g., LL-2024-001"
+                    placeholder="UPS: 1Z999AA... or Order: LL-2024-001"
                     className="mt-1"
                   />
                 </div>
@@ -368,7 +400,70 @@ export function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
                         {trackingResult.error}
                       </p>
                     </div>
+                  ) : trackingResult.isUPS ? (
+                    /* UPS Tracking Display */
+                    <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border space-y-4">
+                      <div className="flex items-center justify-between pb-3 border-b">
+                        <h4 className="font-semibold text-gray-900 dark:text-gray-100">
+                          {trackingResult.trackingNumber}
+                        </h4>
+                        <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                          {trackingResult.carrier}
+                        </Badge>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-gray-600 dark:text-gray-400">Status:</span>
+                          <span className="text-sm font-semibold text-green-700 dark:text-green-300">
+                            {trackingResult.status}
+                          </span>
+                        </div>
+                        
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-gray-600 dark:text-gray-400">Service:</span>
+                          <span className="text-sm font-medium">{trackingResult.service}</span>
+                        </div>
+                        
+                        {trackingResult.estimatedDelivery && (
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-gray-600 dark:text-gray-400">Est. Delivery:</span>
+                            <span className="text-sm font-medium text-amber-700 dark:text-amber-300">
+                              {trackingResult.estimatedDelivery}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Tracking Timeline */}
+                      {trackingResult.events && trackingResult.events.length > 0 && (
+                        <div className="mt-4 pt-3 border-t">
+                          <h5 className="text-sm font-semibold mb-3 text-gray-700 dark:text-gray-300">
+                            Tracking History
+                          </h5>
+                          <div className="space-y-3 max-h-48 overflow-y-auto">
+                            {trackingResult.events.slice(0, 5).map((event: any, idx: number) => (
+                              <div key={idx} className="flex gap-3 text-xs">
+                                <div className="flex-shrink-0 w-2 h-2 mt-1.5 rounded-full bg-amber-500" />
+                                <div className="flex-1">
+                                  <p className="font-medium text-gray-900 dark:text-gray-100">
+                                    {event.status}
+                                  </p>
+                                  <p className="text-gray-600 dark:text-gray-400">
+                                    {event.location}
+                                  </p>
+                                  <p className="text-gray-500 dark:text-gray-500 mt-0.5">
+                                    {event.date} at {event.time}
+                                  </p>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   ) : (
+                    /* Internal Tracking Display */
                     <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border">
                       <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">
                         Order {trackingResult.tracking_number}
