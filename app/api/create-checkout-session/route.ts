@@ -84,6 +84,39 @@ export async function POST(request: NextRequest) {
       const session = await stripe.checkout.sessions.create(sessionConfig);
 
       return NextResponse.json({ url: session.url });
+    } else if (body.customOrder) {
+      // Custom Order / Vessel Checkout Flow
+      const { lineItems, customerInfo, paymentOption, totalAmount, cartItems } = body;
+
+      const sessionConfig: any = {
+        line_items: lineItems,
+        mode: 'payment',
+        success_url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://limenlakay.com'}/payment-success?session_id={CHECKOUT_SESSION_ID}&custom_order=true`,
+        cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://limenlakay.com'}/custom-order`,
+        customer_email: customerInfo.email,
+        metadata: {
+          type: 'custom_order',
+          customerName: customerInfo.name,
+          customerPhone: customerInfo.phone || '',
+          shippingAddress: `${customerInfo.address}, ${customerInfo.city}, ${customerInfo.state} ${customerInfo.zip}`,
+          paymentOption: paymentOption || 'card',
+          cartItems: JSON.stringify(cartItems),
+        },
+        shipping_address_collection: {
+          allowed_countries: ['US'],
+        },
+      };
+
+      // Enable Affirm for orders over $110 (Affirm's minimum)
+      if (paymentOption === 'affirm' && totalAmount >= 110) {
+        sessionConfig.payment_method_types = ['card', 'affirm'];
+      } else {
+        sessionConfig.payment_method_types = ['card'];
+      }
+
+      const session = await stripe.checkout.sessions.create(sessionConfig);
+
+      return NextResponse.json({ url: session.url });
     } else {
       // Workshop Checkout Flow (existing code)
       const { name, email, phone, workshopDate, packageType, packagePrice, paymentOption } = body;

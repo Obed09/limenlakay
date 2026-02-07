@@ -55,6 +55,7 @@ function CustomOrderContent() {
   const [purchaseType, setPurchaseType] = useState<'custom' | 'empty' | null>(null);
   const [shippingCost, setShippingCost] = useState(10); // Default
   const [loadingShipping, setLoadingShipping] = useState(false);
+  const [paymentOption, setPaymentOption] = useState<'card' | 'affirm'>('card');
   
   // Customer info
   const [customerInfo, setCustomerInfo] = useState({
@@ -241,72 +242,71 @@ function CustomOrderContent() {
     try {
       const { subtotal, shipping, total } = calculateTotal();
       
-      // Generate order number
-      const orderNumber = `ORD-${Date.now()}`;
-
-      // Create order
-      const { data: order, error: orderError } = await supabase
-        .from('custom_orders')
-        .insert([
-          {
-            order_number: orderNumber,
-            customer_name: customerInfo.name,
-            customer_email: customerInfo.email,
-            customer_phone: customerInfo.phone,
-            shipping_address: customerInfo.address,
-            shipping_city: customerInfo.city,
-            shipping_state: customerInfo.state,
-            shipping_zip: customerInfo.zip,
-            subtotal,
-            shipping_cost: shipping,
-            total,
-            status: 'pending',
-            payment_status: 'pending'
-          }
-        ])
-        .select()
-        .single();
-
-      if (orderError) throw orderError;
-
-      // Create order items
-      const orderItems = cart.map((item) => ({
-        order_id: order.id,
-        vessel_id: item.vessel.id,
-        scent_id: item.scent?.id || null, // null for empty vessels
+      // Create line items for each cart item
+      const lineItems = cart.map(item => ({
+        price_data: {
+          currency: 'usd',
+          product_data: {
+            name: item.scent 
+              ? `${item.vessel.name} - ${item.scent.name}`
+              : `${item.vessel.name} (Empty Vessel)`,
+            description: item.scent 
+              ? `Custom Candle: ${item.vessel.name} with ${item.scent.name_english} scent`
+              : `Empty vessel for your own use`,
+          },
+          unit_amount: Math.round(item.vessel.price * 100),
+        },
         quantity: 1,
-        unit_price: item.vessel.price,
-        subtotal: item.vessel.price
       }));
 
-      const { error: itemsError } = await supabase
-        .from('custom_order_items')
-        .insert(orderItems);
-
-      if (itemsError) throw itemsError;
-
-      toast({
-        title: 'Order Placed!',
-        description: `Your order ${orderNumber} has been received. Check your email for details.`
+      // Add shipping line item
+      lineItems.push({
+        price_data: {
+          currency: 'usd',
+          product_data: {
+            name: 'Shipping',
+            description: 'UPS Ground Shipping',
+          },
+          unit_amount: Math.round(shipping * 100),
+        },
+        quantity: 1,
       });
 
-      // Reset
-      setCart([]);
-      setStep(1);
-      setCustomerInfo({
-        name: '',
-        email: '',
-        phone: '',
-        address: '',
-        city: '',
-        state: '',
-        zip: ''
+      // Create Stripe checkout session
+      const response = await fetch('/api/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          customOrder: true,
+          lineItems,
+          customerInfo,
+          paymentOption,
+          totalAmount: total,
+          cartItems: cart.map(item => ({
+            vessel_id: item.vessel.id,
+            vessel_name: item.vessel.name,
+            scent_id: item.scent?.id || null,
+            scent_name: item.scent?.name || null,
+            unit_price: item.vessel.price,
+          })),
+        }),
       });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to create checkout session');
+      }
+
+      // Redirect to Stripe Checkout
+      if (data.url) {
+        window.location.href = data.url;
+      }
     } catch (error) {
       console.error('Error submitting order:', error);
       toast({
         title: 'Error',
-        description: 'Failed to submit order. Please try again.',
+        description: 'Failed to start checkout. Please try again.',
         variant: 'destructive'
       });
     }
@@ -952,9 +952,61 @@ function CustomOrderContent() {
                     )}
                     <div className="flex justify-between font-bold text-lg border-t pt-2">
                       <span>Total</span>
-                      <span>${total.toFixed(2)}</span>
+                      <span className="text-amber-600">${total.toFixed(2)}</span>
                     </div>
                   </div>
+
+                  {/* Affirm Availability Message */}
+                  {total < 110 && (
+                    <div className="bg-amber-50 dark:bg-amber-900/20 p-4 rounded-lg border border-amber-200 dark:border-amber-800 mt-4">
+                      <p className="text-sm text-amber-800 dark:text-amber-200 font-medium mb-1">
+                        💳 Add ${(110 - total).toFixed(2)} more for payment plan options
+                      </p>
+                      <p className="text-xs text-amber-700 dark:text-amber-300">
+                        Reach $110 minimum to unlock Affirm (4 interest-free payments)
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Payment Method Selection */}
+                  {total >= 110 && (
+                    <div className="space-y-3 mt-4">
+                      <Label className="text-sm font-semibold">Payment Method</Label>
+                      <div className="grid grid-cols-2 gap-3">
+                        <button
+                          type="button"
+                          onClick={() => setPaymentOption('card')}
+                          className={`p-3 rounded-lg border-2 transition-all text-left ${
+                            paymentOption === 'card'
+                              ? 'border-amber-500 bg-amber-50 dark:bg-amber-900/20'
+                              : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
+                          }`}
+                        >
+                          <div className="font-medium text-sm">Pay in Full</div>
+                          <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                            ${total.toFixed(2)} today
+                          </div>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setPaymentOption('affirm')}
+                          className={`p-3 rounded-lg border-2 transition-all text-left ${
+                            paymentOption === 'affirm'
+                              ? 'border-amber-500 bg-amber-50 dark:bg-amber-900/20'
+                              : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
+                          }`}
+                        >
+                          <div className="font-medium text-sm flex items-center gap-1">
+                            <span>Affirm</span>
+                            <span className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 px-1.5 py-0.5 rounded">4x</span>
+                          </div>
+                          <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                            ${(total / 4).toFixed(2)}/month
+                          </div>
+                        </button>
+                      </div>
+                    </div>
+                  )}
 
                   {step < 3 && (
                     <Button
