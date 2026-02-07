@@ -45,7 +45,8 @@ export default function WorkshopSubscriptionPage() {
     workshopDate: "",
   });
 
-  const getPrice = () => selectedPaymentOption === "card" ? 120 : 130;
+  // Temporarily use $120 for all bookings until Stripe Live Mode is activated
+  const getPrice = () => 120;
 
   useEffect(() => {
     fetchSessions();
@@ -203,36 +204,40 @@ export default function WorkshopSubscriptionPage() {
             Workshop Pricing
           </h2>
           <p className="text-gray-300 text-center text-lg mb-16 max-w-2xl mx-auto">
-            Choose your preferred payment method
+            Special Launch Price - Book Your Spot Today!
           </p>
-          <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-8">
+          <div className="max-w-xl mx-auto">
             {/* Card Payment Option */}
             <Card className="bg-[#20b2aa] border-0 shadow-2xl hover:shadow-3xl transition-shadow">
               <CardContent className="p-10">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-3xl font-bold text-white">
-                    Pay in Full
+                    Single Workshop
                   </h3>
                   <div className="bg-white/20 px-3 py-1 rounded-full">
-                    <span className="text-white text-sm font-semibold">BEST VALUE</span>
+                    <span className="text-white text-sm font-semibold">AVAILABLE NOW</span>
                   </div>
                 </div>
                 <div className="text-5xl font-bold text-white mb-2">
                   $120
                 </div>
-                <p className="text-white/80 text-sm mb-6">One-time payment</p>
+                <p className="text-white/80 text-sm mb-6">One-time payment - All major cards accepted</p>
                 <ul className="space-y-3 mb-8">
                   <li className="flex items-start gap-3 text-white">
                     <CheckCircle2 className="w-5 h-5 mt-1 flex-shrink-0" />
-                    <span>Step-by-step guidance</span>
+                    <span>Step-by-step guidance from expert instructor</span>
                   </li>
                   <li className="flex items-start gap-3 text-white">
                     <CheckCircle2 className="w-5 h-5 mt-1 flex-shrink-0" />
-                    <span>Bonus digital guide</span>
+                    <span>Bonus digital guide included</span>
                   </li>
                   <li className="flex items-start gap-3 text-white">
                     <CheckCircle2 className="w-5 h-5 mt-1 flex-shrink-0" />
                     <span>All major credit/debit cards</span>
+                  </li>
+                  <li className="flex items-start gap-3 text-white">
+                    <CheckCircle2 className="w-5 h-5 mt-1 flex-shrink-0" />
+                    <span>Instant confirmation email</span>
                   </li>
                 </ul>
                 <Button
@@ -242,49 +247,11 @@ export default function WorkshopSubscriptionPage() {
                   }}
                   className="w-full bg-white text-[#20b2aa] hover:bg-gray-100 text-lg py-6 font-bold"
                 >
-                  Book Now
+                  Book Now - $120
                 </Button>
-              </CardContent>
-            </Card>
-
-            {/* Affirm Payment Option */}
-            <Card className="bg-gradient-to-br from-[#1e8e86] to-[#20b2aa] border-0 shadow-2xl hover:shadow-3xl transition-shadow">
-              <CardContent className="p-10">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-3xl font-bold text-white">
-                    Pay Over Time
-                  </h3>
-                  <div className="bg-white/20 px-3 py-1 rounded-full">
-                    <span className="text-white text-sm font-semibold">AFFIRM</span>
-                  </div>
-                </div>
-                <div className="text-5xl font-bold text-white mb-2">
-                  $130
-                </div>
-                <p className="text-white/80 text-sm mb-6">Or 4 payments of $32.50</p>
-                <ul className="space-y-3 mb-8">
-                  <li className="flex items-start gap-3 text-white">
-                    <CheckCircle2 className="w-5 h-5 mt-1 flex-shrink-0" />
-                    <span>Step-by-step guidance</span>
-                  </li>
-                  <li className="flex items-start gap-3 text-white">
-                    <CheckCircle2 className="w-5 h-5 mt-1 flex-shrink-0" />
-                    <span>Bonus digital guide</span>
-                  </li>
-                  <li className="flex items-start gap-3 text-white">
-                    <CheckCircle2 className="w-5 h-5 mt-1 flex-shrink-0" />
-                    <span>Buy now, pay later</span>
-                  </li>
-                </ul>
-                <Button
-                  onClick={() => {
-                    setSelectedPaymentOption("affirm");
-                    document.getElementById("book-now")?.scrollIntoView({ behavior: "smooth" });
-                  }}
-                  className="w-full bg-white text-[#20b2aa] hover:bg-gray-100 text-lg py-6 font-bold"
-                >
-                  Book Now
-                </Button>
+                <p className="text-white/70 text-xs text-center mt-4">
+                  💳 Payment plans coming soon!
+                </p>
               </CardContent>
             </Card>
           </div>
@@ -304,24 +271,6 @@ export default function WorkshopSubscriptionPage() {
             <Card className="bg-[#233d4d] border-0 shadow-2xl">
               <CardContent className="p-10">
                 <form onSubmit={handleSubmit} className="space-y-6">
-                  {/* Show selected payment option */}
-                  <div className="bg-[#20b2aa]/20 border-2 border-[#20b2aa] rounded-lg p-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-gray-300 mb-1">Selected Payment Option:</p>
-                        <p className="text-2xl font-bold text-white">
-                          {selectedPaymentOption === "card" ? "Pay in Full - $120" : "Pay Over Time - $130"}
-                        </p>
-                        <p className="text-sm text-gray-300 mt-1">
-                          {selectedPaymentOption === "card" 
-                            ? "One-time payment with card" 
-                            : "4 payments of $32.50 with Affirm"}
-                        </p>
-                      </div>
-                      <CheckCircle2 className="w-8 h-8 text-[#20b2aa] flex-shrink-0" />
-                    </div>
-                  </div>
-
                   {/* Personal Information */}
                   <div>
                     <h3 className="text-2xl font-bold text-white mb-6">

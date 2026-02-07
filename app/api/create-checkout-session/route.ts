@@ -103,11 +103,8 @@ export async function POST(request: NextRequest) {
       });
       const sessionDescription = `${formattedDate} at ${sessionData.session_time}`;
 
-      // When Affirm is selected, show both Affirm and card options
-      // When card is selected, show only card
-      const paymentMethodTypes = paymentOption === 'affirm' 
-        ? ['affirm', 'card'] 
-        : ['card'];
+      // Temporarily use card only until Stripe Live Mode is activated for Affirm
+      const paymentMethodTypes = ['card'];
 
       const session = await stripe.checkout.sessions.create({
         payment_method_types: paymentMethodTypes,
