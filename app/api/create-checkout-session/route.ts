@@ -75,7 +75,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ url: session.url });
     } else {
       // Workshop Checkout Flow (existing code)
-      const { name, email, phone, workshopDate, packageType, packagePrice } = body;
+      const { name, email, phone, workshopDate, packageType, packagePrice, paymentOption } = body;
 
       // Fetch session details from database
       const supabase = await createClient();
@@ -103,8 +103,13 @@ export async function POST(request: NextRequest) {
       });
       const sessionDescription = `${formattedDate} at ${sessionData.session_time}`;
 
+      // Determine payment methods based on user selection
+      const paymentMethodTypes = paymentOption === 'affirm' 
+        ? ['affirm', 'card'] 
+        : ['card'];
+
       const session = await stripe.checkout.sessions.create({
-        payment_method_types: ['card', 'affirm'],
+        payment_method_types: paymentMethodTypes,
         line_items: [
           {
             price_data: {

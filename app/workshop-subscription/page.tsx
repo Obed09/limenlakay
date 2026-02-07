@@ -37,12 +37,15 @@ export default function WorkshopSubscriptionPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [sessions, setSessions] = useState<WorkshopSession[]>([]);
   const [loadingSessions, setLoadingSessions] = useState(true);
+  const [selectedPaymentOption, setSelectedPaymentOption] = useState<"card" | "affirm">("card");
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     phone: "",
     workshopDate: "",
   });
+
+  const getPrice = () => selectedPaymentOption === "card" ? 120 : 130;
 
   useEffect(() => {
     fetchSessions();
@@ -84,7 +87,8 @@ export default function WorkshopSubscriptionPage() {
         body: JSON.stringify({
           ...formData,
           packageType: "single",
-          packagePrice: 130,
+          packagePrice: getPrice(),
+          paymentOption: selectedPaymentOption,
         }),
       });
 
@@ -199,17 +203,24 @@ export default function WorkshopSubscriptionPage() {
             Workshop Pricing
           </h2>
           <p className="text-gray-300 text-center text-lg mb-16 max-w-2xl mx-auto">
-            Affordable, all-inclusive pricing for your creative journey
+            Choose your preferred payment method
           </p>
-          <div className="max-w-xl mx-auto">
-            <Card className="bg-[#20b2aa] border-0 shadow-2xl">
+          <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-8">
+            {/* Card Payment Option */}
+            <Card className="bg-[#20b2aa] border-0 shadow-2xl hover:shadow-3xl transition-shadow">
               <CardContent className="p-10">
-                <h3 className="text-3xl font-bold text-white mb-4">
-                  Single Workshop
-                </h3>
-                <div className="text-5xl font-bold text-white mb-6">
-                  $130 <span className="text-xl font-normal">one-time</span>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-3xl font-bold text-white">
+                    Pay in Full
+                  </h3>
+                  <div className="bg-white/20 px-3 py-1 rounded-full">
+                    <span className="text-white text-sm font-semibold">BEST VALUE</span>
+                  </div>
                 </div>
+                <div className="text-5xl font-bold text-white mb-2">
+                  $120
+                </div>
+                <p className="text-white/80 text-sm mb-6">One-time payment</p>
                 <ul className="space-y-3 mb-8">
                   <li className="flex items-start gap-3 text-white">
                     <CheckCircle2 className="w-5 h-5 mt-1 flex-shrink-0" />
@@ -218,6 +229,48 @@ export default function WorkshopSubscriptionPage() {
                   <li className="flex items-start gap-3 text-white">
                     <CheckCircle2 className="w-5 h-5 mt-1 flex-shrink-0" />
                     <span>Bonus digital guide</span>
+                  </li>
+                  <li className="flex items-start gap-3 text-white">
+                    <CheckCircle2 className="w-5 h-5 mt-1 flex-shrink-0" />
+                    <span>All major credit/debit cards</span>
+                  </li>
+                </ul>
+                <Button
+                  asChild
+                  className="w-full bg-white text-[#20b2aa] hover:bg-gray-100 text-lg py-6 font-bold"
+                >
+                  <a href="#book-now">Book Now</a>
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Affirm Payment Option */}
+            <Card className="bg-gradient-to-br from-[#1e8e86] to-[#20b2aa] border-0 shadow-2xl hover:shadow-3xl transition-shadow">
+              <CardContent className="p-10">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-3xl font-bold text-white">
+                    Pay Over Time
+                  </h3>
+                  <div className="bg-white/20 px-3 py-1 rounded-full">
+                    <span className="text-white text-sm font-semibold">AFFIRM</span>
+                  </div>
+                </div>
+                <div className="text-5xl font-bold text-white mb-2">
+                  $130
+                </div>
+                <p className="text-white/80 text-sm mb-6">Or 4 payments of $32.50</p>
+                <ul className="space-y-3 mb-8">
+                  <li className="flex items-start gap-3 text-white">
+                    <CheckCircle2 className="w-5 h-5 mt-1 flex-shrink-0" />
+                    <span>Step-by-step guidance</span>
+                  </li>
+                  <li className="flex items-start gap-3 text-white">
+                    <CheckCircle2 className="w-5 h-5 mt-1 flex-shrink-0" />
+                    <span>Bonus digital guide</span>
+                  </li>
+                  <li className="flex items-start gap-3 text-white">
+                    <CheckCircle2 className="w-5 h-5 mt-1 flex-shrink-0" />
+                    <span>Buy now, pay later</span>
                   </li>
                 </ul>
                 <Button
@@ -245,6 +298,52 @@ export default function WorkshopSubscriptionPage() {
             <Card className="bg-[#233d4d] border-0 shadow-2xl">
               <CardContent className="p-10">
                 <form onSubmit={handleSubmit} className="space-y-6">
+                  {/* Payment Method Selection */}
+                  <div>
+                    <h3 className="text-2xl font-bold text-white mb-6">
+                      Select Payment Method
+                    </h3>
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <button
+                        type="button"
+                        onClick={() => setSelectedPaymentOption("card")}
+                        className={`p-6 rounded-lg border-2 transition-all ${
+                          selectedPaymentOption === "card"
+                            ? "border-[#20b2aa] bg-[#20b2aa]/20"
+                            : "border-white/30 bg-white/5 hover:border-white/50"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between mb-3">
+                          <span className="text-xl font-bold text-white">Pay in Full</span>
+                          {selectedPaymentOption === "card" && (
+                            <CheckCircle2 className="w-6 h-6 text-[#20b2aa]" />
+                          )}
+                        </div>
+                        <div className="text-3xl font-bold text-white mb-2">$120</div>
+                        <p className="text-sm text-gray-300">One-time payment with card</p>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setSelectedPaymentOption("affirm")}
+                        className={`p-6 rounded-lg border-2 transition-all ${
+                          selectedPaymentOption === "affirm"
+                            ? "border-[#20b2aa] bg-[#20b2aa]/20"
+                            : "border-white/30 bg-white/5 hover:border-white/50"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between mb-3">
+                          <span className="text-xl font-bold text-white">Pay Over Time</span>
+                          {selectedPaymentOption === "affirm" && (
+                            <CheckCircle2 className="w-6 h-6 text-[#20b2aa]" />
+                          )}
+                        </div>
+                        <div className="text-3xl font-bold text-white mb-2">$130</div>
+                        <p className="text-sm text-gray-300">4 payments of $32.50 with Affirm</p>
+                      </button>
+                    </div>
+                  </div>
+
                   {/* Personal Information */}
                   <div>
                     <h3 className="text-2xl font-bold text-white mb-6">
@@ -375,7 +474,7 @@ export default function WorkshopSubscriptionPage() {
                     ) : (
                       <>
                         <CreditCard className="h-5 w-5 mr-2" />
-                        Proceed to Secure Checkout - $130
+                        Proceed to Secure Checkout - ${getPrice()}
                       </>
                     )}
                   </Button>
