@@ -236,10 +236,13 @@ export default function WorkshopSubscriptionPage() {
                   </li>
                 </ul>
                 <Button
-                  asChild
+                  onClick={() => {
+                    setSelectedPaymentOption("card");
+                    document.getElementById("book-now")?.scrollIntoView({ behavior: "smooth" });
+                  }}
                   className="w-full bg-white text-[#20b2aa] hover:bg-gray-100 text-lg py-6 font-bold"
                 >
-                  <a href="#book-now">Book Now</a>
+                  Book Now
                 </Button>
               </CardContent>
             </Card>
@@ -274,10 +277,13 @@ export default function WorkshopSubscriptionPage() {
                   </li>
                 </ul>
                 <Button
-                  asChild
+                  onClick={() => {
+                    setSelectedPaymentOption("affirm");
+                    document.getElementById("book-now")?.scrollIntoView({ behavior: "smooth" });
+                  }}
                   className="w-full bg-white text-[#20b2aa] hover:bg-gray-100 text-lg py-6 font-bold"
                 >
-                  <a href="#book-now">Book Now</a>
+                  Book Now
                 </Button>
               </CardContent>
             </Card>
@@ -298,49 +304,21 @@ export default function WorkshopSubscriptionPage() {
             <Card className="bg-[#233d4d] border-0 shadow-2xl">
               <CardContent className="p-10">
                 <form onSubmit={handleSubmit} className="space-y-6">
-                  {/* Payment Method Selection */}
-                  <div>
-                    <h3 className="text-2xl font-bold text-white mb-6">
-                      Select Payment Method
-                    </h3>
-                    <div className="grid md:grid-cols-2 gap-4">
-                      <button
-                        type="button"
-                        onClick={() => setSelectedPaymentOption("card")}
-                        className={`p-6 rounded-lg border-2 transition-all ${
-                          selectedPaymentOption === "card"
-                            ? "border-[#20b2aa] bg-[#20b2aa]/20"
-                            : "border-white/30 bg-white/5 hover:border-white/50"
-                        }`}
-                      >
-                        <div className="flex items-center justify-between mb-3">
-                          <span className="text-xl font-bold text-white">Pay in Full</span>
-                          {selectedPaymentOption === "card" && (
-                            <CheckCircle2 className="w-6 h-6 text-[#20b2aa]" />
-                          )}
-                        </div>
-                        <div className="text-3xl font-bold text-white mb-2">$120</div>
-                        <p className="text-sm text-gray-300">One-time payment with card</p>
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => setSelectedPaymentOption("affirm")}
-                        className={`p-6 rounded-lg border-2 transition-all ${
-                          selectedPaymentOption === "affirm"
-                            ? "border-[#20b2aa] bg-[#20b2aa]/20"
-                            : "border-white/30 bg-white/5 hover:border-white/50"
-                        }`}
-                      >
-                        <div className="flex items-center justify-between mb-3">
-                          <span className="text-xl font-bold text-white">Pay Over Time</span>
-                          {selectedPaymentOption === "affirm" && (
-                            <CheckCircle2 className="w-6 h-6 text-[#20b2aa]" />
-                          )}
-                        </div>
-                        <div className="text-3xl font-bold text-white mb-2">$130</div>
-                        <p className="text-sm text-gray-300">4 payments of $32.50 with Affirm</p>
-                      </button>
+                  {/* Show selected payment option */}
+                  <div className="bg-[#20b2aa]/20 border-2 border-[#20b2aa] rounded-lg p-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-gray-300 mb-1">Selected Payment Option:</p>
+                        <p className="text-2xl font-bold text-white">
+                          {selectedPaymentOption === "card" ? "Pay in Full - $120" : "Pay Over Time - $130"}
+                        </p>
+                        <p className="text-sm text-gray-300 mt-1">
+                          {selectedPaymentOption === "card" 
+                            ? "One-time payment with card" 
+                            : "4 payments of $32.50 with Affirm"}
+                        </p>
+                      </div>
+                      <CheckCircle2 className="w-8 h-8 text-[#20b2aa] flex-shrink-0" />
                     </div>
                   </div>
 

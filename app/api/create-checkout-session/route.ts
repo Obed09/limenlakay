@@ -103,7 +103,8 @@ export async function POST(request: NextRequest) {
       });
       const sessionDescription = `${formattedDate} at ${sessionData.session_time}`;
 
-      // Determine payment methods based on user selection
+      // When Affirm is selected, show both Affirm and card options
+      // When card is selected, show only card
       const paymentMethodTypes = paymentOption === 'affirm' 
         ? ['affirm', 'card'] 
         : ['card'];
