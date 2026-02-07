@@ -126,8 +126,8 @@ export async function POST(request: NextRequest) {
           },
         ],
         mode: 'payment',
-        success_url: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/workshop-subscription/success?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/workshop-subscription?canceled=true`,
+        success_url: `https://www.limenlakay.com/workshop-subscription/success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `https://www.limenlakay.com/workshop-subscription?canceled=true`,
         customer_email: email,
         metadata: {
           type: 'workshop',
