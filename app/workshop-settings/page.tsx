@@ -470,7 +470,7 @@ export default function WorkshopSettingsPage() {
                 />
               </div>
               <div className="bg-amber-50 dark:bg-amber-950 p-3 rounded text-sm">
-                <strong>Max Participants:</strong> 12 (default)
+                <strong>Max Participants:</strong> 5 (default)
               </div>
               <Button onClick={addSession} className="w-full md:w-auto">
                 <Plus className="h-4 w-4 mr-2" />

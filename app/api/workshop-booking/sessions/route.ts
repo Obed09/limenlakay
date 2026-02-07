@@ -35,7 +35,7 @@ export async function POST(request: Request) {
     const supabase = await createClient();
     const body = await request.json();
     
-    const { session_date, session_time, meeting_link, max_participants = 12 } = body;
+    const { session_date, session_time, meeting_link, max_participants = 5 } = body;
     
     if (!session_date || !session_time || !meeting_link) {
       return NextResponse.json(

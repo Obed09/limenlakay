@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
     // Check if this is a product checkout or workshop checkout
     if (body.productName && body.sku) {
       // Product Checkout Flow
-      const { productName, sku, price, shipping, quantity, customerInfo } = body;
+      const { productName, sku, price, shipping, quantity, customerInfo, paymentOption } = body;
 
       const lineItems = [
         {
@@ -52,8 +52,9 @@ export async function POST(request: NextRequest) {
         });
       }
 
-      const session = await stripe.checkout.sessions.create({
-        payment_method_types: ['card'],
+      // Configure session based on payment option and total amount
+      const totalAmount = (price * (quantity || 1)) + (shipping || 0);
+      const sessionConfig: any = {
         line_items: lineItems,
         mode: 'payment',
         success_url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://limenlakay.com'}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
@@ -66,11 +67,21 @@ export async function POST(request: NextRequest) {
           customerName: customerInfo.name,
           customerPhone: customerInfo.phone || '',
           shippingAddress: `${customerInfo.address}, ${customerInfo.city}, ${customerInfo.state} ${customerInfo.zip}`,
+          paymentOption: paymentOption || 'card',
         },
         shipping_address_collection: {
           allowed_countries: ['US'],
         },
-      });
+      };
+
+      // Enable Affirm for orders over $110 (Affirm's minimum)
+      if (paymentOption === 'affirm' && totalAmount >= 110) {
+        sessionConfig.payment_method_types = ['card', 'affirm'];
+      } else {
+        sessionConfig.payment_method_types = ['card'];
+      }
+
+      const session = await stripe.checkout.sessions.create(sessionConfig);
 
       return NextResponse.json({ url: session.url });
     } else {

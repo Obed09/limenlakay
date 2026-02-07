@@ -25,6 +25,7 @@ function CheckoutContent() {
   const sku = searchParams.get('sku') || '';
   const price = parseFloat(searchParams.get('price') || '0');
   const total = price + shippingCost;
+  const [paymentOption, setPaymentOption] = useState<'card' | 'affirm'>('card');
   
   const [formData, setFormData] = useState({
     name: '',
@@ -102,7 +103,8 @@ function CheckoutContent() {
           price,
           shipping: shippingCost,
           quantity: 1,
-          customerInfo: formData
+          customerInfo: formData,
+          paymentOption: paymentOption
         }),
       });
 
@@ -196,6 +198,58 @@ function CheckoutContent() {
                     <span className="text-amber-600">${total.toFixed(2)}</span>
                   </div>
                 </div>
+
+                {/* Affirm Availability Message */}
+                {total < 110 && (
+                  <div className="bg-amber-50 dark:bg-amber-900/20 p-4 rounded-lg border border-amber-200 dark:border-amber-800">
+                    <p className="text-sm text-amber-800 dark:text-amber-200 font-medium mb-1">
+                      💳 Add ${(110 - total).toFixed(2)} more for payment plan options
+                    </p>
+                    <p className="text-xs text-amber-700 dark:text-amber-300">
+                      Reach $110 minimum to unlock Affirm (4 interest-free payments)
+                    </p>
+                  </div>
+                )}
+
+                {/* Payment Method Selection */}
+                {total >= 110 && (
+                  <div className="space-y-3">
+                    <Label className="text-sm font-semibold">Payment Method</Label>
+                    <div className="grid grid-cols-2 gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setPaymentOption('card')}
+                        className={`p-3 rounded-lg border-2 transition-all text-left ${
+                          paymentOption === 'card'
+                            ? 'border-amber-500 bg-amber-50 dark:bg-amber-900/20'
+                            : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
+                        }`}
+                      >
+                        <div className="font-medium text-sm">Pay in Full</div>
+                        <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                          ${total.toFixed(2)} today
+                        </div>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setPaymentOption('affirm')}
+                        className={`p-3 rounded-lg border-2 transition-all text-left ${
+                          paymentOption === 'affirm'
+                            ? 'border-amber-500 bg-amber-50 dark:bg-amber-900/20'
+                            : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
+                        }`}
+                      >
+                        <div className="font-medium text-sm flex items-center gap-1">
+                          <span>Affirm</span>
+                          <span className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 px-1.5 py-0.5 rounded">4x</span>
+                        </div>
+                        <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                          ${(total / 4).toFixed(2)}/month
+                        </div>
+                      </button>
+                    </div>
+                  </div>
+                )}
 
                 <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg mt-4">
                   <div className="flex items-start gap-2">
