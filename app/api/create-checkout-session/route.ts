@@ -103,14 +103,8 @@ export async function POST(request: NextRequest) {
       });
       const sessionDescription = `${formattedDate} at ${sessionData.session_time}`;
 
-      // Enable both card and Affirm payment methods
-      // Affirm will automatically show when account is in Live Mode
-      const paymentMethodTypes = paymentOption === 'affirm' 
-        ? ['card', 'affirm'] 
-        : ['card'];
-
-      const session = await stripe.checkout.sessions.create({
-        payment_method_types: paymentMethodTypes,
+      // Configure session based on payment option
+      const sessionConfig: any = {
         line_items: [
           {
             price_data: {
@@ -137,8 +131,24 @@ export async function POST(request: NextRequest) {
           workshopSessionId: workshopDate,
           sessionDescription,
           packageType,
+          paymentOption,
         },
-      });
+      };
+
+      // Affirm requires shipping address collection
+      if (paymentOption === 'affirm') {
+        sessionConfig.payment_method_types = ['card', 'affirm'];
+        sessionConfig.shipping_address_collection = {
+          allowed_countries: ['US', 'CA'],
+        };
+        sessionConfig.phone_number_collection = {
+          enabled: true,
+        };
+      } else {
+        sessionConfig.payment_method_types = ['card'];
+      }
+
+      const session = await stripe.checkout.sessions.create(sessionConfig);
 
       return NextResponse.json({ sessionId: session.id, url: session.url });
     }
