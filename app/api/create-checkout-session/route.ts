@@ -104,7 +104,7 @@ export async function POST(request: NextRequest) {
       const sessionDescription = `${formattedDate} at ${sessionData.session_time}`;
 
       const session = await stripe.checkout.sessions.create({
-        payment_method_types: ['card', 'affirm'],
+        payment_method_types: ['card'],
         line_items: [
           {
             price_data: {
@@ -123,11 +123,6 @@ export async function POST(request: NextRequest) {
         success_url: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/workshop-subscription/success?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/workshop-subscription?canceled=true`,
         customer_email: email,
-        payment_method_options: {
-          affirm: {
-            capture_method: 'automatic',
-          },
-        },
         metadata: {
           type: 'workshop',
           name,
