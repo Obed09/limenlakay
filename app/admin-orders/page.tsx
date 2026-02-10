@@ -120,10 +120,42 @@ export default function AdminOrdersPage() {
 
       if (error) throw error;
 
-      toast({
-        title: 'Success',
-        description: 'Order updated successfully'
-      });
+      // If status changed to "shipped" and tracking number provided, send email
+      if (updateData.status === 'shipped' && updateData.tracking_number) {
+        try {
+          const shippingAddress = `${selectedOrder.shipping_address}, ${selectedOrder.shipping_city}, ${selectedOrder.shipping_state} ${selectedOrder.shipping_zip}`;
+          
+          await fetch('/api/orders/send-email', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              to: selectedOrder.customer_email,
+              type: 'shipped',
+              orderNumber: selectedOrder.order_number,
+              customerName: selectedOrder.customer_name,
+              trackingNumber: updateData.tracking_number,
+              shippingAddress: shippingAddress,
+            }),
+          });
+
+          toast({
+            title: 'Success!',
+            description: 'Order updated and tracking email sent to customer',
+          });
+        } catch (emailError) {
+          console.error('Email error:', emailError);
+          toast({
+            title: 'Order Updated',
+            description: 'Order updated but email failed to send. You may need to notify customer manually.',
+            variant: 'destructive'
+          });
+        }
+      } else {
+        toast({
+          title: 'Success',
+          description: 'Order updated successfully'
+        });
+      }
 
       fetchOrders();
       setSelectedOrder(null);
