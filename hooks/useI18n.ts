@@ -2,7 +2,7 @@
 
 import { useParams, useRouter } from 'next/navigation';
 import { useCallback, useMemo } from 'react';
-import { translations, supportedLanguages } from '@/public/js/translations';
+import { translations, supportedLanguages } from '@/lib/translations';
 
 type TFunction = (key: string, params?: Record<string, any>) => string;
 type Locale = 'en' | 'fr' | 'es' | 'ht';
@@ -14,7 +14,7 @@ export function useI18n() {
   // Extract locale from URL params or default to 'en'
   const locale = useMemo(() => {
     const localeParam = params?.locale as string;
-    return (supportedLanguages.includes(localeParam) ? localeParam : 'en') as Locale;
+    return (supportedLanguages.includes(localeParam as any) ? localeParam : 'en') as Locale;
   }, [params?.locale]);
 
   // Translation function with fallback and interpolation
@@ -46,7 +46,7 @@ export function useI18n() {
   // Change language and navigate to new locale URL
   const setLocale = useCallback(
     (newLocale: string) => {
-      if (!supportedLanguages.includes(newLocale)) return;
+      if (!supportedLanguages.includes(newLocale as any)) return;
       const currentPath = window.location.pathname;
       const pathWithoutLocale = currentPath.replace(/^\/(en|fr|es|ht)/, '') || '/';
       router.push(`/${newLocale}${pathWithoutLocale}`);
@@ -58,7 +58,7 @@ export function useI18n() {
     t,
     locale,
     setLocale,
-    supportedLanguages: supportedLanguages as Locale[],
+    supportedLanguages: supportedLanguages as unknown as Locale[],
   };
 }
 
