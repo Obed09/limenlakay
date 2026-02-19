@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>i18n Example</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 24px; }
+    nav { display:flex; gap:12px; margin-bottom:20px; }
+    .hero { padding:24px; background:#f3f4f6; border-radius:8px; margin-bottom:20px; }
+    .btn { display:inline-block; background:#f97316; color:#fff; padding:10px 16px; border-radius:6px; text-decoration:none; }
+  </style>
+</head>
+<body>
+  <div id="lang-switch"></div>
+
+  <!-- Navigation (use data-i18n) -->
+  <nav>
+    <a href="#" data-i18n="nav.home"></a>
+    <a href="#" data-i18n="nav.about"></a>
+    <a href="#" data-i18n="nav.shop"></a>
+    <a href="#" data-i18n="nav.contact"></a>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero">
+    <h1 data-i18n="home.title"></h1>
+    <p data-i18n="home.subtitle"></p>
+    <button class="btn" id="hero-cta" data-i18n="hero.cta"></button>
+  </section>
+
+  <!-- Example button using data-i18n-attr to set placeholder on an input -->
+  <div style="margin-top:20px">
+    <input type="text" id="email" data-i18n-attr="placeholder" data-i18n="footer.contact" />
+    <button class="btn" data-i18n="button.buy"></button>
+  </div>
+
+  <script type="module">
+    import i18n, { createLangSelector } from '/js/i18n.js';
+
+    // Initialize i18n (detects saved language in localStorage)
+    i18n.initI18n({ defaultLang: 'en' });
+
+    // Create a language selector for demo
+    const container = document.getElementById('lang-switch');
+    const sel = createLangSelector(container);
+
+    // Optionally, expose setLanguage for console testing
+    window.setLanguage = i18n.setLanguage;
+    window.t = i18n.t;
+  </script>
+</body>
+</html>
