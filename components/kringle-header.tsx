@@ -4,9 +4,10 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Search, ShoppingCart, Heart, User, ChevronDown, Menu, X } from "lucide-react";
+import { Search, ShoppingCart, Heart, User, ChevronDown, Menu, X, Globe } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { useI18n } from "@/hooks/useI18n";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -35,7 +36,15 @@ export function KringleHeader() {
   const [showSearchResults, setShowSearchResults] = useState(false);
   const [mounted, setMounted] = useState(false);
   const { wishlist } = useWishlist();
+  const { locale, setLocale, supportedLanguages } = useI18n();
   const router = useRouter();
+
+  const languageLabels: Record<string, string> = {
+    en: "English",
+    fr: "Français",
+    es: "Español",
+    ht: "Kreyòl Ayisyen"
+  };
 
   useEffect(() => {
     setMounted(true);
@@ -213,6 +222,19 @@ export function KringleHeader() {
             </Link>
 
             <ThemeSwitcher />
+
+            {/* Language Selector */}
+            <select
+              value={locale}
+              onChange={(e) => setLocale(e.target.value)}
+              className="px-2 py-1 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-sm hover:border-amber-500 dark:hover:border-amber-500 transition-colors cursor-pointer"
+            >
+              {supportedLanguages.map((lang) => (
+                <option key={lang} value={lang}>
+                  {languageLabels[lang] || lang}
+                </option>
+              ))}
+            </select>
 
             {/* Mobile Menu Toggle */}
             <button
