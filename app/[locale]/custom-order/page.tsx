@@ -1,0 +1,1038 @@
+'use client';
+
+import { useState, useEffect, useMemo, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { createClient } from '@/lib/supabase/client';
+import { SiteFooter } from '@/components/site-footer';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Check, ShoppingCart, ArrowRight, ArrowLeft, Package, X, Sparkles } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { useI18n } from '@/hooks/useI18n';
+import { AddressAutocomplete } from '@/components/address-autocomplete';
+import Link from 'next/link';
+
+interface Vessel {
+  id: string;
+  name: string;
+  color: string;
+  size: string;
+  price: number;
+  image_url: string;
+  stock_quantity: number;
+  description: string | null;
+  allow_custom_candle: boolean;
+  allow_empty_vessel: boolean;
+}
+
+interface Scent {
+  id: string;
+  name: string;
+  name_english: string;
+  notes: string;
+  description: string;
+  display_order: number;
+}
+
+interface CartItem {
+  vessel: Vessel;
+  scent: Scent | null; // null for empty vessels
+  isEmptyVessel?: boolean;
+}
+
+function CustomOrderContent() {
+  const { t } = useI18n();
+  const [step, setStep] = useState(1);
+  const [vessels, setVessels] = useState<Vessel[]>([]);
+  const [scents, setScents] = useState<Scent[]>([]);
+  const [selectedVessel, setSelectedVessel] = useState<Vessel | null>(null);
+  const [selectedScent, setSelectedScent] = useState<Scent | null>(null);
+  const [cart, setCart] = useState<CartItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showNotice, setShowNotice] = useState(true);
+  const [purchaseType, setPurchaseType] = useState<'custom' | 'empty' | null>(null);
+  const [shippingCost, setShippingCost] = useState(10); // Default
+  const [loadingShipping, setLoadingShipping] = useState(false);
+  const [paymentOption, setPaymentOption] = useState<'card' | 'affirm'>('card');
+  
+  // Customer info
+  const [customerInfo, setCustomerInfo] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    address: '',
+    city: '',
+    state: '',
+    zip: ''
+  });
+
+  // Payment info
+  const [paymentInfo, setPaymentInfo] = useState({
+    cardNumber: '',
+    cardName: '',
+    expiryDate: '',
+    cvv: ''
+  });
+
+  const { toast } = useToast();
+  const supabase = useMemo(() => createClient(), []);
+  const searchParams = useSearchParams();
+  const vesselIdFromUrl = searchParams.get('vessel');
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [vesselsResult, scentsResult] = await Promise.all([
+          supabase
+            .from('candle_vessels')
+            .select('*')
+            .eq('is_available', true)
+            .or('allow_custom_candle.eq.true,allow_empty_vessel.eq.true')
+            .order('name'),
+          supabase
+            .from('scents')
+            .select('*')
+            .eq('is_available', true)
+            .order('created_at')
+        ]);
+
+        if (vesselsResult.error) throw vesselsResult.error;
+        if (scentsResult.error) throw scentsResult.error;
+
+        console.log('Loaded vessels:', vesselsResult.data);
+        console.log('Loaded scents:', scentsResult.data);
+
+        setVessels(vesselsResult.data || []);
+        setScents(scentsResult.data || []);
+
+        // Auto-select vessel if ID is in URL
+        if (vesselIdFromUrl && vesselsResult.data) {
+          const preSelectedVessel = vesselsResult.data.find((v: Vessel) => v.id === vesselIdFromUrl);
+          if (preSelectedVessel) {
+            // Check if this is an empty vessel ONLY (not customizable)
+            const isEmptyVesselOnly = preSelectedVessel.allow_empty_vessel && !preSelectedVessel.allow_custom_candle;
+            
+            if (isEmptyVesselOnly) {
+              // Empty vessel only - add directly to cart and go to checkout
+              setCart([{ 
+                vessel: preSelectedVessel, 
+                scent: null,
+                isEmptyVessel: true 
+              }]);
+              setStep(3); // Go to checkout
+              toast({
+                title: 'Empty Vessel Added!',
+                description: `${preSelectedVessel.name} added to cart. Ready to checkout.`,
+              });
+            } else {
+              // Customizable vessel - go to scent selection
+              setSelectedVessel(preSelectedVessel);
+              setStep(2);
+              toast({
+                title: 'Vessel Selected!',
+                description: `${preSelectedVessel.name} has been pre-selected. Now choose your scent.`,
+              });
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        toast({
+          title: 'Error',
+          description: `Failed to load available options: ${error instanceof Error ? error.message : 'Unknown error'}`,
+          variant: 'destructive'
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchData();
+  }, [supabase, toast, vesselIdFromUrl]);
+
+  const addToCart = () => {
+    if (!selectedVessel) return;
+    
+    // For empty vessels, scent is not required
+    const isEmptyVessel = selectedVessel.allow_empty_vessel && !selectedVessel.allow_custom_candle;
+    if (!isEmptyVessel && !selectedScent) return;
+
+    setCart([...cart, { 
+      vessel: selectedVessel, 
+      scent: selectedScent,
+      isEmptyVessel 
+    }]);
+    setSelectedVessel(null);
+    setSelectedScent(null);
+    setStep(1);
+
+    toast({
+      title: 'Added to Cart',
+      description: isEmptyVessel ? 'Empty vessel added!' : 'Candle added successfully!'
+    });
+  };
+
+  const removeFromCart = (index: number) => {
+    setCart(cart.filter((_, i) => i !== index));
+    toast({
+      title: 'Removed',
+      description: 'Item removed from cart'
+    });
+  };
+
+  const calculateTotal = () => {
+    const subtotal = cart.reduce((sum, item) => sum + item.vessel.price, 0);
+    return { subtotal, shipping: shippingCost, total: subtotal + shippingCost };
+  };
+
+  const calculateShipping = async (zip: string, state: string) => {
+    if (!zip || !state || cart.length === 0) return;
+    
+    setLoadingShipping(true);
+    try {
+      // Estimate weight based on cart items (assume 1.5 lbs per candle)
+      const weight = cart.length * 1.5;
+      
+      const response = await fetch('/api/ups/shipping-rate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          toZip: zip,
+          toState: state,
+          toCity: customerInfo.city,
+          weight: Math.max(weight, 2), // Minimum 2 lbs
+          service: "03" // UPS Ground
+        })
+      });
+      
+      const data = await response.json();
+      
+      if (data.success || data.fallback) {
+        setShippingCost(data.cost);
+      }
+    } catch (error) {
+      console.error('Shipping calculation error:', error);
+      setShippingCost(10); // Fallback
+    } finally {
+      setLoadingShipping(false);
+    }
+  };
+
+  const handleSubmitOrder = async () => {
+    if (cart.length === 0) {
+      toast({
+        title: 'Cart Empty',
+        description: 'Please add at least one item to your cart',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    if (!customerInfo.name || !customerInfo.email) {
+      toast({
+        title: 'Missing Information',
+        description: 'Please fill in your name and email',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    try {
+      const { subtotal, shipping, total } = calculateTotal();
+      
+      // Create line items for each cart item
+      const lineItems = cart.map(item => ({
+        price_data: {
+          currency: 'usd',
+          product_data: {
+            name: item.scent 
+              ? `${item.vessel.name} - ${item.scent.name}`
+              : `${item.vessel.name} (Empty Vessel)`,
+            description: item.scent 
+              ? `Custom Candle: ${item.vessel.name} with ${item.scent.name_english} scent`
+              : `Empty vessel for your own use`,
+          },
+          unit_amount: Math.round(item.vessel.price * 100),
+        },
+        quantity: 1,
+      }));
+
+      // Add shipping line item
+      lineItems.push({
+        price_data: {
+          currency: 'usd',
+          product_data: {
+            name: 'Shipping',
+            description: 'UPS Ground Shipping',
+          },
+          unit_amount: Math.round(shipping * 100),
+        },
+        quantity: 1,
+      });
+
+      // Create Stripe checkout session
+      const response = await fetch('/api/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          customOrder: true,
+          lineItems,
+          customerInfo,
+          paymentOption,
+          totalAmount: total,
+          cartItems: cart.map(item => ({
+            vessel_id: item.vessel.id,
+            vessel_name: item.vessel.name,
+            scent_id: item.scent?.id || null,
+            scent_name: item.scent?.name || null,
+            unit_price: item.vessel.price,
+          })),
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to create checkout session');
+      }
+
+      // Redirect to Stripe Checkout
+      if (data.url) {
+        window.location.href = data.url;
+      }
+    } catch (error) {
+      console.error('Error submitting order:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to start checkout. Please try again.',
+        variant: 'destructive'
+      });
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-lg">Loading...</div>
+      </div>
+    );
+  }
+
+  const { subtotal, shipping, total } = calculateTotal();
+
+  return (
+    <div className="container mx-auto p-6 max-w-7xl">
+      {/* Back Button */}
+      <div className="mb-6">
+        <Button asChild variant="outline" className="font-semibold text-base hover:bg-amber-50 dark:hover:bg-amber-950">
+          <Link href="/" className="flex items-center gap-2">
+            <ArrowLeft className="w-5 h-5" />
+            Back to Home
+          </Link>
+        </Button>
+      </div>
+
+      {/* Handmade Variation Notice Banner */}
+      {showNotice && (
+        <div className="mb-8 relative">
+          <Card className="border-2 border-amber-500 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950 dark:to-orange-950 shadow-lg">
+            <CardContent className="p-6">
+              <button
+                onClick={() => setShowNotice(false)}
+                className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+              >
+                <X className="w-5 h-5" />
+              </button>
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0">
+                  <Sparkles className="w-8 h-8 text-amber-600 dark:text-amber-400" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-extrabold text-gray-900 dark:text-gray-100 mb-2">
+                    ✨ Handmade Variation Notice
+                  </h3>
+                  <p className="text-base font-medium text-gray-700 dark:text-gray-300 leading-relaxed">
+                    Due to the artistic pouring technique, patterns will vary between vessels, even in the same color. 
+                    We celebrate these natural differences as part of each piece's character, ensuring your vessel is truly 
+                    <span className="font-bold text-amber-700 dark:text-amber-400"> one-of-a-kind</span>.
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Header */}
+      <div className="text-center mb-8">
+        <h1 className="text-5xl font-extrabold mb-3 tracking-tight">Create Your Custom Candle</h1>
+        <p className="text-muted-foreground text-xl font-medium">
+          Choose your vessel, pick your scent, and we'll create your perfect candle
+        </p>
+      </div>
+
+      {/* Progress Steps */}
+      <div className="flex justify-center mb-8">
+        <div className="flex items-center gap-4">
+          <div className={`flex items-center gap-2 ${step >= 1 ? 'text-orange-500' : 'text-muted-foreground'}`}>
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${step >= 1 ? 'bg-orange-500 text-white' : 'bg-muted'}`}>
+              {step > 1 ? <Check className="h-5 w-5" /> : '1'}
+            </div>
+            <span className="font-medium">Choose Vessel</span>
+          </div>
+          <ArrowRight className="h-5 w-5 text-muted-foreground" />
+          <div className={`flex items-center gap-2 ${step >= 2 ? 'text-orange-500' : 'text-muted-foreground'}`}>
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${step >= 2 ? 'bg-orange-500 text-white' : 'bg-muted'}`}>
+              {step > 2 ? <Check className="h-5 w-5" /> : '2'}
+            </div>
+            <span className="font-medium">Select Scent</span>
+          </div>
+          <ArrowRight className="h-5 w-5 text-muted-foreground" />
+          <div className={`flex items-center gap-2 ${step >= 3 ? 'text-orange-500' : 'text-muted-foreground'}`}>
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${step >= 3 ? 'bg-orange-500 text-white' : 'bg-muted'}`}>
+              3
+            </div>
+            <span className="font-medium">Checkout</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Main Content */}
+        <div className="lg:col-span-2">
+          {/* Step 1: Choose Vessel */}
+          {step === 1 && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Step 1: Choose Your Vessel</CardTitle>
+                <CardDescription>
+                  Select the empty vessel you'd like to fill with your custom scent. Each vessel is $39.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <RadioGroup
+                  value={selectedVessel?.id}
+                  onValueChange={(value) => {
+                    const vessel = vessels.find((v) => v.id === value);
+                    setSelectedVessel(vessel || null);
+                  }}
+                >
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {vessels.map((vessel) => (
+                      <div
+                        key={vessel.id}
+                        className={`group relative border rounded-lg overflow-hidden cursor-pointer transition-all hover:shadow-lg ${
+                          selectedVessel?.id === vessel.id
+                            ? 'ring-2 ring-orange-500 shadow-lg'
+                            : 'hover:border-orange-300'
+                        }`}
+                        onClick={() => setSelectedVessel(vessel)}
+                      >
+                        <RadioGroupItem
+                          value={vessel.id}
+                          id={vessel.id}
+                          className="absolute top-3 right-3 z-10"
+                        />
+                        
+                        {/* Image */}
+                        <div className="aspect-square bg-gray-50 overflow-hidden">
+                          <img
+                            src={vessel.image_url}
+                            alt={vessel.name}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src =
+                                'https://via.placeholder.com/400?text=No+Image';
+                            }}
+                          />
+                        </div>
+
+                        {/* Content */}
+                        <div className="p-4">
+                          <div className="flex items-start justify-between gap-2 mb-1">
+                            <h3 className="font-semibold text-lg">
+                              {vessel.name}
+                            </h3>
+                            {vessel.allow_custom_candle && vessel.allow_empty_vessel ? (
+                              <span className="text-xs px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full font-medium whitespace-nowrap">
+                                Both Options ✨
+                              </span>
+                            ) : vessel.allow_empty_vessel && !vessel.allow_custom_candle ? (
+                              <span className="text-xs px-2 py-0.5 bg-green-100 text-green-700 rounded-full font-medium whitespace-nowrap">
+                                Empty Vessel
+                              </span>
+                            ) : vessel.allow_custom_candle ? (
+                              <span className="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full font-medium whitespace-nowrap">
+                                Customizable
+                              </span>
+                            ) : null}
+                          </div>
+                          <p className="text-sm text-muted-foreground mb-1">
+                            {vessel.color} • {vessel.size}
+                          </p>
+                          {vessel.description && (
+                            <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
+                              {vessel.description}
+                            </p>
+                          )}
+                          <div className="flex justify-between items-center pt-2 border-t">
+                            <span className="text-xl font-bold text-orange-500">
+                              ${vessel.price.toFixed(2)}
+                            </span>
+                            <span className="text-xs text-muted-foreground">
+                              {vessel.stock_quantity > 0 ? `${vessel.stock_quantity} in stock` : 'In stock'}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </RadioGroup>
+
+                {vessels.length === 0 && (
+                  <div className="text-center py-12">
+                    <Package className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                    <h3 className="text-lg font-semibold mb-2">
+                      No Vessels Available
+                    </h3>
+                    <p className="text-muted-foreground">
+                      Please check back later for available vessels
+                    </p>
+                  </div>
+                )}
+
+                <div className="flex justify-end mt-6">
+                  <Button
+                    onClick={() => {
+                      if (selectedVessel) {
+                        // If vessel is empty-only (no custom candle option), add directly to cart
+                        if (selectedVessel.allow_empty_vessel && !selectedVessel.allow_custom_candle) {
+                          setCart([...cart, { 
+                            vessel: selectedVessel, 
+                            scent: null,
+                            isEmptyVessel: true 
+                          }]);
+                          setSelectedVessel(null);
+                          toast({
+                            title: 'Added to Cart',
+                            description: 'Empty vessel added to cart!'
+                          });
+                        } else {
+                          // Go to step 2 (will show choice if both options available)
+                          setPurchaseType(null); // Reset purchase type
+                          setStep(2);
+                        }
+                      }
+                    }}
+                    disabled={!selectedVessel}
+                    className="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white"
+                  >
+                    {selectedVessel?.allow_empty_vessel && !selectedVessel?.allow_custom_candle ? (
+                      <>
+                        <ShoppingCart className="h-4 w-4" />
+                        Add Empty Vessel to Cart
+                      </>
+                    ) : (
+                      <>
+                        Next: Choose Options
+                        <ArrowRight className="h-4 w-4" />
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Step 2: Choose Purchase Type or Scent */}
+          {step === 2 && selectedVessel && (
+            <Card>
+              <CardHeader>
+                <CardTitle>
+                  {selectedVessel.allow_custom_candle && selectedVessel.allow_empty_vessel
+                    ? 'Step 2: How would you like this vessel?'
+                    : 'Step 2: Select Your Scent'}
+                </CardTitle>
+                <CardDescription>
+                  {selectedVessel.allow_custom_candle && selectedVessel.allow_empty_vessel
+                    ? 'Choose whether to customize with a scent or purchase as an empty vessel'
+                    : 'Choose from our handcrafted Haitian-inspired fragrances'}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {/* If both options available, show choice first */}
+                {selectedVessel.allow_custom_candle && selectedVessel.allow_empty_vessel && !purchaseType && (
+                  <div className="space-y-4">
+                    <div
+                      className="border-2 rounded-lg p-6 cursor-pointer transition-all hover:shadow-lg hover:border-blue-500"
+                      onClick={() => setPurchaseType('custom')}
+                    >
+                      <div className="flex items-start gap-4">
+                        <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                          <Sparkles className="h-6 w-6 text-blue-600" />
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="text-xl font-bold mb-2">Custom Candle</h3>
+                          <p className="text-muted-foreground mb-3">
+                            Fill this beautiful vessel with your choice of our handcrafted Haitian-inspired scents
+                          </p>
+                          <span className="inline-block text-sm px-3 py-1 bg-blue-100 text-blue-700 rounded-full font-medium">
+                            Choose Scent Next →
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div
+                      className="border-2 rounded-lg p-6 cursor-pointer transition-all hover:shadow-lg hover:border-green-500"
+                      onClick={() => {
+                        setPurchaseType('empty');
+                        setCart([...cart, { 
+                          vessel: selectedVessel, 
+                          scent: null,
+                          isEmptyVessel: true 
+                        }]);
+                        setSelectedVessel(null);
+                        setStep(1);
+                        toast({
+                          title: 'Added to Cart',
+                          description: 'Empty vessel added to cart!'
+                        });
+                      }}
+                    >
+                      <div className="flex items-start gap-4">
+                        <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                          <Package className="h-6 w-6 text-green-600" />
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="text-xl font-bold mb-2">Empty Vessel</h3>
+                          <p className="text-muted-foreground mb-3">
+                            Purchase this vessel empty - perfect if you want to use it for your own candle or as décor
+                          </p>
+                          <span className="inline-block text-sm px-3 py-1 bg-green-100 text-green-700 rounded-full font-medium">
+                            Add to Cart →
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex justify-start mt-6">
+                      <Button
+                        variant="outline"
+                        onClick={() => setStep(1)}
+                        className="flex items-center gap-2"
+                      >
+                        <ArrowLeft className="h-4 w-4" />
+                        Back
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
+                {/* If custom selected or only custom available, show scent selection */}
+                {((selectedVessel.allow_custom_candle && selectedVessel.allow_empty_vessel && purchaseType === 'custom') ||
+                  (selectedVessel.allow_custom_candle && !selectedVessel.allow_empty_vessel)) && (
+                  <>
+                    <RadioGroup
+                      value={selectedScent?.id}
+                      onValueChange={(value) => {
+                        const scent = scents.find((s) => s.id === value);
+                        setSelectedScent(scent || null);
+                      }}
+                    >
+                      <div className="space-y-3">
+                        {scents.map((scent) => (
+                          <div
+                            key={scent.id}
+                            className={`relative border rounded-lg p-4 cursor-pointer transition-all hover:shadow-md ${
+                              selectedScent?.id === scent.id
+                                ? 'ring-2 ring-orange-500 shadow-md border-orange-500 bg-orange-50'
+                                : 'hover:border-orange-300'
+                            }`}
+                            onClick={() => setSelectedScent(scent)}
+                          >
+                            <RadioGroupItem
+                              value={scent.id}
+                              id={scent.id}
+                              className="absolute top-4 right-4"
+                            />
+                            <div className="pr-8">
+                              <div className="flex items-center gap-2 mb-2">
+                                <h3 className="font-bold text-lg">
+                                  {scent.name}
+                                </h3>
+                                <span className="text-xs px-2 py-0.5 bg-orange-100 text-orange-700 rounded-full font-medium">
+                                  {scent.name_english}
+                                </span>
+                              </div>
+                              <p className="text-sm font-medium text-orange-600 mb-2">
+                                {scent.notes}
+                              </p>
+                              <p className="text-sm text-muted-foreground">
+                                {scent.description}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </RadioGroup>
+
+                    <div className="flex justify-between mt-6">
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          if (selectedVessel.allow_custom_candle && selectedVessel.allow_empty_vessel && purchaseType === 'custom') {
+                            // Go back to choice screen
+                            setPurchaseType(null);
+                            setSelectedScent(null);
+                          } else {
+                            // Go back to vessel selection
+                            setStep(1);
+                          }
+                        }}
+                        className="flex items-center gap-2"
+                      >
+                        <ArrowLeft className="h-4 w-4" />
+                        Back
+                      </Button>
+                      <Button
+                        onClick={addToCart}
+                        disabled={!selectedScent}
+                        className="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white"
+                      >
+                        <ShoppingCart className="h-4 w-4" />
+                        Add to Cart
+                      </Button>
+                    </div>
+                  </>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Step 3: Checkout */}
+          {step === 3 && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Step 3: Shipping Information</CardTitle>
+                <CardDescription>
+                  Enter your details to complete your order
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="name">Full Name *</Label>
+                      <Input
+                        id="name"
+                        value={customerInfo.name}
+                        onChange={(e) =>
+                          setCustomerInfo({ ...customerInfo, name: e.target.value })
+                        }
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="email">Email *</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        value={customerInfo.email}
+                        onChange={(e) =>
+                          setCustomerInfo({ ...customerInfo, email: e.target.value })
+                        }
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="phone">Phone</Label>
+                    <Input
+                      id="phone"
+                      type="tel"
+                      value={customerInfo.phone}
+                      onChange={(e) =>
+                        setCustomerInfo({ ...customerInfo, phone: e.target.value })
+                      }
+                    />
+                  </div>
+
+                  {/* Address Autocomplete Component */}
+                  <AddressAutocomplete
+                    value={{
+                      address: customerInfo.address,
+                      city: customerInfo.city,
+                      state: customerInfo.state,
+                      zip: customerInfo.zip,
+                    }}
+                    onChange={(addressData) =>
+                      setCustomerInfo({ ...customerInfo, ...addressData })
+                    }
+                    onZipComplete={(zip, state) => calculateShipping(zip, state)}
+                    required={false}
+                  />
+
+                  {/* Payment Information Section */}
+                  <div className="border-t pt-6 mt-6">
+                    <h3 className="text-lg font-semibold mb-4">Payment Information</h3>
+                    
+                    <div className="space-y-4">
+                      <div>
+                        <Label htmlFor="cardName">Cardholder Name *</Label>
+                        <Input
+                          id="cardName"
+                          placeholder="John Doe"
+                          value={paymentInfo.cardName}
+                          onChange={(e) =>
+                            setPaymentInfo({ ...paymentInfo, cardName: e.target.value })
+                          }
+                          required
+                        />
+                      </div>
+
+                      <div>
+                        <Label htmlFor="cardNumber">Card Number *</Label>
+                        <Input
+                          id="cardNumber"
+                          placeholder="1234 5678 9012 3456"
+                          value={paymentInfo.cardNumber}
+                          onChange={(e) => {
+                            // Format card number with spaces
+                            const value = e.target.value.replace(/\s/g, '').replace(/(\d{4})/g, '$1 ').trim();
+                            setPaymentInfo({ ...paymentInfo, cardNumber: value });
+                          }}
+                          maxLength={19}
+                          required
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <Label htmlFor="expiryDate">Expiry Date *</Label>
+                          <Input
+                            id="expiryDate"
+                            placeholder="MM/YY"
+                            value={paymentInfo.expiryDate}
+                            onChange={(e) => {
+                              // Format expiry date as MM/YY
+                              let value = e.target.value.replace(/\D/g, '');
+                              if (value.length >= 2) {
+                                value = value.slice(0, 2) + '/' + value.slice(2, 4);
+                              }
+                              setPaymentInfo({ ...paymentInfo, expiryDate: value });
+                            }}
+                            maxLength={5}
+                            required
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="cvv">CVV *</Label>
+                          <Input
+                            id="cvv"
+                            placeholder="123"
+                            type="password"
+                            value={paymentInfo.cvv}
+                            onChange={(e) => {
+                              const value = e.target.value.replace(/\D/g, '');
+                              setPaymentInfo({ ...paymentInfo, cvv: value });
+                            }}
+                            maxLength={4}
+                            required
+                          />
+                        </div>
+                      </div>
+
+                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
+                        <div className="flex items-start gap-3">
+                          <svg className="w-5 h-5 text-blue-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                          </svg>
+                          <div className="flex-1">
+                            <p className="text-sm font-medium text-blue-900">Secure Payment</p>
+                            <p className="text-xs text-blue-700 mt-1">Your payment information is encrypted and secure</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-between mt-6">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setStep(1)}
+                    >
+                      Continue Shopping
+                    </Button>
+                    <Button
+                      type="button"
+                      onClick={handleSubmitOrder}
+                      className="flex items-center gap-2"
+                    >
+                      Place Order
+                      <Check className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </form>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+
+        {/* Cart Sidebar */}
+        <div className="lg:col-span-1">
+          <Card className="sticky top-6">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <ShoppingCart className="h-5 w-5" />
+                Your Cart ({cart.length})
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {cart.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  <ShoppingCart className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                  <p>Your cart is empty</p>
+                </div>
+              ) : (
+                <>
+                  <div className="space-y-4 mb-4">
+                    {cart.map((item, index) => (
+                      <div
+                        key={index}
+                        className="border rounded-lg p-3 space-y-2"
+                      >
+                        <div className="flex justify-between items-start">
+                          <div className="flex-1">
+                            <p className="font-medium text-sm">
+                              {item.vessel.name}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {item.scent ? item.scent.name : (
+                                <span className="text-green-600 font-medium">Empty Vessel (No Scent)</span>
+                              )}
+                            </p>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => removeFromCart(index)}
+                          >
+                            ×
+                          </Button>
+                        </div>
+                        <div className="text-right font-semibold">
+                          ${item.vessel.price.toFixed(2)}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="border-t pt-4 space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span>Subtotal</span>
+                      <span>${subtotal.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span>Shipping</span>
+                      <span>
+                        {loadingShipping ? (
+                          <span className="text-xs text-gray-500">Calculating...</span>
+                        ) : (
+                          `$${shipping.toFixed(2)}`
+                        )}
+                      </span>
+                    </div>
+                    {!loadingShipping && customerInfo.zip.length === 5 && (
+                      <div className="text-xs text-gray-500 text-right">UPS Ground</div>
+                    )}
+                    <div className="flex justify-between font-bold text-lg border-t pt-2">
+                      <span>Total</span>
+                      <span className="text-amber-600">${total.toFixed(2)}</span>
+                    </div>
+                  </div>
+
+                  {/* Affirm Availability Message */}
+                  {total < 110 && (
+                    <div className="bg-amber-50 dark:bg-amber-900/20 p-4 rounded-lg border border-amber-200 dark:border-amber-800 mt-4">
+                      <p className="text-sm text-amber-800 dark:text-amber-200 font-medium mb-1">
+                        💳 Add ${(110 - total).toFixed(2)} more for payment plan options
+                      </p>
+                      <p className="text-xs text-amber-700 dark:text-amber-300">
+                        Reach $110 minimum to unlock Affirm (4 interest-free payments)
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Payment Method Selection */}
+                  {total >= 110 && (
+                    <div className="space-y-3 mt-4">
+                      <Label className="text-sm font-semibold">Payment Method</Label>
+                      <div className="grid grid-cols-2 gap-3">
+                        <button
+                          type="button"
+                          onClick={() => setPaymentOption('card')}
+                          className={`p-3 rounded-lg border-2 transition-all text-left ${
+                            paymentOption === 'card'
+                              ? 'border-amber-500 bg-amber-50 dark:bg-amber-900/20'
+                              : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
+                          }`}
+                        >
+                          <div className="font-medium text-sm">Pay in Full</div>
+                          <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                            ${total.toFixed(2)} today
+                          </div>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setPaymentOption('affirm')}
+                          className={`p-3 rounded-lg border-2 transition-all text-left ${
+                            paymentOption === 'affirm'
+                              ? 'border-amber-500 bg-amber-50 dark:bg-amber-900/20'
+                              : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
+                          }`}
+                        >
+                          <div className="font-medium text-sm flex items-center gap-1">
+                            <span>Affirm</span>
+                            <span className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 px-1.5 py-0.5 rounded">4x</span>
+                          </div>
+                          <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                            ${(total / 4).toFixed(2)}/month
+                          </div>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {step < 3 && (
+                    <Button
+                      className="w-full mt-4"
+                      onClick={() => setStep(3)}
+                    >
+                      Proceed to Checkout
+                    </Button>
+                  )}
+                </>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+      <SiteFooter />
+    </div>
+  );
+}
+
+export default function CustomOrderPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center min-h-screen">Loading...</div>}>
+      <CustomOrderContent />
+    </Suspense>
+  );
+}

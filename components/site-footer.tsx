@@ -1,7 +1,12 @@
+'use client';
+
 import Link from 'next/link';
 import Image from 'next/image';
+import { useI18n } from '@/hooks/useI18n';
 
 export function SiteFooter() {
+  const { t } = useI18n();
+
   return (
     <footer className="bg-white dark:bg-gray-950 border-t border-gray-200 dark:border-gray-800 mt-auto">
       <div className="max-w-7xl mx-auto px-4 py-6">
@@ -19,39 +24,39 @@ export function SiteFooter() {
 
           {/* Shop */}
           <div>
-            <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-500 mb-2 uppercase tracking-wider">Shop</h4>
+            <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-500 mb-2 uppercase tracking-wider">{t('footer.shop')}</h4>
             <div className="space-y-1.5 text-xs">
               <Link href="/#catalog" className="block text-gray-500 dark:text-gray-500 hover:text-amber-600 dark:hover:text-amber-400">
-                All Candles
+                {t('footer.allCandles')}
               </Link>
               <Link href="/custom-order" className="block text-gray-500 dark:text-gray-500 hover:text-amber-600 dark:hover:text-amber-400">
-                Custom Candle
+                {t('footer.customCandle')}
               </Link>
               <Link href="/bulk-order" className="block text-gray-500 dark:text-gray-500 hover:text-amber-600 dark:hover:text-amber-400">
-                Bulk Orders
+                {t('footer.bulkOrders')}
               </Link>
             </div>
           </div>
 
           {/* Support */}
           <div>
-            <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-500 mb-2 uppercase tracking-wider">Support</h4>
+            <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-500 mb-2 uppercase tracking-wider">{t('footer.support')}</h4>
             <div className="space-y-1.5 text-xs">
               <Link href="/#contact" className="block text-gray-500 dark:text-gray-500 hover:text-amber-600 dark:hover:text-amber-400">
-                Contact Us
+                {t('footer.contactUs')}
               </Link>
               <Link href="/track" className="block text-gray-500 dark:text-gray-500 hover:text-amber-600 dark:hover:text-amber-400">
-                Track Order
+                {t('footer.trackOrder')}
               </Link>
               <Link href="/about" className="block text-gray-500 dark:text-gray-500 hover:text-amber-600 dark:hover:text-amber-400">
-                About Us
+                {t('footer.aboutUs')}
               </Link>
             </div>
           </div>
 
           {/* Contact */}
           <div>
-            <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-500 mb-2 uppercase tracking-wider">Contact</h4>
+            <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-500 mb-2 uppercase tracking-wider">{t('footer.contact')}</h4>
             <div className="space-y-1.5 text-xs text-gray-500 dark:text-gray-500">
               <a href="mailto:info@limenlakay.com" className="block hover:text-amber-600 dark:hover:text-amber-400">
                 info@limenlakay.com
@@ -65,7 +70,7 @@ export function SiteFooter() {
 
           {/* Connect With Us */}
           <div>
-            <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-500 mb-2 uppercase tracking-wider">Connect With Us</h4>
+            <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-500 mb-2 uppercase tracking-wider">{t('footer.connectWithUs')}</h4>
             <div className="space-y-2">
               <a 
                 href="https://www.instagram.com/limenlakay" 
@@ -124,10 +129,10 @@ export function SiteFooter() {
             </p>
             <div className="flex gap-4">
               <Link href="/privacy-policy" className="hover:text-amber-600 dark:hover:text-amber-400">
-                Privacy Policy
+                {t('footer.privacyPolicy')}
               </Link>
               <Link href="/terms" className="hover:text-amber-600 dark:hover:text-amber-400">
-                Terms of Service
+                {t('footer.termsOfService')}
               </Link>
             </div>
           </div>
