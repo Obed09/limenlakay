@@ -501,5 +501,5 @@ export const translations = {
   }
 } as const;
 
-export const supportedLanguages = Object.keys(translations) as const;
+export const supportedLanguages = ['en', 'fr', 'es', 'ht'] as const;
 export type SupportedLanguage = typeof supportedLanguages[number];

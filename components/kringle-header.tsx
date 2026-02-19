@@ -4,9 +4,8 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Search, ShoppingCart, Heart, User, ChevronDown, Menu, X, Globe } from "lucide-react";
+import { Search, ShoppingCart, Heart, User, ChevronDown, Menu, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { useI18n } from "@/hooks/useI18n";
 import {
   DropdownMenu,
