@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
+import { Home } from 'lucide-react'
 
 export default function PriceCalculator() {
   const [formData, setFormData] = useState({
@@ -128,6 +129,12 @@ export default function PriceCalculator() {
             </div>
           </div>
           <div className="flex gap-3">
+            <Link href="/admin-hub">
+              <Button variant="outline" size="sm" className="flex items-center gap-2">
+                <Home className="h-4 w-4" />
+                Admin Hub
+              </Button>
+            </Link>
             <Link 
               href="/vessel-calculator"
               className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-semibold"

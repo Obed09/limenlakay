@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
-import { ArrowLeft, Plus, Edit2, Trash2, Save, X } from 'lucide-react';
+import { Home, Plus, Edit2, Trash2, Save, X } from 'lucide-react';
 import Link from 'next/link';
 
 interface Scent {
@@ -135,9 +135,9 @@ export default function AdminScentsPage() {
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
             <Button asChild variant="outline">
-              <Link href="/admin" className="flex items-center gap-2">
-                <ArrowLeft className="w-4 h-4" />
-                Back to Admin
+              <Link href="/admin-hub" className="flex items-center gap-2">
+                <Home className="w-4 h-4" />
+                Admin Hub
               </Link>
             </Button>
             <h1 className="text-3xl font-bold">Scent Management</h1>

@@ -1,12 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Calendar, Link as LinkIcon, Mail, Save, Plus, Users, DollarSign, UserCheck, Loader2 } from "lucide-react";
+import { Calendar, Link as LinkIcon, Mail, Save, Plus, Users, DollarSign, UserCheck, Loader2, Home } from "lucide-react";
 
 interface EmailTemplate {
   subject: string;
@@ -254,8 +255,18 @@ export default function WorkshopSettingsPage() {
   return (
     <div className="container mx-auto p-8 max-w-7xl">
       <div className="mb-8">
-        <h1 className="text-4xl font-bold text-amber-900 dark:text-amber-100 mb-2">Workshop Management Center</h1>
-        <p className="text-gray-600 dark:text-gray-400">Complete control over sessions, bookings, payments, and email automation</p>
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h1 className="text-4xl font-bold text-amber-900 dark:text-amber-100 mb-2">Workshop Management Center</h1>
+            <p className="text-gray-600 dark:text-gray-400">Complete control over sessions, bookings, payments, and email automation</p>
+          </div>
+          <Link href="/admin-hub">
+            <Button variant="outline" size="sm" className="flex items-center gap-2">
+              <Home className="h-4 w-4" />
+              Admin Hub
+            </Button>
+          </Link>
+        </div>
       </div>
 
       {/* Stats Cards */}

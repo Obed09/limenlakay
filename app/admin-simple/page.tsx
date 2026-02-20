@@ -1,12 +1,13 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import BulkOrderQuestionnaire from '@/components/bulk-order-questionnaire';
 import VesselManager from '@/components/vessel-manager';
-import { Package, FileCheck, Settings } from 'lucide-react';
+import { Package, FileCheck, Settings, Home } from 'lucide-react';
 
 export default function AdminSimplePage() {
   return (
@@ -32,6 +33,12 @@ export default function AdminSimplePage() {
           </div>
           
           <div className="flex items-center space-x-3">
+            <Link href="/admin-hub">
+              <Button variant="outline" className="flex items-center space-x-2">
+                <Home className="h-4 w-4" />
+                <span>Admin Hub</span>
+              </Button>
+            </Link>
             <a 
               href="/client-preview"
               target="_blank"

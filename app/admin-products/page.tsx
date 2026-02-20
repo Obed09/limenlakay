@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -20,7 +21,8 @@ import {
   Plus,
   Star,
   Heart,
-  ShoppingCart
+  ShoppingCart,
+  Home
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -246,13 +248,21 @@ export default function ProductAdminPage() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <div className="flex items-center space-x-3 mb-2">
-            <div className="bg-red-600 text-white px-3 py-1 rounded-full text-sm font-bold">
-              ADMIN MODE
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center space-x-3">
+              <div className="bg-red-600 text-white px-3 py-1 rounded-full text-sm font-bold">
+                ADMIN MODE
+              </div>
+              <div className="bg-green-600 text-white px-3 py-1 rounded-full text-sm">
+                Product Management
+              </div>
             </div>
-            <div className="bg-green-600 text-white px-3 py-1 rounded-full text-sm">
-              Product Management
-            </div>
+            <Link href="/admin-hub">
+              <Button variant="outline" size="sm" className="flex items-center gap-2">
+                <Home className="h-4 w-4" />
+                Admin Hub
+              </Button>
+            </Link>
           </div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
             Product Catalog Manager

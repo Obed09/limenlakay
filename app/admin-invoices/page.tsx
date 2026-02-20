@@ -1,12 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Plus, FileText, Search } from 'lucide-react';
+import { Plus, FileText, Search, Home } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 
@@ -121,13 +122,21 @@ export default function AdminInvoicesPage() {
               Manage and track your invoices
             </p>
           </div>
-          <Button 
-            onClick={() => router.push('/admin-invoices/new')}
-            className="w-full sm:w-auto"
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            Create Invoice
-          </Button>
+          <div className="flex gap-2 w-full sm:w-auto">
+            <Link href="/admin-hub" className="flex-1 sm:flex-none">
+              <Button variant="outline" size="sm" className="w-full flex items-center gap-2">
+                <Home className="h-4 w-4" />
+                Admin Hub
+              </Button>
+            </Link>
+            <Button 
+              onClick={() => router.push('/admin-invoices/new')}
+              className="flex-1 sm:flex-none"
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              Create Invoice
+            </Button>
+          </div>
         </div>
 
         {/* Search and Filters */}

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -298,12 +299,21 @@ export default function SocialMediaManagerPage() {
     <div className="container mx-auto p-8 max-w-7xl">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-          🚀 Social Media Manager
-        </h1>
-        <p className="text-gray-600 dark:text-gray-400">
-          Create authentic, brand-intelligent content with AI-powered media analysis
-        </p>
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+              🚀 Social Media Manager
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400">
+              Create authentic, brand-intelligent content with AI-powered media analysis
+            </p>
+          </div>
+          <Link href="/admin-hub">
+            <Button variant="outline" size="sm" className="flex items-center gap-2">
+              <span>🏠</span> Admin Hub
+            </Button>
+          </Link>
+        </div>
       </div>
 
       {/* Alerts */}

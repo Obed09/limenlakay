@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
+import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
-import { Trash2, Edit, Plus, Sparkles, FileText, Loader2, Upload, QrCode, Printer, Flame } from 'lucide-react';
+import { Trash2, Edit, Plus, Sparkles, FileText, Loader2, Upload, QrCode, Printer, Flame, Home } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
@@ -1172,8 +1173,18 @@ export default function AdminVesselsPage() {
   return (
     <div className="container mx-auto p-6 max-w-7xl">
       <div className="mb-8">
-        <h1 className="text-4xl font-bold mb-2">Product Management</h1>
-        <p className="text-muted-foreground">AI-powered vessel and candle cataloging system</p>
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h1 className="text-4xl font-bold mb-2">Product Management</h1>
+            <p className="text-muted-foreground">AI-powered vessel and candle cataloging system</p>
+          </div>
+          <Link href="/admin-hub">
+            <Button variant="outline" size="sm" className="flex items-center gap-2">
+              <Home className="h-4 w-4" />
+              Admin Hub
+            </Button>
+          </Link>
+        </div>
       </div>
 
       <Tabs defaultValue="vessels" value={activeTab} onValueChange={setActiveTab} className="w-full">

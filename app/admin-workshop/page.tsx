@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -18,6 +19,7 @@ import {
   Clock,
   Search,
   Settings,
+  Home,
   Plus,
   Trash2,
   Edit,
@@ -261,12 +263,22 @@ export default function UnifiedWorkshopAdmin() {
     <div className="min-h-screen bg-gradient-to-b from-amber-50 to-stone-100 p-4 md:p-8">
       <div className="container mx-auto max-w-7xl">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-amber-900 mb-2">
-            Workshop Management Center
-          </h1>
-          <p className="text-muted-foreground">
-            Complete control over sessions, bookings, payments, and email automation
-          </p>
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h1 className="text-4xl font-bold text-amber-900 mb-2">
+                Workshop Management Center
+              </h1>
+              <p className="text-muted-foreground">
+                Complete control over sessions, bookings, payments, and email automation
+              </p>
+            </div>
+            <Link href="/admin-hub">
+              <Button variant="outline" size="sm" className="flex items-center gap-2">
+                <Home className="h-4 w-4" />
+                Admin Hub
+              </Button>
+            </Link>
+          </div>
         </div>
 
         {/* Stats Cards */}

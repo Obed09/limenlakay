@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -23,7 +24,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { Package, Eye, Truck, DollarSign } from 'lucide-react';
+import { Package, Eye, Truck, DollarSign, Home } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface Order {
@@ -221,6 +222,12 @@ export default function AdminOrdersPage() {
             Manage custom candle orders from customers
           </p>
         </div>
+        <Link href="/admin-hub">
+          <Button variant="outline" size="sm" className="flex items-center gap-2">
+            <Home className="h-4 w-4" />
+            Admin Hub
+          </Button>
+        </Link>
       </div>
 
       {/* Stats Cards */}

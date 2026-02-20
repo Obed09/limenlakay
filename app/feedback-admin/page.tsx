@@ -1,10 +1,11 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { MessageSquare, Star, Trash2, Download, RefreshCw } from 'lucide-react';
+import { MessageSquare, Star, Trash2, Download, RefreshCw, Home } from 'lucide-react';
 
 interface ClientFeedback {
   id: number;
@@ -107,6 +108,12 @@ export default function FeedbackAdminPage() {
           </div>
           
           <div className="flex space-x-2">
+            <Link href="/admin-hub">
+              <Button variant="outline" size="sm" className="flex items-center gap-2">
+                <Home className="h-4 w-4" />
+                Admin Hub
+              </Button>
+            </Link>
             <Button
               onClick={loadFeedback}
               variant="outline"

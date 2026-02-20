@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
+import Link from "next/link";
 import Image from "next/image";
 import Barcode from "react-barcode";
 import { QRCodeCanvas } from "qrcode.react";
@@ -107,6 +108,11 @@ export default function BarcodeSystemPage() {
             </p>
           </div>
           <div className="flex gap-3">
+            <Link href="/admin-hub">
+              <Button variant="outline" size="sm" className="flex items-center gap-2">
+                🏠 Admin Hub
+              </Button>
+            </Link>
             <Button
               onClick={handleAddProduct}
               className="bg-purple-600 hover:bg-purple-700"

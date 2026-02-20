@@ -1,11 +1,13 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { Home } from 'lucide-react'
 
 interface BrandVoice {
   id: string
@@ -236,12 +238,22 @@ export default function AdminBrandVoicePage() {
   return (
     <div className="container mx-auto p-8 max-w-6xl">
       <div className="mb-8">
-        <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-          🎨 Brand Voice Memory
-        </h1>
-        <p className="text-gray-600 dark:text-gray-400">
-          Define your brand's personality, language preferences, and content rules for AI-generated social media posts.
-        </p>
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+              🎨 Brand Voice Memory
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400">
+              Define your brand's personality, language preferences, and content rules for AI-generated social media posts.
+            </p>
+          </div>
+          <Link href="/admin-hub">
+            <Button variant="outline" size="sm" className="flex items-center gap-2">
+              <Home className="h-4 w-4" />
+              Admin Hub
+            </Button>
+          </Link>
+        </div>
       </div>
 
       {error && (
