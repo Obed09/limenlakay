@@ -2,11 +2,8 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { useI18n } from '@/hooks/useI18n';
 
 export function SiteFooter() {
-  const { t } = useI18n();
-
   return (
     <footer className="bg-white dark:bg-gray-950 border-t border-gray-200 dark:border-gray-800 mt-auto">
       <div className="max-w-7xl mx-auto px-4 py-6">
@@ -24,39 +21,39 @@ export function SiteFooter() {
 
           {/* Shop */}
           <div>
-            <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-500 mb-2 uppercase tracking-wider">{t('footer.shop')}</h4>
+            <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-500 mb-2 uppercase tracking-wider">Shop</h4>
             <div className="space-y-1.5 text-xs">
               <Link href="/#catalog" className="block text-gray-500 dark:text-gray-500 hover:text-amber-600 dark:hover:text-amber-400">
-                {t('footer.allCandles')}
+                All Candles
               </Link>
               <Link href="/custom-order" className="block text-gray-500 dark:text-gray-500 hover:text-amber-600 dark:hover:text-amber-400">
-                {t('footer.customCandle')}
+                Custom Candle
               </Link>
               <Link href="/bulk-order" className="block text-gray-500 dark:text-gray-500 hover:text-amber-600 dark:hover:text-amber-400">
-                {t('footer.bulkOrders')}
+                Bulk Orders
               </Link>
             </div>
           </div>
 
           {/* Support */}
           <div>
-            <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-500 mb-2 uppercase tracking-wider">{t('footer.support')}</h4>
+            <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-500 mb-2 uppercase tracking-wider">Support</h4>
             <div className="space-y-1.5 text-xs">
               <Link href="/#contact" className="block text-gray-500 dark:text-gray-500 hover:text-amber-600 dark:hover:text-amber-400">
-                {t('footer.contactUs')}
+                Contact Us
               </Link>
               <Link href="/track" className="block text-gray-500 dark:text-gray-500 hover:text-amber-600 dark:hover:text-amber-400">
-                {t('footer.trackOrder')}
+                Track Order
               </Link>
               <Link href="/about" className="block text-gray-500 dark:text-gray-500 hover:text-amber-600 dark:hover:text-amber-400">
-                {t('footer.aboutUs')}
+                About Us
               </Link>
             </div>
           </div>
 
           {/* Contact */}
           <div>
-            <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-500 mb-2 uppercase tracking-wider">{t('footer.contact')}</h4>
+            <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-500 mb-2 uppercase tracking-wider">Contact</h4>
             <div className="space-y-1.5 text-xs text-gray-500 dark:text-gray-500">
               <a href="mailto:info@limenlakay.com" className="block hover:text-amber-600 dark:hover:text-amber-400">
                 info@limenlakay.com
@@ -70,7 +67,7 @@ export function SiteFooter() {
 
           {/* Connect With Us */}
           <div>
-            <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-500 mb-2 uppercase tracking-wider">{t('footer.connectWithUs')}</h4>
+            <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-500 mb-2 uppercase tracking-wider">Follow Us</h4>
             <div className="space-y-2">
               <a 
                 href="https://www.instagram.com/limenlakay" 
@@ -121,6 +118,14 @@ export function SiteFooter() {
           </div>
         </div>
 
+        {/* Multilingual Support Banner */}
+        <div className="my-6 p-4 bg-amber-50 dark:bg-amber-900/30 rounded-lg border border-amber-200 dark:border-amber-800">
+          <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">🌍 Customer Service Available In Multiple Languages</h4>
+          <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
+            We're here to help in <strong>English, French, Spanish, and Haitian Creole</strong>. Feel free to reach out via chat, email, or phone—we speak your language!
+          </p>
+        </div>
+
         {/* Bottom Footer */}
         <div className="pt-4 border-t border-gray-200/50 dark:border-gray-800/50">
           <div className="flex flex-col md:flex-row justify-between items-center gap-2 text-[10px] text-gray-400 dark:text-gray-600">
@@ -129,10 +134,10 @@ export function SiteFooter() {
             </p>
             <div className="flex gap-4">
               <Link href="/privacy-policy" className="hover:text-amber-600 dark:hover:text-amber-400">
-                {t('footer.privacyPolicy')}
+                Privacy Policy
               </Link>
               <Link href="/terms" className="hover:text-amber-600 dark:hover:text-amber-400">
-                {t('footer.termsOfService')}
+                Terms of Service
               </Link>
             </div>
           </div>

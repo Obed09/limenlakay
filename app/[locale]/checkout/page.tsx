@@ -7,14 +7,12 @@ import { SiteFooter } from '@/components/site-footer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useI18n } from '@/hooks/useI18n';
 import { AddressAutocomplete } from '@/components/address-autocomplete';
 import { ArrowLeft, CreditCard, Lock, ShoppingBag } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 
 function CheckoutContent() {
-  const { t } = useI18n();
   const searchParams = useSearchParams();
   const router = useRouter();
   const [loading, setLoading] = useState(false);

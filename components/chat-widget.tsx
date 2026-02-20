@@ -306,6 +306,11 @@ export function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
         </div>
 
         <CardContent className="p-4 h-96 overflow-hidden flex flex-col">
+          {/* Multilingual Support Banner */}
+          <div className="mb-3 p-2 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded text-[11px] text-blue-700 dark:text-blue-300">
+            🌍 <strong>Multilingual Support:</strong> We speak English, French, Spanish, and Haitian Creole!
+          </div>
+
           {/* Chat Tab */}
           {activeTab === 'chat' && (
             <div className="flex flex-col h-full">

@@ -12,7 +12,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Check, ShoppingCart, ArrowRight, ArrowLeft, Package, X, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { useI18n } from '@/hooks/useI18n';
 import { AddressAutocomplete } from '@/components/address-autocomplete';
 import Link from 'next/link';
 
