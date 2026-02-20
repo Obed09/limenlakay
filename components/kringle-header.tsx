@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { Search, ShoppingCart, Heart, User, ChevronDown, Menu, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
@@ -34,7 +33,6 @@ export function KringleHeader() {
   const [showSearchResults, setShowSearchResults] = useState(false);
   const [mounted, setMounted] = useState(false);
   const { wishlist } = useWishlist();
-  const router = useRouter();
 
   useEffect(() => {
     setMounted(true);

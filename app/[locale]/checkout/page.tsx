@@ -1,20 +1,17 @@
 'use client';
 
-import { useEffect, useState, Suspense } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useState, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { SiteFooter } from '@/components/site-footer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { AddressAutocomplete } from '@/components/address-autocomplete';
 import { ArrowLeft, CreditCard, Lock, ShoppingBag } from 'lucide-react';
 import Link from 'next/link';
-import Image from 'next/image';
 
 function CheckoutContent() {
   const searchParams = useSearchParams();
-  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [shippingCost, setShippingCost] = useState(8.99); // Default fallback
