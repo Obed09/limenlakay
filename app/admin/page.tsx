@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,7 +11,7 @@ import AnalyticsDashboard from '@/components/analytics-dashboard';
 import BulkOrderQuestionnaire from '@/components/bulk-order-questionnaire';
 import VesselManager from '@/components/vessel-manager';
 // import QuestionnaireManager from '@/components/questionnaire-manager'; // Temporarily disabled for build
-import { FileText, Database, Users, Upload, BarChart3, FileCheck, Package, Settings } from 'lucide-react';
+import { FileText, Database, Users, Upload, BarChart3, FileCheck, Package, Settings, Grid } from 'lucide-react';
 
 export default function AdminPage() {
   const [importedProductsCount, setImportedProductsCount] = useState(0);
@@ -26,7 +27,7 @@ export default function AdminPage() {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="max-w-7xl mx-auto p-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mb-6">
           <div>
             <div className="flex items-center space-x-3 mb-2">
               <div className="bg-red-600 text-white px-3 py-1 rounded-full text-sm font-bold">
@@ -44,7 +45,13 @@ export default function AdminPage() {
             </p>
           </div>
           
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-3 flex-col gap-3">
+            <Link href="/admin-hub" className="w-full">
+              <Button className="w-full flex items-center justify-center space-x-2 bg-blue-600 hover:bg-blue-700">
+                <Grid className="h-4 w-4" />
+                <span>View Master Admin Hub</span>
+              </Button>
+            </Link>
             <a 
               href="/admin-products"
               rel="noopener noreferrer"
