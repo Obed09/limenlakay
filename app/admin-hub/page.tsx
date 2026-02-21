@@ -19,6 +19,7 @@ import {
   Palette,
   Volume2,
   Eye,
+  CreditCard,
 } from 'lucide-react';
 
 export default function AdminHub() {
@@ -80,6 +81,14 @@ export default function AdminHub() {
         { name: 'Analytics Dashboard', href: '/admin?tab=analytics', desc: 'View sales and traffic analytics' },
       ],
     },
+    {
+      category: 'Business Operations',
+      icon: CreditCard,
+      color: 'emerald',
+      links: [
+        { name: 'Subscriptions Manager', href: '/admin-subscriptions', desc: 'Track business subscriptions & costs' },
+      ],
+    },
   ];
 
   const getColorClasses = (color: string) => {
@@ -113,6 +122,11 @@ export default function AdminHub() {
         bg: 'bg-indigo-50 dark:bg-indigo-950/20',
         border: 'border-indigo-200 dark:border-indigo-800',
         icon: 'text-indigo-600 dark:text-indigo-400',
+      },
+      emerald: {
+        bg: 'bg-emerald-50 dark:bg-emerald-950/20',
+        border: 'border-emerald-200 dark:border-emerald-800',
+        icon: 'text-emerald-600 dark:text-emerald-400',
       },
     };
     return colors[color] || colors.blue;
