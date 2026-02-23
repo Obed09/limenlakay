@@ -31,22 +31,43 @@ ${items}
 }
 
 export async function GET() {
-  // ✅ Change this to your real domain (or use env var)
+  // Get base URL for sitemap
   const baseUrl =
-  process.env.NEXT_PUBLIC_SITE_URL ||
-  process.env.VERCEL_URL
-    ? `https://${process.env.VERCEL_URL}`
-    : "http://localhost:3000";
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
 
-
-  // ✅ Start simple: list your known routes
+  // Comprehensive list of customer-facing pages
   const urls: UrlEntry[] = [
-    { loc: `${baseUrl}/`, changefreq: "daily", priority: 1.0 },
-    { loc: `${baseUrl}/about`, changefreq: "monthly", priority: 0.7 },
-    { loc: `${baseUrl}/contact`, changefreq: "monthly", priority: 0.6 },
+    // Main pages
+    { loc: `${baseUrl}/`, changefreq: "daily", priority: 1.0, lastmod: new Date().toISOString().split('T')[0] },
+    { loc: `${baseUrl}/about`, changefreq: "monthly", priority: 0.8 },
+    
+    // Shop & Products
+    { loc: `${baseUrl}/candle`, changefreq: "weekly", priority: 0.9 },
+    { loc: `${baseUrl}/bulk-order`, changefreq: "monthly", priority: 0.7 },
+    { loc: `${baseUrl}/custom-order`, changefreq: "weekly", priority: 0.9 },
+    { loc: `${baseUrl}/vessel-calculator`, changefreq: "monthly", priority: 0.6 },
+    { loc: `${baseUrl}/checkout`, changefreq: "daily", priority: 0.8 },
+    
+    // Workshops
+    { loc: `${baseUrl}/workshop-subscription`, changefreq: "monthly", priority: 0.8 },
+    
+    // Tracking & Info
+    { loc: `${baseUrl}/track-order`, changefreq: "monthly", priority: 0.7 },
+    { loc: `${baseUrl}/wishlist`, changefreq: "weekly", priority: 0.6 },
+    
+    // Legal & Info
+    { loc: `${baseUrl}/privacy-policy`, changefreq: "yearly", priority: 0.3 },
+    { loc: `${baseUrl}/terms`, changefreq: "yearly", priority: 0.3 },
+    
+    // Authentication
+    { loc: `${baseUrl}/auth/login`, changefreq: "monthly", priority: 0.5 },
+    { loc: `${baseUrl}/auth/sign-up`, changefreq: "monthly", priority: 0.5 },
+    
+    // Payment
+    { loc: `${baseUrl}/payment`, changefreq: "monthly", priority: 0.6 },
+    { loc: `${baseUrl}/payment-success`, changefreq: "monthly", priority: 0.5 },
   ];
-
-  // Later: add dynamic routes from DB/CMS here (posts, products, docs...)
 
   const xml = toXml(urls);
 

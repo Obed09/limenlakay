@@ -1,0 +1,16 @@
+User-agent: *
+Allow: /
+Disallow: /admin*
+Disallow: /protected
+Disallow: /auth/confirm
+Disallow: /search?*
+Disallow: /*.json$
+Disallow: /api/*
+Disallow: /*?*sort=
+Disallow: /*?*filter=
+
+# Crawl delay
+Crawl-delay: 1
+
+# Sitemaps
+Sitemap: https://limenlakay.com/sitemap.xml
