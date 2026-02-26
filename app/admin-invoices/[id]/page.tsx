@@ -208,14 +208,30 @@ export default function InvoiceDetailPage() {
 
   const handleTaxChange = (taxRate: number) => {
     if (!invoice) return;
-    const calculations = calculateInvoice(invoice.items, taxRate, invoice.discount_percentage);
-    setInvoice({ ...invoice, tax_rate: taxRate, ...calculations });
+    const numRate = isNaN(taxRate) ? 0 : taxRate;
+    const calculations = calculateInvoice(invoice.items, numRate, invoice.discount_percentage);
+    setInvoice({ 
+      ...invoice, 
+      tax_rate: numRate,
+      subtotal: calculations.subtotal,
+      discount_amount: calculations.discountAmount,
+      tax_amount: calculations.taxAmount,
+      total: calculations.total,
+    });
   };
 
   const handleDiscountChange = (discountPercentage: number) => {
     if (!invoice) return;
-    const calculations = calculateInvoice(invoice.items, invoice.tax_rate, discountPercentage);
-    setInvoice({ ...invoice, discount_percentage: discountPercentage, ...calculations });
+    const numPercentage = isNaN(discountPercentage) ? 0 : discountPercentage;
+    const calculations = calculateInvoice(invoice.items, invoice.tax_rate, numPercentage);
+    setInvoice({ 
+      ...invoice, 
+      discount_percentage: numPercentage, 
+      discount_amount: calculations.discountAmount,
+      subtotal: calculations.subtotal,
+      tax_amount: calculations.taxAmount,
+      total: calculations.total,
+    });
   };
 
   const saveInvoice = async () => {
