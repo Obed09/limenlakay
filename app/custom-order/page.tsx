@@ -381,11 +381,12 @@ function CustomOrderContent() {
                     <Clock className="w-5 h-5 text-orange-600 dark:text-orange-400 mt-0.5" />
                   </div>
                   <div>
-                    <p className="text-sm font-bold text-gray-900 dark:text-gray-100 mb-1">🕯️ Curing Time: 7–10 Business Days</p>
+                    <p className="text-sm font-bold text-gray-900 dark:text-gray-100 mb-1">🕯️ Custom Orders — Curing Time: 7–10 Business Days</p>
                     <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
-                      Your candle cures before shipping so the fragrance bonds deeply with the wax for a{' '}
+                      Since your candle is <span className="font-semibold text-gray-800 dark:text-gray-200">made fresh just for you</span>, it needs
+                      7–10 business days to fully cure before it ships. This allows the fragrance to bond deeply with the wax for a{' '}
                       <span className="font-bold text-orange-700 dark:text-orange-400">richer, longer-lasting scent</span>.
-                      Worth the wait!
+                      Thank you for your patience — we promise it&apos;s worth the wait! 🙏
                     </p>
                   </div>
                 </div>
