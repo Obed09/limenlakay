@@ -222,7 +222,6 @@ export function ContactSection() {
                         <option value="">Select order type</option>
                         <option value="single">Single Candle</option>
                         <option value="set">Candle Set</option>
-                        <option value="custom">Custom Design</option>
                         <option value="bulk">Bulk Order</option>
                         <option value="gift">Gift Order</option>
                       </select>
