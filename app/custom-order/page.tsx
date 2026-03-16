@@ -335,67 +335,63 @@ function CustomOrderContent() {
         </Button>
       </div>
 
-      {/* Handmade Variation Notice Banner */}
-      {showNotice && (
+      {/* Combined Notice Banner */}
+      {(showNotice || showCuringNotice) && (
         <div className="mb-8 relative">
-          <Card className="border-2 border-amber-500 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950 dark:to-orange-950 shadow-lg">
-            <CardContent className="p-6">
-              <button
-                onClick={() => setShowNotice(false)}
-                className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-              >
-                <X className="w-5 h-5" />
-              </button>
-              <div className="flex items-start gap-4">
-                <div className="flex-shrink-0">
-                  <Sparkles className="w-8 h-8 text-amber-600 dark:text-amber-400" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-extrabold text-gray-900 dark:text-gray-100 mb-2">
-                    ✨ Handmade Variation Notice
-                  </h3>
-                  <p className="text-base font-medium text-gray-700 dark:text-gray-300 leading-relaxed">
-                    Due to the artistic pouring technique, patterns will vary between vessels, even in the same color. 
-                    We celebrate these natural differences as part of each piece's character, ensuring your vessel is truly 
-                    <span className="font-bold text-amber-700 dark:text-amber-400"> one-of-a-kind</span>.
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      )}
+          <div className="relative overflow-hidden rounded-2xl border-2 border-amber-400 shadow-xl bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 dark:from-amber-950 dark:via-orange-950 dark:to-yellow-950">
+            {/* Decorative top stripe */}
+            <div className="h-1.5 w-full bg-gradient-to-r from-amber-400 via-orange-500 to-yellow-400" />
 
-      {/* Curing Time Notice Banner */}
-      {showCuringNotice && (
-        <div className="mb-8 relative">
-          <Card className="border-2 border-orange-400 bg-gradient-to-r from-orange-50 to-yellow-50 dark:from-orange-950 dark:to-yellow-950 shadow-lg">
-            <CardContent className="p-6">
+            <div className="px-8 py-6">
+              {/* Close button */}
               <button
-                onClick={() => setShowCuringNotice(false)}
-                className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                onClick={() => { setShowNotice(false); setShowCuringNotice(false); }}
+                className="absolute top-5 right-5 text-gray-400 hover:text-gray-700 dark:text-gray-500 dark:hover:text-gray-200 transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
-              <div className="flex items-start gap-4">
-                <div className="flex-shrink-0">
-                  <Clock className="w-8 h-8 text-orange-600 dark:text-orange-400" />
+
+              {/* Header */}
+              <div className="flex items-center gap-3 mb-5">
+                <div className="flex items-center justify-center w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900 shadow-inner">
+                  <Sparkles className="w-5 h-5 text-amber-600 dark:text-amber-400" />
                 </div>
-                <div>
-                  <h3 className="text-xl font-extrabold text-gray-900 dark:text-gray-100 mb-2">
-                    🕯️ Freshly Crafted — Just for You
-                  </h3>
-                  <p className="text-base font-medium text-gray-700 dark:text-gray-300 leading-relaxed">
-                    To ensure you receive the highest quality fragrance, please allow{' '}
-                    <span className="font-bold text-orange-700 dark:text-orange-400">7–10 business days</span>{' '}
-                    for your candle to fully cure before it ships. This curing process allows the fragrance to
-                    bond deeply with the wax, delivering a richer, longer-lasting scent experience.{' '}
-                    <span className="font-bold text-orange-700 dark:text-orange-400">We promise it&apos;s worth the wait!</span>
-                  </p>
+                <h3 className="text-lg font-extrabold text-gray-900 dark:text-gray-100 tracking-tight">
+                  Before You Order — A Few Things to Know
+                </h3>
+              </div>
+
+              {/* Two columns */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Handmade card */}
+                <div className="flex gap-3 bg-white/60 dark:bg-white/5 border border-amber-200 dark:border-amber-800 rounded-xl p-4">
+                  <div className="flex-shrink-0 text-2xl mt-0.5">✨</div>
+                  <div>
+                    <p className="text-sm font-bold text-gray-900 dark:text-gray-100 mb-1">Handmade Variation</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+                      Patterns vary between vessels due to our artistic pouring technique — each piece is truly{' '}
+                      <span className="font-bold text-amber-700 dark:text-amber-400">one-of-a-kind</span>.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Curing card */}
+                <div className="flex gap-3 bg-white/60 dark:bg-white/5 border border-orange-200 dark:border-orange-800 rounded-xl p-4">
+                  <div className="flex-shrink-0 mt-0.5">
+                    <Clock className="w-5 h-5 text-orange-600 dark:text-orange-400 mt-0.5" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-gray-900 dark:text-gray-100 mb-1">🕯️ Curing Time: 7–10 Business Days</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+                      Your candle cures before shipping so the fragrance bonds deeply with the wax for a{' '}
+                      <span className="font-bold text-orange-700 dark:text-orange-400">richer, longer-lasting scent</span>.
+                      Worth the wait!
+                    </p>
+                  </div>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
       )}
 
