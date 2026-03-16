@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Check, ShoppingCart, ArrowRight, ArrowLeft, Package, X, Sparkles } from 'lucide-react';
+import { Check, ShoppingCart, ArrowRight, ArrowLeft, Package, X, Sparkles, Clock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { AddressAutocomplete } from '@/components/address-autocomplete';
 import Link from 'next/link';
@@ -52,6 +52,7 @@ function CustomOrderContent() {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [showNotice, setShowNotice] = useState(true);
+  const [showCuringNotice, setShowCuringNotice] = useState(true);
   const [purchaseType, setPurchaseType] = useState<'custom' | 'empty' | null>(null);
   const [shippingCost, setShippingCost] = useState(10); // Default
   const [loadingShipping, setLoadingShipping] = useState(false);
@@ -357,6 +358,39 @@ function CustomOrderContent() {
                     Due to the artistic pouring technique, patterns will vary between vessels, even in the same color. 
                     We celebrate these natural differences as part of each piece's character, ensuring your vessel is truly 
                     <span className="font-bold text-amber-700 dark:text-amber-400"> one-of-a-kind</span>.
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Curing Time Notice Banner */}
+      {showCuringNotice && (
+        <div className="mb-8 relative">
+          <Card className="border-2 border-orange-400 bg-gradient-to-r from-orange-50 to-yellow-50 dark:from-orange-950 dark:to-yellow-950 shadow-lg">
+            <CardContent className="p-6">
+              <button
+                onClick={() => setShowCuringNotice(false)}
+                className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+              >
+                <X className="w-5 h-5" />
+              </button>
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0">
+                  <Clock className="w-8 h-8 text-orange-600 dark:text-orange-400" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-extrabold text-gray-900 dark:text-gray-100 mb-2">
+                    🕯️ Freshly Crafted — Just for You
+                  </h3>
+                  <p className="text-base font-medium text-gray-700 dark:text-gray-300 leading-relaxed">
+                    To ensure you receive the highest quality fragrance, please allow{' '}
+                    <span className="font-bold text-orange-700 dark:text-orange-400">7–10 business days</span>{' '}
+                    for your candle to fully cure before it ships. This curing process allows the fragrance to
+                    bond deeply with the wax, delivering a richer, longer-lasting scent experience.{' '}
+                    <span className="font-bold text-orange-700 dark:text-orange-400">We promise it&apos;s worth the wait!</span>
                   </p>
                 </div>
               </div>
@@ -931,6 +965,23 @@ function CustomOrderContent() {
                       </div>
                     ))}
                   </div>
+
+                  {/* Curing Time Reminder */}
+                  {cart.some(item => !item.isEmptyVessel) && (
+                    <div className="mt-4 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg p-3">
+                      <div className="flex items-start gap-2">
+                        <Clock className="w-4 h-4 text-orange-600 dark:text-orange-400 flex-shrink-0 mt-0.5" />
+                        <div>
+                          <p className="text-xs font-bold text-orange-800 dark:text-orange-300 mb-1">
+                            🕯️ Curing Time: 7–10 Business Days
+                          </p>
+                          <p className="text-xs text-orange-700 dark:text-orange-400 leading-relaxed">
+                            Your candle is crafted fresh and needs time to cure for the richest, longest-lasting fragrance before it ships.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                   <div className="border-t pt-4 space-y-2">
                     <div className="flex justify-between text-sm">
