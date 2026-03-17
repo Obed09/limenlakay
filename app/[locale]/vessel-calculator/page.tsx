@@ -2170,14 +2170,14 @@ export default function VesselCalculator() {
           </CardContent>
         </Card>
 
-        {/* Label Generator -> moved to Products Manager */}
+        {/* Label Generator -> moved to Vessel Manager (has print label + QR code) */}
         <Card className="mb-6 border-2 border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-950/20">
           <CardContent className="py-5 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div>
               <p className="font-semibold text-amber-900 dark:text-amber-100">Label Generator</p>
-              <p className="text-sm text-amber-700 dark:text-amber-300 mt-0.5">Design and print candle labels with brand info, ingredients, and safety warnings in the Products Manager.</p>
+              <p className="text-sm text-amber-700 dark:text-amber-300 mt-0.5">Design and print candle labels with SKU, QR code, brand info, and safety warnings in Vessel Manager.</p>
             </div>
-            <Link href="/admin-products" className="shrink-0 px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors font-semibold text-sm">Open Products Manager</Link>
+            <Link href="/admin-vessels" className="shrink-0 px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors font-semibold text-sm">Open Vessel Manager</Link>
           </CardContent>
         </Card>
 
@@ -2214,16 +2214,7 @@ export default function VesselCalculator() {
           </CardContent>
         </Card>
 
-        {/* Cost Analysis Profitability -> moved to Price Calculator */}
-        <Card className="mb-6 border-2 border-orange-300 dark:border-orange-700 bg-orange-50 dark:bg-orange-950/20">
-          <CardContent className="py-5 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div>
-              <p className="font-semibold text-orange-900 dark:text-orange-100">Cost Analysis &amp; Profitability</p>
-              <p className="text-sm text-orange-700 dark:text-orange-300 mt-0.5">Deep financial analysis, per-unit costs, profit margins, ROI, and break-even points in the Price Calculator.</p>
-            </div>
-            <Link href="/admin-price-calculator" className="shrink-0 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors font-semibold text-sm">Open Price Calculator</Link>
-          </CardContent>
-        </Card>
+        {/* Cost Analysis Profitability -> hidden (same destination as Pricing Wizard above) */}
 
         {/* Customer Relationship Manager -> moved to Feedback */}
         <Card className="mb-6 border-2 border-rose-300 dark:border-rose-700 bg-rose-50 dark:bg-rose-950/20">
@@ -2236,14 +2227,14 @@ export default function VesselCalculator() {
           </CardContent>
         </Card>
 
-        {/* Testing Development Log -> moved to Workshop */}
+        {/* Testing Development Log -> moved to Vessel Manager (wick performance, scent ratings per vessel) */}
         <Card className="mb-6 border-2 border-teal-300 dark:border-teal-700 bg-teal-50 dark:bg-teal-950/20">
           <CardContent className="py-5 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div>
               <p className="font-semibold text-teal-900 dark:text-teal-100">Testing &amp; Development Log</p>
-              <p className="text-sm text-teal-700 dark:text-teal-300 mt-0.5">Log candle tests, cure times, wick performance, and R&amp;D notes in the Workshop.</p>
+              <p className="text-sm text-teal-700 dark:text-teal-300 mt-0.5">Log candle tests, cure times, wick performance, scent ratings, and R&amp;D notes per vessel in Vessel Manager.</p>
             </div>
-            <Link href="/admin-workshop" className="shrink-0 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors font-semibold text-sm">Open Workshop</Link>
+            <Link href="/admin-vessels" className="shrink-0 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors font-semibold text-sm">Open Vessel Manager</Link>
           </CardContent>
         </Card>
 
