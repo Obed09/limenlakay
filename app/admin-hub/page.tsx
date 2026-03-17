@@ -34,6 +34,7 @@ export default function AdminHub() {
         { name: 'Scents Library', href: '/admin-scents', desc: 'Manage available scents' },
         { name: 'Inventory Dashboard', href: '/inventory-dashboard', desc: 'Track stock levels' },
         { name: 'Price Calculator', href: '/admin-price-calculator', desc: 'Calculate and set pricing' },
+        { name: 'Vessel Calculator', href: '/en/vessel-calculator', desc: 'Calculate material costs & volumes for vessels' },
       ],
     },
     {
