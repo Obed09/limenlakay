@@ -2236,14 +2236,14 @@ export default function VesselCalculator() {
           </CardContent>
         </Card>
 
-        {/* Testing Development Log -> moved to Scents Library */}
+        {/* Testing Development Log -> moved to Workshop */}
         <Card className="mb-6 border-2 border-teal-300 dark:border-teal-700 bg-teal-50 dark:bg-teal-950/20">
           <CardContent className="py-5 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div>
               <p className="font-semibold text-teal-900 dark:text-teal-100">Testing &amp; Development Log</p>
-              <p className="text-sm text-teal-700 dark:text-teal-300 mt-0.5">Log candle tests, cure times, wick performance, and R&amp;D notes in the Scents Library.</p>
+              <p className="text-sm text-teal-700 dark:text-teal-300 mt-0.5">Log candle tests, cure times, wick performance, and R&amp;D notes in the Workshop.</p>
             </div>
-            <Link href="/admin-scents" className="shrink-0 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors font-semibold text-sm">Open Scents Library</Link>
+            <Link href="/admin-workshop" className="shrink-0 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors font-semibold text-sm">Open Workshop</Link>
           </CardContent>
         </Card>
 
