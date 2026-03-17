@@ -2152,110 +2152,120 @@ export default function VesselCalculator() {
         <Card className="mb-6 border-2 border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-950/20">
           <CardContent className="py-5 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div>
-              <p className="font-semibold text-emerald-900 dark:text-emerald-100">ðŸ“¦ Inventory Manager</p>
+              <p className="font-semibold text-emerald-900 dark:text-emerald-100">Inventory Manager</p>
               <p className="text-sm text-emerald-700 dark:text-emerald-300 mt-0.5">Track stock levels, low-stock alerts, and reorder management in the dedicated Inventory Dashboard.</p>
             </div>
-            <Link href="/inventory-dashboard" className="shrink-0 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-semibold text-sm">â†’ Open Inventory Dashboard</Link>
+            <Link href="/inventory-dashboard" className="shrink-0 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-semibold text-sm">Open Inventory Dashboard</Link>
           </CardContent>
         </Card>
+
         {/* Pricing Wizard -> moved to Price Calculator */}
         <Card className="mb-6 border-2 border-orange-300 dark:border-orange-700 bg-orange-50 dark:bg-orange-950/20">
           <CardContent className="py-5 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div>
-              <p className="font-semibold text-orange-900 dark:text-orange-100">ðŸ’° Pricing Wizard</p>
+              <p className="font-semibold text-orange-900 dark:text-orange-100">Pricing Wizard</p>
               <p className="text-sm text-orange-700 dark:text-orange-300 mt-0.5">Set pricing tiers, bulk discounts, and market comparisons in the dedicated Price Calculator.</p>
             </div>
-            <Link href="/admin-price-calculator" className="shrink-0 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors font-semibold text-sm">â†’ Open Price Calculator</Link>
+            <Link href="/admin-price-calculator" className="shrink-0 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors font-semibold text-sm">Open Price Calculator</Link>
           </CardContent>
         </Card>
+
         {/* Label Generator -> moved to Products Manager */}
         <Card className="mb-6 border-2 border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-950/20">
           <CardContent className="py-5 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div>
-              <p className="font-semibold text-amber-900 dark:text-amber-100">ðŸ·ï¸ Label Generator</p>
+              <p className="font-semibold text-amber-900 dark:text-amber-100">Label Generator</p>
               <p className="text-sm text-amber-700 dark:text-amber-300 mt-0.5">Design and print candle labels with brand info, ingredients, and safety warnings in the Products Manager.</p>
             </div>
-            <Link href="/admin-products" className="shrink-0 px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors font-semibold text-sm">â†’ Open Products Manager</Link>
+            <Link href="/admin-products" className="shrink-0 px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors font-semibold text-sm">Open Products Manager</Link>
           </CardContent>
         </Card>
-        {/* Marketing & Sales Tools -> moved to Social Media Manager */}
+
+        {/* Marketing Sales Tools -> moved to Social Media Manager */}
         <Card className="mb-6 border-2 border-purple-300 dark:border-purple-700 bg-purple-50 dark:bg-purple-950/20">
           <CardContent className="py-5 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div>
-              <p className="font-semibold text-purple-900 dark:text-purple-100">ðŸ“£ Marketing &amp; Sales Tools</p>
+              <p className="font-semibold text-purple-900 dark:text-purple-100">Marketing &amp; Sales Tools</p>
               <p className="text-sm text-purple-700 dark:text-purple-300 mt-0.5">Generate product descriptions, social captions, and marketing content in the Social Media Manager.</p>
             </div>
-            <Link href="/social-media-manager" className="shrink-0 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-semibold text-sm">â†’ Open Social Media Manager</Link>
+            <Link href="/social-media-manager" className="shrink-0 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-semibold text-sm">Open Social Media Manager</Link>
           </CardContent>
         </Card>
-        {/* Supplier & Vendor Management -> moved to Admin Hub */}
+
+        {/* Supplier Vendor Management -> moved to Admin Hub */}
         <Card className="mb-6 border-2 border-sky-300 dark:border-sky-700 bg-sky-50 dark:bg-sky-950/20">
           <CardContent className="py-5 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div>
-              <p className="font-semibold text-sky-900 dark:text-sky-100">ðŸ­ Supplier &amp; Vendor Management</p>
+              <p className="font-semibold text-sky-900 dark:text-sky-100">Supplier &amp; Vendor Management</p>
               <p className="text-sm text-sky-700 dark:text-sky-300 mt-0.5">Manage supplier contacts, purchase orders, and vendor comparisons via the Admin Hub.</p>
             </div>
-            <Link href="/admin-hub" className="shrink-0 px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition-colors font-semibold text-sm">â†’ Open Admin Hub</Link>
+            <Link href="/admin-hub" className="shrink-0 px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition-colors font-semibold text-sm">Open Admin Hub</Link>
           </CardContent>
         </Card>
+
         {/* Production Scheduler -> moved to Orders */}
         <Card className="mb-6 border-2 border-violet-300 dark:border-violet-700 bg-violet-50 dark:bg-violet-950/20">
           <CardContent className="py-5 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div>
-              <p className="font-semibold text-violet-900 dark:text-violet-100">ðŸ“… Production Scheduler</p>
+              <p className="font-semibold text-violet-900 dark:text-violet-100">Production Scheduler</p>
               <p className="text-sm text-violet-700 dark:text-violet-300 mt-0.5">Plan production batches, track completion, and coordinate fulfillment timelines in Orders.</p>
             </div>
-            <Link href="/admin-orders" className="shrink-0 px-4 py-2 bg-violet-600 text-white rounded-lg hover:bg-violet-700 transition-colors font-semibold text-sm">â†’ Open Orders</Link>
+            <Link href="/admin-orders" className="shrink-0 px-4 py-2 bg-violet-600 text-white rounded-lg hover:bg-violet-700 transition-colors font-semibold text-sm">Open Orders</Link>
           </CardContent>
         </Card>
-        {/* Cost Analysis & Profitability -> moved to Price Calculator */}
+
+        {/* Cost Analysis Profitability -> moved to Price Calculator */}
         <Card className="mb-6 border-2 border-orange-300 dark:border-orange-700 bg-orange-50 dark:bg-orange-950/20">
           <CardContent className="py-5 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div>
-              <p className="font-semibold text-orange-900 dark:text-orange-100">ðŸ’Ž Cost Analysis &amp; Profitability</p>
+              <p className="font-semibold text-orange-900 dark:text-orange-100">Cost Analysis &amp; Profitability</p>
               <p className="text-sm text-orange-700 dark:text-orange-300 mt-0.5">Deep financial analysis, per-unit costs, profit margins, ROI, and break-even points in the Price Calculator.</p>
             </div>
-            <Link href="/admin-price-calculator" className="shrink-0 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors font-semibold text-sm">â†’ Open Price Calculator</Link>
+            <Link href="/admin-price-calculator" className="shrink-0 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors font-semibold text-sm">Open Price Calculator</Link>
           </CardContent>
         </Card>
+
         {/* Customer Relationship Manager -> moved to Feedback */}
         <Card className="mb-6 border-2 border-rose-300 dark:border-rose-700 bg-rose-50 dark:bg-rose-950/20">
           <CardContent className="py-5 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div>
-              <p className="font-semibold text-rose-900 dark:text-rose-100">ðŸ‘¥ Customer Relationship Manager</p>
+              <p className="font-semibold text-rose-900 dark:text-rose-100">Customer Relationship Manager</p>
               <p className="text-sm text-rose-700 dark:text-rose-300 mt-0.5">Track customer history, preferences, loyalty tiers, and communications in the Feedback section.</p>
             </div>
-            <Link href="/feedback-admin" className="shrink-0 px-4 py-2 bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition-colors font-semibold text-sm">â†’ Open Customer Feedback</Link>
+            <Link href="/feedback-admin" className="shrink-0 px-4 py-2 bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition-colors font-semibold text-sm">Open Customer Feedback</Link>
           </CardContent>
         </Card>
-        {/* Testing & Development Log -> moved to Scents Library */}
+
+        {/* Testing Development Log -> moved to Scents Library */}
         <Card className="mb-6 border-2 border-teal-300 dark:border-teal-700 bg-teal-50 dark:bg-teal-950/20">
           <CardContent className="py-5 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div>
-              <p className="font-semibold text-teal-900 dark:text-teal-100">ðŸ§ª Testing &amp; Development Log</p>
+              <p className="font-semibold text-teal-900 dark:text-teal-100">Testing &amp; Development Log</p>
               <p className="text-sm text-teal-700 dark:text-teal-300 mt-0.5">Log candle tests, cure times, wick performance, and R&amp;D notes in the Scents Library.</p>
             </div>
-            <Link href="/admin-scents" className="shrink-0 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors font-semibold text-sm">â†’ Open Scents Library</Link>
+            <Link href="/admin-scents" className="shrink-0 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors font-semibold text-sm">Open Scents Library</Link>
           </CardContent>
         </Card>
+
         {/* Scent Blending Simulator -> moved to Scents Library */}
         <Card className="mb-6 border-2 border-purple-300 dark:border-purple-700 bg-purple-50 dark:bg-purple-950/20">
           <CardContent className="py-5 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div>
-              <p className="font-semibold text-purple-900 dark:text-purple-100">ðŸŒ¸ Scent Blending Simulator</p>
+              <p className="font-semibold text-purple-900 dark:text-purple-100">Scent Blending Simulator</p>
               <p className="text-sm text-purple-700 dark:text-purple-300 mt-0.5">Blend scent combinations, predict throw strength, and save fragrance recipes in the Scents Library.</p>
             </div>
-            <Link href="/admin-scents" className="shrink-0 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-semibold text-sm">â†’ Open Scents Library</Link>
+            <Link href="/admin-scents" className="shrink-0 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-semibold text-sm">Open Scents Library</Link>
           </CardContent>
         </Card>
-        {/* Business Analytics & Reports -> moved to Analytics Dashboard */}
+
+        {/* Business Analytics Reports -> moved to Analytics Dashboard */}
         <Card className="mb-6 border-2 border-cyan-300 dark:border-cyan-700 bg-cyan-50 dark:bg-cyan-950/20">
           <CardContent className="py-5 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div>
-              <p className="font-semibold text-cyan-900 dark:text-cyan-100">ðŸ“Š Business Analytics &amp; Reports</p>
+              <p className="font-semibold text-cyan-900 dark:text-cyan-100">Business Analytics &amp; Reports</p>
               <p className="text-sm text-cyan-700 dark:text-cyan-300 mt-0.5">Sales trends, revenue analytics, top products, growth metrics, and exportable reports in the Analytics Dashboard.</p>
             </div>
-            <Link href="/admin?tab=analytics" className="shrink-0 px-4 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition-colors font-semibold text-sm">â†’ Open Analytics Dashboard</Link>
+            <Link href="/admin?tab=analytics" className="shrink-0 px-4 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition-colors font-semibold text-sm">Open Analytics Dashboard</Link>
           </CardContent>
         </Card>
       </div>
