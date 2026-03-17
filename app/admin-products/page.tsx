@@ -545,29 +545,39 @@ export default function ProductAdminPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {products.map((product) => (
                   <Card key={product.id} className="overflow-hidden">
-                    <div className="relative h-48 bg-gray-100">
-                      {product.image_url && (
+                    {product.image_url && (
+                      <div className="relative h-48 bg-gray-100">
                         <Image
                           src={product.image_url}
                           alt={product.name}
                           fill
                           className="object-cover"
                         />
-                      )}
-                      <div className="absolute top-2 left-2 flex gap-2">
-                        {product.on_sale && (
-                          <span className="bg-red-600 text-white px-2 py-1 text-xs rounded font-bold">
-                            SALE
-                          </span>
-                        )}
-                        {product.is_new && (
-                          <span className="bg-blue-600 text-white px-2 py-1 text-xs rounded font-bold">
-                            NEW
-                          </span>
-                        )}
+                        <div className="absolute top-2 left-2 flex gap-2">
+                          {product.on_sale && (
+                            <span className="bg-red-600 text-white px-2 py-1 text-xs rounded font-bold">
+                              SALE
+                            </span>
+                          )}
+                          {product.is_new && (
+                            <span className="bg-blue-600 text-white px-2 py-1 text-xs rounded font-bold">
+                              NEW
+                            </span>
+                          )}
+                        </div>
                       </div>
-                    </div>
+                    )}
                     <CardContent className="p-4">
+                      {!product.image_url && (product.on_sale || product.is_new) && (
+                        <div className="flex gap-2 mb-2">
+                          {product.on_sale && (
+                            <span className="bg-red-600 text-white px-2 py-1 text-xs rounded font-bold">SALE</span>
+                          )}
+                          {product.is_new && (
+                            <span className="bg-blue-600 text-white px-2 py-1 text-xs rounded font-bold">NEW</span>
+                          )}
+                        </div>
+                      )}
                       <h3 className="font-semibold text-lg mb-2">{product.name}</h3>
                       <p className="text-sm text-gray-600 mb-2">{product.sku}</p>
                       <div className="flex items-baseline gap-2 mb-2">
