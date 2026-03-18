@@ -169,10 +169,12 @@ export default function VesselCalculator() {
   // Inventory Management
   const [inventory, setInventory] = useState({
     waxLbs: 50,
-    fragranceOilLbs: 10,
+    fragranceOilOz: 160,
     cementLbs: 25,
     wicks: 500,
     paint: 100,
+    sealantType: 'Eco Advance 128 FL oz' as 'Eco Advance 128 FL oz' | 'Earth Safe Finishes 32 FL oz',
+    sealantQty: 1,
   })
   const [showInventoryManager, setShowInventoryManager] = useState(false)
 
@@ -483,7 +485,7 @@ export default function VesselCalculator() {
   const [showReorderAlert, setShowReorderAlert] = useState(false)
   const [reorderThresholds, setReorderThresholds] = useState({
     waxLbs: 20,
-    fragranceOilLbs: 5,
+    fragranceOilOz: 80,
     cementLbs: 10,
     wicks: 100,
     paint: 30
@@ -919,7 +921,7 @@ export default function VesselCalculator() {
     const checkInventory = () => {
       const lowStock = 
         inventory.waxLbs <= reorderThresholds.waxLbs ||
-        inventory.fragranceOilLbs <= reorderThresholds.fragranceOilLbs ||
+        inventory.fragranceOilOz <= reorderThresholds.fragranceOilOz ||
         inventory.cementLbs <= reorderThresholds.cementLbs ||
         inventory.wicks <= reorderThresholds.wicks ||
         inventory.paint <= reorderThresholds.paint
@@ -1384,7 +1386,7 @@ export default function VesselCalculator() {
 
     const missing: string[] = []
     if (inventory.waxLbs < requiredWaxLbs) missing.push(`Wax: need ${requiredWaxLbs.toFixed(1)}lbs, have ${inventory.waxLbs.toFixed(1)}lbs`)
-    if (inventory.fragranceOilLbs < requiredFragranceLbs) missing.push(`Fragrance: need ${requiredFragranceLbs.toFixed(1)}lbs, have ${inventory.fragranceOilLbs.toFixed(1)}lbs`)
+    if (inventory.fragranceOilOz < requiredFragranceLbs * 16) missing.push(`Fragrance: need ${(requiredFragranceLbs * 16).toFixed(1)}oz, have ${inventory.fragranceOilOz.toFixed(1)}oz`)
     if (inventory.cementLbs < requiredCementLbs) missing.push(`Cement: need ${requiredCementLbs.toFixed(1)}lbs, have ${inventory.cementLbs.toFixed(1)}lbs`)
     if (inventory.wicks < requiredWicks) missing.push(`Wicks: need ${requiredWicks}, have ${inventory.wicks}`)
     if (inventory.paint < requiredPaint) missing.push(`Paint: need ${requiredPaint}, have ${inventory.paint}`)
@@ -1819,7 +1821,7 @@ export default function VesselCalculator() {
       savings += (currentWaxPrice - cheapestWax.waxPrice) * inventory.waxLbs
     }
     if (cheapestFragrance && cheapestFragrance.fragrancePrice < currentFragrancePrice) {
-      savings += (currentFragrancePrice - cheapestFragrance.fragrancePrice) * inventory.fragranceOilLbs
+      savings += (currentFragrancePrice - cheapestFragrance.fragrancePrice) * (inventory.fragranceOilOz / 16)
     }
     if (cheapestWick && cheapestWick.wickPrice < currentWickPrice) {
       savings += (currentWickPrice - cheapestWick.wickPrice) * inventory.wicks
@@ -1842,12 +1844,12 @@ export default function VesselCalculator() {
       })
     }
 
-    if (inventory.fragranceOilLbs < 5) {
+    if (inventory.fragranceOilOz < 80) {
       const supplier = getCheapestSupplier('fragrance')
       recommendations.push({
         material: 'Fragrance Oil',
-        currentStock: inventory.fragranceOilLbs,
-        reorderAmount: 10,
+        currentStock: inventory.fragranceOilOz,
+        reorderAmount: 160,
         supplier: supplier?.name || 'Best available',
         estimatedCost: (supplier?.fragrancePrice || materialPrices.fragrancePricePerLb) * 10
       })
@@ -2679,8 +2681,8 @@ export default function VesselCalculator() {
 
               <div className="bg-gradient-to-br from-purple-50 to-pink-100 dark:from-purple-900/20 dark:to-pink-900/20 p-4 rounded-xl border-2 border-purple-300 dark:border-purple-700">
                 <div className="text-purple-900 dark:text-purple-100 text-sm font-semibold mb-1">🌸 Fragrance</div>
-                <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">{inventory.fragranceOilLbs} lbs</div>
-                {inventory.fragranceOilLbs <= reorderThresholds.fragranceOilLbs && <div className="text-xs text-red-600 dark:text-red-400 mt-1">⚠️ Reorder needed!</div>}
+                <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">{inventory.fragranceOilOz} oz</div>
+                {inventory.fragranceOilOz <= reorderThresholds.fragranceOilOz && <div className="text-xs text-red-600 dark:text-red-400 mt-1">⚠️ Reorder needed!</div>}
               </div>
 
               <div className="bg-gradient-to-br from-gray-50 to-slate-100 dark:from-gray-900/20 dark:to-slate-900/20 p-4 rounded-xl border-2 border-gray-300 dark:border-gray-700">
@@ -2741,12 +2743,12 @@ export default function VesselCalculator() {
                           </div>
                         </div>
                       )}
-                      {inventory.fragranceOilLbs <= reorderThresholds.fragranceOilLbs && (
+                      {inventory.fragranceOilOz <= reorderThresholds.fragranceOilOz && (
                         <div className="bg-white dark:bg-gray-800 p-3 rounded-lg flex items-center justify-between">
                           <div>
                             <span className="font-bold text-purple-900 dark:text-purple-100">🌸 Fragrance Oil: </span>
-                            <span className="text-red-600 dark:text-red-400 font-bold">{inventory.fragranceOilLbs} lbs left</span>
-                            <span className="text-gray-600 dark:text-gray-400 text-sm ml-2">(threshold: {reorderThresholds.fragranceOilLbs} lbs)</span>
+                            <span className="text-red-600 dark:text-red-400 font-bold">{inventory.fragranceOilOz} oz left</span>
+                            <span className="text-gray-600 dark:text-gray-400 text-sm ml-2">(threshold: {reorderThresholds.fragranceOilOz} oz)</span>
                           </div>
                           <div className="flex gap-2">
                             {suppliers.slice(0, 2).map(supplier => (
@@ -2810,13 +2812,13 @@ export default function VesselCalculator() {
 
                   <div>
                     <Label className="text-gray-900 dark:text-gray-100 font-semibold mb-2 block">
-                      🌸 Fragrance Oil (lbs)
+                      🌸 Fragrance Oil (oz)
                     </Label>
                     <Input
                       type="number"
-                      value={inventory.fragranceOilLbs}
-                      onChange={(e) => setInventory({ ...inventory, fragranceOilLbs: parseFloat(e.target.value) || 0 })}
-                      step="0.1"
+                      value={inventory.fragranceOilOz}
+                      onChange={(e) => setInventory({ ...inventory, fragranceOilOz: parseFloat(e.target.value) || 0 })}
+                      step="0.5"
                       className="text-lg"
                     />
                   </div>
@@ -2857,24 +2859,49 @@ export default function VesselCalculator() {
                       className="text-lg"
                     />
                   </div>
+
+                  <div className="md:col-span-2">
+                    <Label className="text-gray-900 dark:text-gray-100 font-semibold mb-2 block">
+                      🧴 Sealant
+                    </Label>
+                    <div className="flex gap-3">
+                      <select
+                        value={inventory.sealantType}
+                        onChange={(e) => setInventory({ ...inventory, sealantType: e.target.value as 'Eco Advance 128 FL oz' | 'Earth Safe Finishes 32 FL oz' })}
+                        className="flex-1 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                      >
+                        <option value="Eco Advance 128 FL oz">Eco Advance — 128 FL oz</option>
+                        <option value="Earth Safe Finishes 32 FL oz">Earth Safe Finishes — 32 FL oz</option>
+                      </select>
+                      <Input
+                        type="number"
+                        value={inventory.sealantQty}
+                        onChange={(e) => setInventory({ ...inventory, sealantQty: parseInt(e.target.value) || 0 })}
+                        placeholder="Qty"
+                        className="w-28 text-lg"
+                        min={0}
+                      />
+                    </div>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Select product type and enter quantity (bottles/units)</p>
+                  </div>
                 </div>
 
                 {/* Quick Actions */}
                 <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-3">
                   <button
-                    onClick={() => setInventory({ waxLbs: 50, fragranceOilLbs: 10, cementLbs: 25, wicks: 500, paint: 100 })}
+                    onClick={() => setInventory({ waxLbs: 50, fragranceOilOz: 160, cementLbs: 25, wicks: 500, paint: 100, sealantType: 'Eco Advance 128 FL oz', sealantQty: 1 })}
                     className="bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-lg font-semibold transition-all"
                   >
                     🔄 Reset to Default
                   </button>
                   <button
-                    onClick={() => setInventory({ waxLbs: 100, fragranceOilLbs: 20, cementLbs: 50, wicks: 1000, paint: 200 })}
+                    onClick={() => setInventory({ waxLbs: 100, fragranceOilOz: 320, cementLbs: 50, wicks: 1000, paint: 200, sealantType: 'Eco Advance 128 FL oz', sealantQty: 4 })}
                     className="bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-all"
                   >
                     📦 Full Stock
                   </button>
                   <button
-                    onClick={() => setInventory({ waxLbs: 0, fragranceOilLbs: 0, cementLbs: 0, wicks: 0, paint: 0 })}
+                    onClick={() => setInventory({ waxLbs: 0, fragranceOilOz: 0, cementLbs: 0, wicks: 0, paint: 0, sealantType: 'Eco Advance 128 FL oz', sealantQty: 0 })}
                     className="bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-lg font-semibold transition-all"
                   >
                     🗑️ Clear All
