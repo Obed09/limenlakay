@@ -1393,7 +1393,7 @@ export default function VesselCalculator() {
     if (inventory.cementLbs < requiredCementLbs) missing.push(`Cement: need ${requiredCementLbs.toFixed(1)}lbs, have ${inventory.cementLbs.toFixed(1)}lbs`)
     const totalWicks = inventory.wicksCD4 + inventory.wicksCD12 + inventory.wicksCD14 + inventory.wicksWood
     if (totalWicks < requiredWicks) missing.push(`Wicks: need ${requiredWicks}, have ${totalWicks}`)
-    if (inventory.paint < requiredPaint) missing.push(`Paint: need ${requiredPaint}, have ${inventory.paint}`)
+    if (inventory.paint < requiredPaint) missing.push(`Paint: need ${requiredPaint}oz, have ${inventory.paint}oz`)
 
     return { canMake: missing.length === 0, missing, requiredWaxLbs, requiredFragranceLbs, requiredCementLbs, requiredWicks, requiredPaint }
   }
@@ -2704,8 +2704,8 @@ export default function VesselCalculator() {
               </div>
 
               <div className="bg-gradient-to-br from-blue-50 to-cyan-100 dark:from-blue-900/20 dark:to-cyan-900/20 p-4 rounded-xl border-2 border-blue-300 dark:border-blue-700">
-                <div className="text-blue-900 dark:text-blue-100 text-sm font-semibold mb-1">🎨 Paint</div>
-                <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{inventory.paint}</div>
+                <div className="text-blue-900 dark:text-blue-100 text-sm font-semibold mb-1">🎨 Paint/Finishing</div>
+                <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{inventory.paint} oz</div>
                 {inventory.paint <= reorderThresholds.paint && <div className="text-xs text-red-600 dark:text-red-400 mt-1">⚠️ Reorder needed!</div>}
               </div>
             </div>
@@ -2892,7 +2892,7 @@ export default function VesselCalculator() {
 
                   <div>
                     <Label className="text-gray-900 dark:text-gray-100 font-semibold mb-2 block">
-                      🎨 Paint/Finishing (units)
+                      🎨 Paint/Finishing (oz)
                     </Label>
                     <Input
                       type="number"
