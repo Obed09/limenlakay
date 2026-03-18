@@ -171,7 +171,10 @@ export default function VesselCalculator() {
     waxLbs: 50,
     fragranceOilOz: 160,
     cementLbs: 25,
-    wicks: 500,
+    wicksCD4: 100,
+    wicksCD12: 200,
+    wicksCD14: 100,
+    wicksWood: 100,
     paint: 100,
     sealantType: 'Eco Advance 128 FL oz' as 'Eco Advance 128 FL oz' | 'Earth Safe Finishes 32 FL oz',
     sealantQty: 1,
@@ -489,7 +492,7 @@ export default function VesselCalculator() {
     cementLbs: 10,
     wicks: 100,
     paint: 30
-  })
+  }) // wicks threshold applies to total of all wick types
 
   // Testing & Development Log
   interface TestLog {
@@ -923,7 +926,7 @@ export default function VesselCalculator() {
         inventory.waxLbs <= reorderThresholds.waxLbs ||
         inventory.fragranceOilOz <= reorderThresholds.fragranceOilOz ||
         inventory.cementLbs <= reorderThresholds.cementLbs ||
-        inventory.wicks <= reorderThresholds.wicks ||
+        (inventory.wicksCD4 + inventory.wicksCD12 + inventory.wicksCD14 + inventory.wicksWood) <= reorderThresholds.wicks ||
         inventory.paint <= reorderThresholds.paint
 
       if (lowStock) {
@@ -1388,7 +1391,8 @@ export default function VesselCalculator() {
     if (inventory.waxLbs < requiredWaxLbs) missing.push(`Wax: need ${requiredWaxLbs.toFixed(1)}lbs, have ${inventory.waxLbs.toFixed(1)}lbs`)
     if (inventory.fragranceOilOz < requiredFragranceLbs * 16) missing.push(`Fragrance: need ${(requiredFragranceLbs * 16).toFixed(1)}oz, have ${inventory.fragranceOilOz.toFixed(1)}oz`)
     if (inventory.cementLbs < requiredCementLbs) missing.push(`Cement: need ${requiredCementLbs.toFixed(1)}lbs, have ${inventory.cementLbs.toFixed(1)}lbs`)
-    if (inventory.wicks < requiredWicks) missing.push(`Wicks: need ${requiredWicks}, have ${inventory.wicks}`)
+    const totalWicks = inventory.wicksCD4 + inventory.wicksCD12 + inventory.wicksCD14 + inventory.wicksWood
+    if (totalWicks < requiredWicks) missing.push(`Wicks: need ${requiredWicks}, have ${totalWicks}`)
     if (inventory.paint < requiredPaint) missing.push(`Paint: need ${requiredPaint}, have ${inventory.paint}`)
 
     return { canMake: missing.length === 0, missing, requiredWaxLbs, requiredFragranceLbs, requiredCementLbs, requiredWicks, requiredPaint }
@@ -1824,7 +1828,7 @@ export default function VesselCalculator() {
       savings += (currentFragrancePrice - cheapestFragrance.fragrancePrice) * (inventory.fragranceOilOz / 16)
     }
     if (cheapestWick && cheapestWick.wickPrice < currentWickPrice) {
-      savings += (currentWickPrice - cheapestWick.wickPrice) * inventory.wicks
+      savings += (currentWickPrice - cheapestWick.wickPrice) * (inventory.wicksCD4 + inventory.wicksCD12 + inventory.wicksCD14 + inventory.wicksWood)
     }
 
     return savings
@@ -1855,11 +1859,12 @@ export default function VesselCalculator() {
       })
     }
 
-    if (inventory.wicks < 50) {
+    const totalWicksForReorder = inventory.wicksCD4 + inventory.wicksCD12 + inventory.wicksCD14 + inventory.wicksWood
+    if (totalWicksForReorder < 50) {
       const supplier = getCheapestSupplier('wick')
       recommendations.push({
         material: 'Wicks',
-        currentStock: inventory.wicks,
+        currentStock: totalWicksForReorder,
         reorderAmount: 100,
         supplier: supplier?.name || 'Best available',
         estimatedCost: (supplier?.wickPrice || materialPrices.wickPrice) * 100
@@ -2692,9 +2697,10 @@ export default function VesselCalculator() {
               </div>
 
               <div className="bg-gradient-to-br from-orange-50 to-red-100 dark:from-orange-900/20 dark:to-red-900/20 p-4 rounded-xl border-2 border-orange-300 dark:border-orange-700">
-                <div className="text-orange-900 dark:text-orange-100 text-sm font-semibold mb-1">🧵 Wicks</div>
-                <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">{inventory.wicks}</div>
-                {inventory.wicks <= reorderThresholds.wicks && <div className="text-xs text-red-600 dark:text-red-400 mt-1">⚠️ Reorder needed!</div>}
+                <div className="text-orange-900 dark:text-orange-100 text-sm font-semibold mb-1">🧵 Wicks (total)</div>
+                <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">{inventory.wicksCD4 + inventory.wicksCD12 + inventory.wicksCD14 + inventory.wicksWood}</div>
+                <div className="text-xs text-orange-700 dark:text-orange-300 mt-1">CD4: {inventory.wicksCD4} · CD12: {inventory.wicksCD12} · CD14: {inventory.wicksCD14} · Wood: {inventory.wicksWood}</div>
+                {(inventory.wicksCD4 + inventory.wicksCD12 + inventory.wicksCD14 + inventory.wicksWood) <= reorderThresholds.wicks && <div className="text-xs text-red-600 dark:text-red-400 mt-1">⚠️ Reorder needed!</div>}
               </div>
 
               <div className="bg-gradient-to-br from-blue-50 to-cyan-100 dark:from-blue-900/20 dark:to-cyan-900/20 p-4 rounded-xl border-2 border-blue-300 dark:border-blue-700">
@@ -2763,11 +2769,11 @@ export default function VesselCalculator() {
                           </div>
                         </div>
                       )}
-                      {inventory.wicks <= reorderThresholds.wicks && (
+                      {(inventory.wicksCD4 + inventory.wicksCD12 + inventory.wicksCD14 + inventory.wicksWood) <= reorderThresholds.wicks && (
                         <div className="bg-white dark:bg-gray-800 p-3 rounded-lg flex items-center justify-between">
                           <div>
                             <span className="font-bold text-orange-900 dark:text-orange-100">🧵 Wicks: </span>
-                            <span className="text-red-600 dark:text-red-400 font-bold">{inventory.wicks} left</span>
+                            <span className="text-red-600 dark:text-red-400 font-bold">{inventory.wicksCD4 + inventory.wicksCD12 + inventory.wicksCD14 + inventory.wicksWood} total left</span>
                             <span className="text-gray-600 dark:text-gray-400 text-sm ml-2">(threshold: {reorderThresholds.wicks})</span>
                           </div>
                           <div className="flex gap-2">
@@ -2838,12 +2844,48 @@ export default function VesselCalculator() {
 
                   <div>
                     <Label className="text-gray-900 dark:text-gray-100 font-semibold mb-2 block">
-                      🧵 Wicks (count)
+                      🧵 Wicks — CD 4
                     </Label>
                     <Input
                       type="number"
-                      value={inventory.wicks}
-                      onChange={(e) => setInventory({ ...inventory, wicks: parseInt(e.target.value) || 0 })}
+                      value={inventory.wicksCD4}
+                      onChange={(e) => setInventory({ ...inventory, wicksCD4: parseInt(e.target.value) || 0 })}
+                      className="text-lg"
+                    />
+                  </div>
+
+                  <div>
+                    <Label className="text-gray-900 dark:text-gray-100 font-semibold mb-2 block">
+                      🧵 Wicks — CD 12
+                    </Label>
+                    <Input
+                      type="number"
+                      value={inventory.wicksCD12}
+                      onChange={(e) => setInventory({ ...inventory, wicksCD12: parseInt(e.target.value) || 0 })}
+                      className="text-lg"
+                    />
+                  </div>
+
+                  <div>
+                    <Label className="text-gray-900 dark:text-gray-100 font-semibold mb-2 block">
+                      🧵 Wicks — CD 14
+                    </Label>
+                    <Input
+                      type="number"
+                      value={inventory.wicksCD14}
+                      onChange={(e) => setInventory({ ...inventory, wicksCD14: parseInt(e.target.value) || 0 })}
+                      className="text-lg"
+                    />
+                  </div>
+
+                  <div>
+                    <Label className="text-gray-900 dark:text-gray-100 font-semibold mb-2 block">
+                      🪵 Wicks — Wooden
+                    </Label>
+                    <Input
+                      type="number"
+                      value={inventory.wicksWood}
+                      onChange={(e) => setInventory({ ...inventory, wicksWood: parseInt(e.target.value) || 0 })}
                       className="text-lg"
                     />
                   </div>
@@ -2889,19 +2931,19 @@ export default function VesselCalculator() {
                 {/* Quick Actions */}
                 <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-3">
                   <button
-                    onClick={() => setInventory({ waxLbs: 50, fragranceOilOz: 160, cementLbs: 25, wicks: 500, paint: 100, sealantType: 'Eco Advance 128 FL oz', sealantQty: 1 })}
+                    onClick={() => setInventory({ waxLbs: 50, fragranceOilOz: 160, cementLbs: 25, wicksCD4: 100, wicksCD12: 200, wicksCD14: 100, wicksWood: 100, paint: 100, sealantType: 'Eco Advance 128 FL oz', sealantQty: 1 })}
                     className="bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-lg font-semibold transition-all"
                   >
                     🔄 Reset to Default
                   </button>
                   <button
-                    onClick={() => setInventory({ waxLbs: 100, fragranceOilOz: 320, cementLbs: 50, wicks: 1000, paint: 200, sealantType: 'Eco Advance 128 FL oz', sealantQty: 4 })}
+                    onClick={() => setInventory({ waxLbs: 100, fragranceOilOz: 320, cementLbs: 50, wicksCD4: 200, wicksCD12: 400, wicksCD14: 200, wicksWood: 200, paint: 200, sealantType: 'Eco Advance 128 FL oz', sealantQty: 4 })}
                     className="bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-all"
                   >
                     📦 Full Stock
                   </button>
                   <button
-                    onClick={() => setInventory({ waxLbs: 0, fragranceOilOz: 0, cementLbs: 0, wicks: 0, paint: 0, sealantType: 'Eco Advance 128 FL oz', sealantQty: 0 })}
+                    onClick={() => setInventory({ waxLbs: 0, fragranceOilOz: 0, cementLbs: 0, wicksCD4: 0, wicksCD12: 0, wicksCD14: 0, wicksWood: 0, paint: 0, sealantType: 'Eco Advance 128 FL oz', sealantQty: 0 })}
                     className="bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-lg font-semibold transition-all"
                   >
                     🗑️ Clear All
