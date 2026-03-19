@@ -100,3 +100,39 @@ html {
 .candle-flicker {
   animation: candle-flicker 2s ease-in-out infinite;
 }
+
+/* ── Image copyright protection ── */
+
+/* Prevent selecting/dragging product images */
+.product-image {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  pointer-events: none; /* Prevents drag-and-drop */
+}
+
+/* Prevent dragging on all images */
+img {
+  -webkit-user-drag: none;
+  -khtml-user-drag: none;
+  -moz-user-drag: none;
+  -o-user-drag: none;
+  user-drag: none;
+}
+
+/* Transparent overlay blocks right-click on images */
+.image-container {
+  position: relative;
+}
+
+.image-container::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  z-index: 10;
+}
