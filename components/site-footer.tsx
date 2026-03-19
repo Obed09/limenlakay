@@ -127,19 +127,24 @@ export function SiteFooter() {
         </div>
 
         {/* Bottom Footer */}
-        <div className="pt-4 border-t border-gray-200/50 dark:border-gray-800/50">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-2 text-[10px] text-gray-400 dark:text-gray-600">
-            <p>
-              &copy; 2025 Limen Lakay. All rights reserved. Made with ❤️ and artisan care.
-            </p>
-            <div className="flex gap-4">
-              <Link href="/privacy-policy" className="hover:text-amber-600 dark:hover:text-amber-400">
-                Privacy Policy
-              </Link>
-              <Link href="/terms" className="hover:text-amber-600 dark:hover:text-amber-400">
-                Terms of Service
-              </Link>
-            </div>
+        <div className="pt-4 border-t border-gray-200/50 dark:border-gray-800/50 space-y-3 text-center">
+          <p className="text-[10px] text-gray-400 dark:text-gray-600">
+            &copy; 2026 Limen Lakay. All Rights Reserved.
+          </p>
+          <p className="text-[10px] text-gray-500 dark:text-gray-500">
+            All product images and designs are protected by copyright law.
+            Unauthorized use is prohibited and will be prosecuted.
+          </p>
+          <div className="flex flex-wrap justify-center gap-4 text-[10px] text-gray-400 dark:text-gray-600">
+            <Link href="/privacy-policy" className="hover:text-amber-600 dark:hover:text-amber-400">
+              Privacy Policy
+            </Link>
+            <Link href="/terms" className="hover:text-amber-600 dark:hover:text-amber-400">
+              Terms of Use
+            </Link>
+            <Link href="/terms#copyright" className="hover:text-amber-600 dark:hover:text-amber-400">
+              Copyright Policy
+            </Link>
           </div>
         </div>
       </div>

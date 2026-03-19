@@ -116,7 +116,7 @@ export default function TermsAndConditions() {
             </ul>
           </section>
 
-          <section>
+          <section id="copyright">
             <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-4">9. Intellectual Property &amp; Copyright</h2>
 
             <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-3">9.1 Copyright &amp; Intellectual Property</h3>
