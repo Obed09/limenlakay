@@ -30,6 +30,7 @@ interface Vessel {
   capacity_oz: number | null;
   allow_custom_candle: boolean;
   allow_empty_vessel: boolean;
+  vessel_images?: VesselImage[];
 }
 
 interface Mold {
@@ -88,6 +89,16 @@ interface BulkResult {
   error?: string;
 }
 
+interface VesselImage {
+  id?: string;
+  vessel_id?: string;
+  image_url: string;
+  color_variant: string;
+  is_primary: boolean;
+  display_order: number;
+  is_available: boolean;
+}
+
 export default function AdminVesselsPage() {
   const [vessels, setVessels] = useState<Vessel[]>([]);
   const [candles, setCandles] = useState<Candle[]>([]);
@@ -116,6 +127,10 @@ export default function AdminVesselsPage() {
   const { toast } = useToast();
   
   const supabase = useMemo(() => createClient(), []);
+
+  const [vesselImages, setVesselImages] = useState<VesselImage[]>([]);
+  const [uploadingVariant, setUploadingVariant] = useState(false);
+  const [selectedCardImage, setSelectedCardImage] = useState<Record<string, string>>({});
 
   const [formData, setFormData] = useState({
     name: '',
@@ -155,12 +170,21 @@ export default function AdminVesselsPage() {
   }, []);
 
   const loadVessels = async () => {
-    const { data } = await supabase
+    // Try to load with image variants; fall back gracefully if vessel_images table not yet created
+    let vessels: Vessel[] | null = null;
+    const withImages = await supabase
       .from('candle_vessels')
-      .select('*')
+      .select('*, vessel_images(*)')
       .order('sku');
-    
-    if (data) setVessels(data);
+
+    if (!withImages.error) {
+      vessels = withImages.data as Vessel[];
+    } else {
+      const plain = await supabase.from('candle_vessels').select('*').order('sku');
+      vessels = plain.data as Vessel[] | null;
+    }
+
+    if (vessels) setVessels(vessels);
     setLoading(false);
   };
 
@@ -256,6 +280,96 @@ export default function AdminVesselsPage() {
     } finally {
       setUploading(false);
     }
+  };
+
+  // ── Vessel image variants ──────────────────────────────────────
+
+  const loadVesselImages = async (vesselId: string) => {
+    try {
+      const { data } = await supabase
+        .from('vessel_images')
+        .select('*')
+        .eq('vessel_id', vesselId)
+        .order('display_order');
+
+      if (data && data.length > 0) {
+        setVesselImages(data);
+      } else {
+        const vessel = vessels.find(v => v.id === vesselId);
+        setVesselImages([{
+          image_url: vessel?.image_url || '',
+          color_variant: vessel?.color || 'Default',
+          is_primary: true,
+          display_order: 0,
+          is_available: true
+        }]);
+      }
+    } catch {
+      setVesselImages([{ image_url: '', color_variant: '', is_primary: true, display_order: 0, is_available: true }]);
+    }
+  };
+
+  const handleVariantImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, variantIndex: number) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) return;
+    if (file.size > 5 * 1024 * 1024) {
+      toast({ title: 'Error', description: 'Image must be under 5MB', variant: 'destructive' });
+      return;
+    }
+
+    setUploadingVariant(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+      const { error: uploadError } = await supabase.storage
+        .from('vessel-images')
+        .upload(`vessels/${fileName}`, file);
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('vessel-images')
+        .getPublicUrl(`vessels/${fileName}`);
+
+      setVesselImages(prev => {
+        const updated = [...prev];
+        updated[variantIndex] = { ...updated[variantIndex], image_url: publicUrl };
+        if (updated[variantIndex].is_primary) {
+          setFormData(f => ({ ...f, image_url: publicUrl }));
+        }
+        return updated;
+      });
+
+      toast({ title: 'Uploaded!', description: 'Click AI Analyze on the primary image to auto-fill details.' });
+    } catch (error: any) {
+      toast({ title: 'Upload Failed', description: error.message, variant: 'destructive' });
+    } finally {
+      setUploadingVariant(false);
+    }
+  };
+
+  const addImageVariant = () => {
+    setVesselImages(prev => [
+      ...prev,
+      { image_url: '', color_variant: '', is_primary: false, display_order: prev.length, is_available: true }
+    ]);
+  };
+
+  const removeImageVariant = (index: number) => {
+    setVesselImages(prev => {
+      const updated = prev.filter((_, i) => i !== index);
+      if (prev[index]?.is_primary && updated.length > 0) {
+        updated[0] = { ...updated[0], is_primary: true };
+        setFormData(f => ({ ...f, image_url: updated[0].image_url }));
+      }
+      return updated;
+    });
+  };
+
+  const setPrimaryImage = (index: number) => {
+    setVesselImages(prev => prev.map((img, i) => ({ ...img, is_primary: i === index })));
+    const img = vesselImages[index];
+    if (img?.image_url) setFormData(prev => ({ ...prev, image_url: img.image_url }));
   };
 
   const handleCandleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -485,14 +599,47 @@ export default function AdminVesselsPage() {
           .eq('id', editingVessel.id);
         
         if (error) throw error;
+
+        // Sync image variants
+        const imagesToSave = vesselImages.filter(img => img.image_url);
+        if (imagesToSave.length > 0) {
+          await supabase.from('vessel_images').delete().eq('vessel_id', editingVessel.id);
+          await supabase.from('vessel_images').insert(
+            imagesToSave.map((img, i) => ({
+              vessel_id: editingVessel.id,
+              image_url: img.image_url,
+              color_variant: img.color_variant || 'Default',
+              is_primary: img.is_primary || i === 0,
+              display_order: i,
+              is_available: img.is_available
+            }))
+          );
+        }
         
         toast({ title: 'Success', description: 'Vessel updated' });
       } else {
-        const { error } = await supabase
+        const { data: insertedData, error } = await supabase
           .from('candle_vessels')
-          .insert([finalData]);
+          .insert([finalData])
+          .select();
         
         if (error) throw error;
+
+        // Sync image variants
+        const newVesselId = (insertedData as { id: string }[] | null)?.[0]?.id;
+        const imagesToSave = vesselImages.filter(img => img.image_url);
+        if (newVesselId && imagesToSave.length > 0) {
+          await supabase.from('vessel_images').insert(
+            imagesToSave.map((img, i) => ({
+              vessel_id: newVesselId,
+              image_url: img.image_url,
+              color_variant: img.color_variant || 'Default',
+              is_primary: img.is_primary || i === 0,
+              display_order: i,
+              is_available: img.is_available
+            }))
+          );
+        }
         
         toast({ title: 'Success', description: `Vessel created with SKU: ${finalData.sku}` });
       }
@@ -532,6 +679,7 @@ export default function AdminVesselsPage() {
       allow_custom_candle: vessel.allow_custom_candle ?? true,
       allow_empty_vessel: vessel.allow_empty_vessel ?? false
     });
+    loadVesselImages(vessel.id);
     setShowForm(true);
   };
 
@@ -1103,7 +1251,9 @@ export default function AdminVesselsPage() {
           mold_id: null,
           diameter_inches: null,
           height_inches: null,
-          capacity_oz: null
+          capacity_oz: null,
+          allow_custom_candle: false,
+          allow_empty_vessel: false
         };
         
         console.log('Setting label data and showing modal...', candleAsVessel);
@@ -1162,8 +1312,11 @@ export default function AdminVesselsPage() {
       mold_id: '',
       diameter_inches: 0,
       height_inches: 0,
-      capacity_oz: 0
+      capacity_oz: 0,
+      allow_custom_candle: true,
+      allow_empty_vessel: false
     });
+    setVesselImages([]);
     setEditingVessel(null);
     setShowForm(false);
   };
@@ -1237,7 +1390,15 @@ export default function AdminVesselsPage() {
             onChange={handleBulkUpload}
             className="hidden"
           />
-          <Button onClick={() => setShowForm(!showForm)} className="flex items-center gap-2">
+          <Button
+            onClick={() => {
+              if (!showForm) {
+                setVesselImages([{ image_url: '', color_variant: '', is_primary: true, display_order: 0, is_available: true }]);
+              }
+              setShowForm(!showForm);
+            }}
+            className="flex items-center gap-2"
+          >
             <Plus className="h-4 w-4" />
             {showForm ? 'Cancel' : 'Add Vessel'}
           </Button>
@@ -1254,44 +1415,122 @@ export default function AdminVesselsPage() {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <Label htmlFor="image">Image *</Label>
-                <div className="flex gap-2">
-                  <Input
-                    id="image"
-                    value={formData.image_url}
-                    onChange={(e) => setFormData(prev => ({ ...prev, image_url: e.target.value }))}
-                    placeholder="Upload from computer or paste URL"
-                    required
-                  />
-                  <input
-                    id="file-upload"
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={handleImageUpload}
-                  />
-                  <Button
-                    type="button"
-                    onClick={() => document.getElementById('file-upload')?.click()}
-                    disabled={uploading}
-                    variant="outline"
-                    className="whitespace-nowrap"
-                  >
-                    {uploading ? <><Loader2 className="h-4 w-4 animate-spin mr-2" />Uploading...</> : <><Upload className="h-4 w-4 mr-2" />Upload</>}
-                  </Button>
-                  <Button
-                    type="button"
-                    onClick={handleAIAnalyze}
-                    disabled={analyzing || !formData.image_url}
-                    className="whitespace-nowrap"
-                  >
-                    {analyzing ? <><Loader2 className="h-4 w-4 animate-spin mr-2" />Analyzing...</> : <><Sparkles className="h-4 w-4 mr-2" />AI Analyze</>}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <Label className="text-base font-semibold">Images &amp; Color Variants</Label>
+                  <Button type="button" size="sm" variant="outline" onClick={addImageVariant}>
+                    <Plus className="h-3 w-3 mr-1" />
+                    Add Variant
                   </Button>
                 </div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Upload image or paste URL, then click "AI Analyze"
-                </p>
+                <p className="text-xs text-muted-foreground">Upload one image per color/pattern. The primary image appears in listings.</p>
+
+                {/* Hidden required field — kept in sync with the primary image */}
+                <input type="hidden" name="image_url" value={formData.image_url} />
+
+                <div className="space-y-3">
+                  {vesselImages.map((img, index) => (
+                    <div
+                      key={index}
+                      className={`border rounded-lg p-3 space-y-3 ${
+                        img.is_primary
+                          ? 'border-amber-400 bg-amber-50/50 dark:bg-amber-950/20'
+                          : 'border-gray-200 dark:border-gray-700'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-medium">Variant {index + 1}</span>
+                          {img.is_primary && (
+                            <span className="text-xs bg-amber-500 text-white px-2 py-0.5 rounded-full">Primary</span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-1">
+                          {!img.is_primary && img.image_url && (
+                            <Button type="button" size="sm" variant="ghost" onClick={() => setPrimaryImage(index)} className="text-xs h-6 px-2">
+                              Set Primary
+                            </Button>
+                          )}
+                          <Button type="button" size="sm" variant="ghost" onClick={() => removeImageVariant(index)} className="h-6 w-6 p-0 text-red-500 hover:text-red-600">
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <Label className="text-xs text-muted-foreground">Color / Variant Name</Label>
+                          <Input
+                            value={img.color_variant}
+                            onChange={(e) => setVesselImages(prev => {
+                              const updated = [...prev];
+                              updated[index] = { ...updated[index], color_variant: e.target.value };
+                              return updated;
+                            })}
+                            placeholder="e.g. Sage Green"
+                            className="h-8 text-sm mt-1"
+                          />
+                        </div>
+                        <div className="flex items-center gap-2 pt-5">
+                          <Switch
+                            checked={img.is_available}
+                            onCheckedChange={(checked) => setVesselImages(prev => {
+                              const updated = [...prev];
+                              updated[index] = { ...updated[index], is_available: checked };
+                              return updated;
+                            })}
+                          />
+                          <Label className="text-xs">Available</Label>
+                        </div>
+                      </div>
+
+                      <div className="flex items-end gap-3">
+                        {img.image_url && (
+                          <div className="relative w-20 h-20 rounded-lg overflow-hidden border flex-shrink-0">
+                            <img src={img.image_url} alt={`Variant ${index + 1}`} className="w-full h-full object-cover" />
+                            <div className="absolute bottom-0 right-0 bg-black/60 text-white text-[8px] px-1 py-0.5 leading-tight select-none">
+                              &copy; Limen Lakay
+                            </div>
+                          </div>
+                        )}
+                        <div className="flex flex-wrap gap-2">
+                          <input
+                            id={`variant-upload-${index}`}
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={(e) => handleVariantImageUpload(e, index)}
+                          />
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="outline"
+                            onClick={() => document.getElementById(`variant-upload-${index}`)?.click()}
+                            disabled={uploadingVariant}
+                          >
+                            {uploadingVariant
+                              ? <><Loader2 className="h-3 w-3 animate-spin mr-1" />Uploading...</>
+                              : <><Upload className="h-3 w-3 mr-1" />{img.image_url ? 'Replace' : 'Upload Image'}</>
+                            }
+                          </Button>
+                          {img.is_primary && (
+                            <Button
+                              type="button"
+                              size="sm"
+                              onClick={handleAIAnalyze}
+                              disabled={analyzing || !img.image_url}
+                            >
+                              {analyzing
+                                ? <><Loader2 className="h-3 w-3 animate-spin mr-1" />Analyzing...</>
+                                : <><Sparkles className="h-3 w-3 mr-1" />AI Analyze</>
+                              }
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
@@ -1550,7 +1789,7 @@ export default function AdminVesselsPage() {
             <div className="aspect-square relative bg-gray-100">
               {vessel.image_url ? (
                 <img
-                  src={vessel.image_url}
+                  src={selectedCardImage[vessel.id] || vessel.image_url}
                   alt={vessel.name}
                   className="w-full h-full object-cover"
                   onError={(e) => {
@@ -1562,6 +1801,14 @@ export default function AdminVesselsPage() {
                   No image
                 </div>
               )}
+
+              {/* Copyright watermark */}
+              {vessel.image_url && (
+                <div className="absolute bottom-9 right-2 bg-black/50 text-white text-[9px] px-1.5 py-0.5 rounded pointer-events-none select-none z-10">
+                  &copy; Limen Lakay
+                </div>
+              )}
+
               <div className="absolute top-2 right-2 flex items-center gap-2 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-sm">
                 <span className="text-xs font-medium">
                   {vessel.is_available ? 'Available' : 'Hidden'}
@@ -1574,6 +1821,27 @@ export default function AdminVesselsPage() {
               {vessel.sku && (
                 <div className="absolute bottom-2 left-2 bg-black/70 text-white px-2 py-1 rounded text-xs font-mono">
                   {vessel.sku}
+                </div>
+              )}
+
+              {/* Color variant thumbnails */}
+              {vessel.vessel_images && vessel.vessel_images.length > 1 && (
+                <div className="absolute bottom-2 right-2 flex gap-1">
+                  {vessel.vessel_images.filter(img => img.is_available).map((img, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => setSelectedCardImage(prev => ({ ...prev, [vessel.id]: img.image_url }))}
+                      className={`w-7 h-7 rounded overflow-hidden border-2 transition-all flex-shrink-0 ${
+                        (selectedCardImage[vessel.id] || vessel.image_url) === img.image_url
+                          ? 'border-amber-400 scale-110'
+                          : 'border-white/80'
+                      }`}
+                      title={img.color_variant}
+                    >
+                      <img src={img.image_url} alt={img.color_variant} className="w-full h-full object-cover" />
+                    </button>
+                  ))}
                 </div>
               )}
             </div>

@@ -7,20 +7,35 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const availableOnly = searchParams.get('available') === 'true';
 
-    let query = supabase
-      .from('candle_vessels')
-      .select('*')
-      .order('name');
+    // Try to include image variants; gracefully fall back if table doesn't exist yet
+    let data: Record<string, unknown>[] | null = null;
 
     if (availableOnly) {
-      query = query.eq('is_available', true).gt('stock_quantity', 0);
-    }
-
-    const { data, error } = await query;
-
-    if (error) {
-      console.error('Error fetching vessels:', error);
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      const withImages = await supabase
+        .from('candle_vessels')
+        .select('*, vessel_images(id, image_url, color_variant, is_primary, display_order, is_available)')
+        .eq('is_available', true)
+        .gt('stock_quantity', 0)
+        .order('name');
+      if (!withImages.error) {
+        data = withImages.data as Record<string, unknown>[];
+      } else {
+        const fallback = await supabase.from('candle_vessels').select('*').eq('is_available', true).gt('stock_quantity', 0).order('name');
+        if (fallback.error) return NextResponse.json({ error: fallback.error.message }, { status: 500 });
+        data = fallback.data as Record<string, unknown>[];
+      }
+    } else {
+      const withImages = await supabase
+        .from('candle_vessels')
+        .select('*, vessel_images(id, image_url, color_variant, is_primary, display_order, is_available)')
+        .order('name');
+      if (!withImages.error) {
+        data = withImages.data as Record<string, unknown>[];
+      } else {
+        const fallback = await supabase.from('candle_vessels').select('*').order('name');
+        if (fallback.error) return NextResponse.json({ error: fallback.error.message }, { status: 500 });
+        data = fallback.data as Record<string, unknown>[];
+      }
     }
 
     return NextResponse.json({ vessels: data });

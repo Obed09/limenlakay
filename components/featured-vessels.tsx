@@ -5,6 +5,15 @@ import Image from "next/image";
 import Link from "next/link";
 import { Heart, Sparkles } from "lucide-react";
 
+interface VesselImage {
+  id: string;
+  image_url: string;
+  color_variant: string;
+  is_primary: boolean;
+  is_available: boolean;
+  display_order: number;
+}
+
 interface Vessel {
   id: string;
   name: string;
@@ -14,11 +23,13 @@ interface Vessel {
   image_url: string;
   stock_quantity: number;
   description?: string;
+  vessel_images?: VesselImage[];
 }
 
 export function FeaturedVessels() {
   const [vessels, setVessels] = useState<Vessel[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedImages, setSelectedImages] = useState<Record<string, string>>({});
 
   useEffect(() => {
     fetch('/api/vessels?available=true')
@@ -83,7 +94,7 @@ export function FeaturedVessels() {
                 <div className="relative aspect-square bg-gray-100 dark:bg-gray-700 overflow-hidden">
                   {vessel.image_url ? (
                     <Image
-                      src={vessel.image_url}
+                      src={selectedImages[vessel.id] || vessel.image_url}
                       alt={vessel.name}
                       fill
                       className="object-cover group-hover:scale-110 transition-transform duration-500"
@@ -94,6 +105,13 @@ export function FeaturedVessels() {
                     </div>
                   )}
                   
+                  {/* Copyright watermark */}
+                  {vessel.image_url && (
+                    <div className="absolute bottom-10 right-2 bg-black/40 text-white text-[9px] px-1.5 py-0.5 rounded pointer-events-none select-none z-10">
+                      &copy; Limen Lakay
+                    </div>
+                  )}
+
                   {/* Wishlist Button */}
                   <button 
                     className="absolute top-3 right-3 w-10 h-10 bg-white/90 dark:bg-gray-800/90 rounded-full flex items-center justify-center shadow-lg hover:bg-white dark:hover:bg-gray-800 transition-colors group/heart"
@@ -106,6 +124,30 @@ export function FeaturedVessels() {
                   {vessel.stock_quantity <= 3 && vessel.stock_quantity > 0 && (
                     <div className="absolute top-3 left-3 bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full">
                       Only {vessel.stock_quantity} left!
+                    </div>
+                  )}
+
+                  {/* Color variant swatches */}
+                  {vessel.vessel_images && vessel.vessel_images.filter(img => img.is_available).length > 1 && (
+                    <div className="absolute bottom-2 left-0 right-0 flex justify-center gap-1.5 px-2">
+                      {vessel.vessel_images.filter(img => img.is_available).map((img, i) => (
+                        <button
+                          key={i}
+                          type="button"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setSelectedImages(prev => ({ ...prev, [vessel.id]: img.image_url }));
+                          }}
+                          className={`w-7 h-7 rounded-md overflow-hidden border-2 transition-all shadow-sm flex-shrink-0 ${
+                            (selectedImages[vessel.id] || vessel.image_url) === img.image_url
+                              ? 'border-amber-500 scale-110'
+                              : 'border-white/80'
+                          }`}
+                          title={img.color_variant}
+                        >
+                          <img src={img.image_url} alt={img.color_variant} className="w-full h-full object-cover" />
+                        </button>
+                      ))}
                     </div>
                   )}
                 </div>
