@@ -15,6 +15,15 @@ import { useToast } from '@/hooks/use-toast';
 import { AddressAutocomplete } from '@/components/address-autocomplete';
 import Link from 'next/link';
 
+interface VesselImage {
+  id: string;
+  image_url: string;
+  color_variant: string;
+  is_primary: boolean;
+  is_available: boolean;
+  display_order: number;
+}
+
 interface Vessel {
   id: string;
   name: string;
@@ -26,6 +35,7 @@ interface Vessel {
   description: string | null;
   allow_custom_candle: boolean;
   allow_empty_vessel: boolean;
+  vessel_images?: VesselImage[];
 }
 
 interface Scent {
@@ -57,6 +67,7 @@ function CustomOrderContent() {
   const [shippingCost, setShippingCost] = useState(10); // Default
   const [loadingShipping, setLoadingShipping] = useState(false);
   const [paymentOption, setPaymentOption] = useState<'card' | 'affirm'>('card');
+  const [selectedVariants, setSelectedVariants] = useState<Record<string, VesselImage | null>>({});
   
   // Customer info
   const [customerInfo, setCustomerInfo] = useState({
@@ -88,7 +99,7 @@ function CustomOrderContent() {
         const [vesselsResult, scentsResult] = await Promise.all([
           supabase
             .from('candle_vessels')
-            .select('*')
+            .select('*, vessel_images(id, image_url, color_variant, is_primary, display_order, is_available)')
             .eq('is_available', true)
             .or('allow_custom_candle.eq.true,allow_empty_vessel.eq.true')
             .order('name'),
@@ -105,8 +116,17 @@ function CustomOrderContent() {
         console.log('Loaded vessels:', vesselsResult.data);
         console.log('Loaded scents:', scentsResult.data);
 
-        setVessels(vesselsResult.data || []);
+        const vesselList = (vesselsResult.data || []) as Vessel[];
+        setVessels(vesselList);
         setScents(scentsResult.data || []);
+
+        // Pre-select primary (or first available) variant for each vessel
+        const defaults: Record<string, VesselImage | null> = {};
+        vesselList.forEach((v) => {
+          const imgs = v.vessel_images?.filter((i) => i.is_available) ?? [];
+          defaults[v.id] = imgs.find((i) => i.is_primary) ?? imgs[0] ?? null;
+        });
+        setSelectedVariants(defaults);
 
         // Auto-select vessel if ID is in URL
         if (vesselIdFromUrl && vesselsResult.data) {
@@ -469,7 +489,7 @@ function CustomOrderContent() {
                         {/* Image */}
                         <div className="aspect-square bg-gray-50 overflow-hidden">
                           <img
-                            src={vessel.image_url}
+                            src={selectedVariants[vessel.id]?.image_url ?? vessel.image_url}
                             alt={vessel.name}
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                             onError={(e) => {
@@ -478,6 +498,39 @@ function CustomOrderContent() {
                             }}
                           />
                         </div>
+
+                        {/* Color / Variant pills */}
+                        {(vessel.vessel_images?.filter((i) => i.is_available) ?? []).length > 1 && (
+                          <div className="px-3 pt-2 flex flex-wrap gap-1.5">
+                            {vessel.vessel_images!.filter((i) => i.is_available).map((img) => {
+                              const isSelected = selectedVariants[vessel.id]?.id === img.id;
+                              return (
+                                <button
+                                  key={img.id}
+                                  type="button"
+                                  title={img.color_variant}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setSelectedVariants((prev) => ({ ...prev, [vessel.id]: img }));
+                                  }}
+                                  className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-xs border transition-all ${
+                                    isSelected
+                                      ? 'border-orange-500 bg-orange-50 text-orange-700 font-semibold'
+                                      : 'border-gray-200 bg-white text-gray-600 hover:border-orange-300'
+                                  }`}
+                                >
+                                  <img
+                                    src={img.image_url}
+                                    alt={img.color_variant}
+                                    className="w-4 h-4 rounded-full object-cover"
+                                  />
+                                  {img.color_variant}
+                                  {isSelected && <Check className="w-3 h-3" />}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        )}
 
                         {/* Content */}
                         <div className="p-4">
