@@ -51,6 +51,7 @@ interface CartItem {
   vessel: Vessel;
   scent: Scent | null; // null for empty vessels
   isEmptyVessel?: boolean;
+  selectedVariant?: VesselImage | null;
 }
 
 function CustomOrderContent() {
@@ -136,16 +137,11 @@ function CustomOrderContent() {
             const isEmptyVesselOnly = preSelectedVessel.allow_empty_vessel && !preSelectedVessel.allow_custom_candle;
             
             if (isEmptyVesselOnly) {
-              // Empty vessel only - add directly to cart and go to checkout
-              setCart([{ 
-                vessel: preSelectedVessel, 
-                scent: null,
-                isEmptyVessel: true 
-              }]);
-              setStep(3); // Go to checkout
+              // Stay on step 1 so the user can pick a color variant first
+              setSelectedVessel(preSelectedVessel);
               toast({
-                title: 'Empty Vessel Added!',
-                description: `${preSelectedVessel.name} added to cart. Ready to checkout.`,
+                title: 'Vessel Pre-selected!',
+                description: `${preSelectedVessel.name} selected. Pick a color variant then add to cart.`,
               });
             } else {
               // Customizable vessel - go to scent selection
@@ -592,15 +588,19 @@ function CustomOrderContent() {
                       if (selectedVessel) {
                         // If vessel is empty-only (no custom candle option), add directly to cart
                         if (selectedVessel.allow_empty_vessel && !selectedVessel.allow_custom_candle) {
+                          const chosenVariant = selectedVariants[selectedVessel.id] ?? null;
                           setCart([...cart, { 
                             vessel: selectedVessel, 
                             scent: null,
-                            isEmptyVessel: true 
+                            isEmptyVessel: true,
+                            selectedVariant: chosenVariant,
                           }]);
                           setSelectedVessel(null);
                           toast({
                             title: 'Added to Cart',
-                            description: 'Empty vessel added to cart!'
+                            description: chosenVariant
+                              ? `${selectedVessel.name} — ${chosenVariant.color_variant} added!`
+                              : 'Empty vessel added to cart!'
                           });
                         } else {
                           // Go to step 2 (will show choice if both options available)
@@ -990,15 +990,24 @@ function CustomOrderContent() {
                         className="border rounded-lg p-3 space-y-2"
                       >
                         <div className="flex justify-between items-start">
-                          <div className="flex-1">
-                            <p className="font-medium text-sm">
-                              {item.vessel.name}
-                            </p>
-                            <p className="text-xs text-muted-foreground">
-                              {item.scent ? item.scent.name : (
-                                <span className="text-green-600 font-medium">Empty Vessel (No Scent)</span>
-                              )}
-                            </p>
+                          <div className="flex items-center gap-2 flex-1 min-w-0">
+                            <img
+                              src={item.selectedVariant?.image_url ?? item.vessel.image_url}
+                              alt={item.vessel.name}
+                              className="w-10 h-10 rounded object-cover flex-shrink-0"
+                            />
+                            <div className="min-w-0">
+                              <p className="font-medium text-sm truncate">
+                                {item.vessel.name}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                {item.selectedVariant?.color_variant
+                                  ? <span className="text-orange-600 font-medium">{item.selectedVariant.color_variant}</span>
+                                  : item.scent ? item.scent.name : (
+                                    <span className="text-green-600 font-medium">Empty Vessel</span>
+                                  )}
+                              </p>
+                            </div>
                           </div>
                           <Button
                             variant="ghost"
