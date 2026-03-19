@@ -20,6 +20,7 @@ function CheckoutContent() {
   const [shippingCost, setShippingCost] = useState(8.99); // Default fallback
   const [loadingShipping, setLoadingShipping] = useState(false);
   const [shippingService, setShippingService] = useState('Standard Shipping');
+  const [acknowledged, setAcknowledged] = useState(false);
   
   const productName = searchParams.get('product') || '';
   const sku = searchParams.get('sku') || '';
@@ -329,6 +330,34 @@ function CheckoutContent() {
                     required={true}
                   />
 
+                  {/* Acknowledgment Checkbox */}
+                  <div className={`p-4 rounded-lg border ${
+                    acknowledged
+                      ? 'border-green-300 bg-green-50 dark:bg-green-900/20 dark:border-green-800'
+                      : 'border-amber-300 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-800'
+                  }`}>
+                    <label className="flex items-start gap-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={acknowledged}
+                        onChange={(e) => setAcknowledged(e.target.checked)}
+                        className="mt-1 w-4 h-4 rounded border-gray-300 accent-amber-600 cursor-pointer"
+                      />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">
+                        I understand that: <strong>(1)</strong> candle colors, patterns, and finishes may
+                        vary slightly from product images due to the handcrafted nature, dye lots, and
+                        screen calibration &mdash; this is part of ordering a handmade product; and{' '}
+                        <strong>(2)</strong> my candle requires a curing period after pouring for optimal
+                        scent throw and performance. I accept these conditions.
+                      </span>
+                    </label>
+                    {!acknowledged && (
+                      <p className="text-xs text-amber-700 dark:text-amber-400 mt-2 ml-7">
+                        Please acknowledge before proceeding.
+                      </p>
+                    )}
+                  </div>
+
                   {error && (
                     <div className="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-3 rounded-lg text-sm">
                       {error}
@@ -339,7 +368,7 @@ function CheckoutContent() {
                     type="submit"
                     className="w-full bg-amber-600 hover:bg-amber-700 text-white"
                     size="lg"
-                    disabled={loading}
+                    disabled={loading || !acknowledged}
                   >
                     {loading ? (
                       <>Processing...</>

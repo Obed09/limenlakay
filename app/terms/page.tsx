@@ -117,10 +117,68 @@ export default function TermsAndConditions() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-4">9. Intellectual Property</h2>
+            <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-4">9. Intellectual Property &amp; Copyright</h2>
+
+            <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-3">9.1 Copyright &amp; Intellectual Property</h3>
+            <p className="mb-3">
+              All content on LimenLakay.com, including but not limited to the following, is the exclusive property of
+              Limen Lakay LLC and is protected by United States and international copyright laws:
+            </p>
+            <ul className="list-disc pl-6 space-y-2 mb-4">
+              <li>Product photographs</li>
+              <li>Candle designs</li>
+              <li>Vessel designs</li>
+              <li>Brand logos and trademarks</li>
+              <li>Marketing materials</li>
+              <li>Product descriptions</li>
+              <li>Videos and graphics</li>
+            </ul>
+
+            <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-3">9.2 Prohibited Uses</h3>
+            <p className="mb-3">You may <strong>not</strong>:</p>
+            <ul className="list-disc pl-6 space-y-2 mb-4">
+              <li>Download, copy, or reproduce our images for any purpose</li>
+              <li>Use our content on social media without written permission</li>
+              <li>Claim our designs or images as your own</li>
+              <li>Use our content for commercial purposes</li>
+              <li>Modify, crop, or edit our images</li>
+              <li>Remove any watermarks or copyright notices from our content</li>
+            </ul>
+
+            <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-3">9.3 Authorized Use</h3>
+            <p className="mb-3">You <strong>may</strong>:</p>
+            <ul className="list-disc pl-6 space-y-2 mb-4">
+              <li>Share posts directly from our official social media accounts with full credit attributed to Limen Lakay</li>
+              <li>Link to our website with proper attribution</li>
+              <li>Use our content for press or media purposes with prior written permission</li>
+            </ul>
+
+            <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-3">9.4 DMCA Violations</h3>
+            <p className="mb-3">Unauthorized use of our intellectual property will result in:</p>
+            <ol className="list-decimal pl-6 space-y-2 mb-4">
+              <li>A formal DMCA takedown notice</li>
+              <li>A demand for removal within 24 hours</li>
+              <li>Legal action for copyright infringement</li>
+              <li>Reporting to applicable platforms and authorities</li>
+            </ol>
+
+            <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-3">9.5 How to Request Permission</h3>
+            <p className="mb-2">
+              To request permission to use our content, email{' '}
+              <a href="mailto:info@limenlakay.com" className="text-amber-600 dark:text-amber-400 hover:underline">info@limenlakay.com</a>{' '}
+              with the subject line <strong>&quot;Image Use Permission Request&quot;</strong> and include:
+            </p>
+            <ul className="list-disc pl-6 space-y-2 mb-4">
+              <li>Your name and business</li>
+              <li>Intended use of the content</li>
+              <li>Platform or medium where it will be used</li>
+              <li>Requested duration of use</li>
+            </ul>
+
+            <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-3">9.6 Reporting Infringement</h3>
             <p>
-              All content on this website, including designs, logos, text, and images, is the property of 
-              Limen Lakay LLC and protected by copyright and trademark laws. Unauthorized use is prohibited.
+              If you believe our intellectual property has been infringed, please report it by emailing{' '}
+              <a href="mailto:info@limenlakay.com" className="text-amber-600 dark:text-amber-400 hover:underline">info@limenlakay.com</a>.
             </p>
           </section>
 
@@ -163,7 +221,7 @@ export default function TermsAndConditions() {
           </section>
 
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-12 pt-6 border-t">
-            Last Updated: November 18, 2025
+            Last Updated: March 19, 2026
           </p>
         </div>
       </div>
