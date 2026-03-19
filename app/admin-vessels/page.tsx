@@ -286,11 +286,25 @@ export default function AdminVesselsPage() {
 
   const loadVesselImages = async (vesselId: string) => {
     try {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('vessel_images')
         .select('*')
         .eq('vessel_id', vesselId)
         .order('display_order');
+
+      if (error) {
+        console.error('vessel_images load error:', error);
+        // Table missing or RLS error – fall back to single-image slot
+        const vessel = vessels.find(v => v.id === vesselId);
+        setVesselImages([{
+          image_url: vessel?.image_url || '',
+          color_variant: vessel?.color || 'Default',
+          is_primary: true,
+          display_order: 0,
+          is_available: true
+        }]);
+        return;
+      }
 
       if (data && data.length > 0) {
         setVesselImages(data);
@@ -603,8 +617,9 @@ export default function AdminVesselsPage() {
         // Sync image variants
         const imagesToSave = vesselImages.filter(img => img.image_url);
         if (imagesToSave.length > 0) {
-          await supabase.from('vessel_images').delete().eq('vessel_id', editingVessel.id);
-          await supabase.from('vessel_images').insert(
+          const { error: delErr } = await supabase.from('vessel_images').delete().eq('vessel_id', editingVessel.id);
+          if (delErr) { console.error('vessel_images delete error:', delErr); throw delErr; }
+          const { error: insErr } = await supabase.from('vessel_images').insert(
             imagesToSave.map((img, i) => ({
               vessel_id: editingVessel.id,
               image_url: img.image_url,
@@ -614,9 +629,10 @@ export default function AdminVesselsPage() {
               is_available: img.is_available
             }))
           );
+          if (insErr) { console.error('vessel_images insert error:', insErr); throw insErr; }
         }
         
-        toast({ title: 'Success', description: 'Vessel updated' });
+        toast({ title: 'Success', description: `Vessel updated with ${imagesToSave.length} image variant(s)` });
       } else {
         const { data: insertedData, error } = await supabase
           .from('candle_vessels')
@@ -629,7 +645,7 @@ export default function AdminVesselsPage() {
         const newVesselId = (insertedData as { id: string }[] | null)?.[0]?.id;
         const imagesToSave = vesselImages.filter(img => img.image_url);
         if (newVesselId && imagesToSave.length > 0) {
-          await supabase.from('vessel_images').insert(
+          const { error: insErr } = await supabase.from('vessel_images').insert(
             imagesToSave.map((img, i) => ({
               vessel_id: newVesselId,
               image_url: img.image_url,
@@ -639,6 +655,7 @@ export default function AdminVesselsPage() {
               is_available: img.is_available
             }))
           );
+          if (insErr) { console.error('vessel_images insert error (new):', insErr); throw insErr; }
         }
         
         toast({ title: 'Success', description: `Vessel created with SKU: ${finalData.sku}` });
